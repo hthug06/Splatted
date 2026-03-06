@@ -1,6 +1,5 @@
 # Splatted 🦑
-Splatted is a lightweight command-line utility written in Rust for interacting with Minecraft servers. It focuses on low-level packet handling and asynchronous communication to query server metadata.
-
+Splatted is a lightweight command-line utility written in Rust for interacting with Minecraft servers. It focuses on low-level packet handling and asynchronous communication to stress test the server by sending lots of connections
 ## How to use it 
 First of all, make sure you have [Rust and Cargo](https://rustup.rs/) installed on your system.
 
@@ -15,7 +14,7 @@ cargo build --release
 Go in the folder where your Splatted program is, open a terminal and use the following command:
 
 ```bash
-./Splastted --adress <adress> [-p <port> | -i]
+./Splatted --adress <adress> [-p <port> | -i]
 ```
 -i is for the info of the server (like in the server list of your minecraft client)
 
