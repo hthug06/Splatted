@@ -1,5 +1,5 @@
-/// Read a String UTF16 from an u8 buffer 
-/// Used with the KickPacket or to know the server infos 
+/// Read a String UTF16 from an u8 buffer
+/// Used with the KickPacket or to know the server infos
 pub(crate) fn read_utf16_from_buffer(buffer: &[u8]) -> String {
     let mut utf16buffer: Vec<u16> = vec![];
     let mut elt1: Option<u8> = None;

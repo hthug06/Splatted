@@ -1,13 +1,13 @@
+mod errors;
+mod packets;
 mod server_info;
 mod utils;
-mod errors;
 
+use crate::server_info::TCPServerInfo;
 use clap::Parser;
 use log::{LevelFilter, info};
 use simplelog::{ColorChoice, Config, TermLogger, TerminalMode};
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
-use tokio::net::TcpStream;
-use crate::server_info::ServerInfo;
+use std::io::Error;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -27,7 +27,7 @@ pub struct Args {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Error> {
     // Start log
     TermLogger::init(
         LevelFilter::Info,
@@ -37,7 +37,7 @@ async fn main() {
     )
     .unwrap();
 
-    info!("starting splatted");
+    info!("Starting Splatted");
 
     // Get all the program arguments
     let args: Args = Args::parse();
@@ -46,12 +46,14 @@ async fn main() {
     let address: String = format!("{}:{}", args.address, args.port);
 
     if args.info {
-       ServerInfo::infos()
+        TCPServerInfo::infos(&address).await.expect("Cannot ");
     } else {
         unimplemented!("For now, only the info mode can be used")
     }
 
     // Wait for a ctrl + C to finish, so the user can read info about the server for example
-    tokio::signal::ctrl_c().await.unwrap();
+    tokio::signal::ctrl_c().await?;
     info!("Bye-bye !");
+
+    Ok(())
 }
