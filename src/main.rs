@@ -3,7 +3,7 @@ mod packets;
 mod server_info;
 mod utils;
 
-use crate::server_info::TCPServerInfo;
+use crate::server_info::ServerInfo;
 use clap::Parser;
 use log::{LevelFilter, info};
 use simplelog::{ColorChoice, Config, TermLogger, TerminalMode};
@@ -46,7 +46,7 @@ async fn main() -> Result<(), Error> {
     let address: String = format!("{}:{}", args.address, args.port);
 
     if args.info {
-        TCPServerInfo::infos(&address).await.expect("Cannot ");
+        ServerInfo::infos(&address).await.expect("Cannot ");
     } else {
         unimplemented!("For now, only the info mode can be used")
     }

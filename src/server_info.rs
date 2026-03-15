@@ -7,9 +7,9 @@ use std::io::Error;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 
-pub struct TCPServerInfo;
+pub struct ServerInfo;
 
-impl TCPServerInfo {
+impl ServerInfo {
     pub async fn infos(address: &String) -> Result<(), Error> {
         // Connect to the server
         let mut stream: TcpStream = TcpStream::connect(address).await?;
