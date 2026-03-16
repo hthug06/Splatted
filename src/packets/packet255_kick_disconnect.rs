@@ -16,9 +16,9 @@ impl KickDisconnect {
 
 impl ServerPacket for KickDisconnect {
     /// Create the KickDisconnect packet from the entire buffer
-    fn read(buffer: &[u8]) -> Result<KickDisconnect, std::io::Error> {
+    fn read(cursor: &mut Cursor<&[u8]>) -> Result<KickDisconnect, std::io::Error> {
         Ok(Self {
-            reason: utils::read_string(&mut Cursor::new(&buffer[1..]))?,
+            reason: utils::read_string(cursor)?,
         })
     }
 }

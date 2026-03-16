@@ -3,7 +3,7 @@ use crate::packets::ClientPacket;
 use crate::packets::ServerPacket;
 use crate::packets::packet254_server_ping::ServerPing;
 use crate::packets::packet255_kick_disconnect::KickDisconnect;
-use std::io::Error;
+use std::io::{Cursor, Error};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 
@@ -35,7 +35,7 @@ impl ServerInfo {
 
             // Check if the right packet is received
             let kick_disconnect_packet = match received_data[0] {
-                255 => Ok(KickDisconnect::read(received_data)),
+                255 => Ok(KickDisconnect::read(&mut Cursor::new(&received_data[1..]))),
                 _ => Err(format!(
                     "{}",
                     WrongPacketError {

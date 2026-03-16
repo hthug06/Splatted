@@ -41,7 +41,12 @@ pub(crate) fn read_string(cursor: &mut Cursor<&[u8]>) -> Result<String> {
         .map(|chunk| u16::from_be_bytes([chunk[0], chunk[1]]))
         .collect();
 
-    String::from_utf16(&u16_chars).map_err(|e| Error::new(ErrorKind::InvalidData, e))
+    String::from_utf16(&u16_chars).map_err(|e| {
+        Error::new(
+            ErrorKind::InvalidData,
+            format!("error on read_string: {:?}", e),
+        )
+    })
 }
 
 /// Reads a Minecraft byte array (prefixed with u16 length, then the bytes)
