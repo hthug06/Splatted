@@ -29,12 +29,12 @@ impl Client {
         let host: String = parts[0].to_string();
         let port: u32 = parts.get(1).unwrap_or(&"25565").parse::<u32>().unwrap();
 
-        let handshake = ClientProtocol::new(51, &self.username, host, port);
-        writer.write_all(handshake.write().as_slice()).await?;
-        writer.flush().await?;
-
         // Init writer
         self.writer = Some(writer);
+
+        //After this, we can send the first packet
+        let handshake = ClientProtocol::new(51, &self.username, host, port);
+        self.send_packet(handshake).await?;
 
         //Create a buffer
         // in this version, we can't know before the size of the buffer
@@ -67,14 +67,21 @@ impl Client {
         Ok(())
     }
 
-    /// Send a packet instantly
+    /// Send a packet to the network instantly
     pub async fn send_packet(&mut self, packet: impl ClientPacket) -> std::io::Result<()> {
+        let mut buffer = Vec::new();
+
+        packet
+            .write_to(&mut buffer)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+
         if let Some(writer) = &mut self.writer {
-            writer.write_all(packet.write().as_slice()).await?;
+            writer.write_all(&buffer).await?;
             writer.flush().await?;
         } else {
             log::error!("Trying to send a packet without being connected");
         }
+
         Ok(())
     }
 }

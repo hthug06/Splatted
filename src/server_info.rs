@@ -15,7 +15,9 @@ impl ServerInfo {
         let mut stream: TcpStream = TcpStream::connect(address).await?;
 
         // Send first packet
-        stream.write_all(&ServerPing::default().write()).await?;
+        let mut buffer: Vec<u8> = vec![];
+        ServerPing::default().write_to(&mut buffer)?;
+        stream.write_all(buffer.as_slice()).await?;
 
         //Create a buffer
         // in this version, we can't know before the size of the buffer
@@ -45,7 +47,7 @@ impl ServerInfo {
             .unwrap();
 
             // Print all the infos
-            log::info!("{}", kick_disconnect_packet.format_server_infos());
+            log::info!("{}", kick_disconnect_packet?.format_server_infos());
 
             // After receiving the serverListPacket, the connection close and we stop listening to packet
             stream.shutdown().await?;
