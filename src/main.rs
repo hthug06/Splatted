@@ -1,8 +1,10 @@
+mod client;
 mod errors;
 mod packets;
 mod server_info;
 mod utils;
 
+use crate::client::Client;
 use crate::server_info::ServerInfo;
 use clap::Parser;
 use log::{LevelFilter, info};
@@ -48,7 +50,7 @@ async fn main() -> Result<(), Error> {
     if args.info {
         ServerInfo::infos(&address).await.expect("Cannot ");
     } else {
-        unimplemented!("For now, only the info mode can be used")
+        Client::new("player1").connect(address.as_str()).await?;
     }
 
     // Wait for a ctrl + C to finish, so the user can read info about the server for example
