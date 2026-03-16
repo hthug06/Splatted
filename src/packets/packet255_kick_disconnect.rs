@@ -1,6 +1,7 @@
 use crate::packets::ServerPacket;
 use crate::utils;
 use std::fmt::{Display, Formatter};
+use std::io::Cursor;
 
 pub struct KickDisconnect {
     reason: String,
@@ -15,10 +16,10 @@ impl KickDisconnect {
 
 impl ServerPacket for KickDisconnect {
     /// Create the KickDisconnect packet from the entire buffer
-    fn read(buffer: &[u8]) -> Self {
-        Self {
-            reason: utils::read_utf16_from_buffer(&buffer[1..]),
-        }
+    fn read(cursor: &mut Cursor<&[u8]>) -> Result<KickDisconnect, std::io::Error> {
+        Ok(Self {
+            reason: utils::read_string(cursor)?,
+        })
     }
 }
 

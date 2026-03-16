@@ -1,5 +1,6 @@
 use crate::packets::ClientPacket;
 use crate::utils::write_string;
+use std::io::Error;
 
 pub struct ClientProtocol {
     /// This might change if we try to support more version ( > 1.10.2 is u16)
@@ -24,26 +25,27 @@ impl ClientProtocol {
         }
     }
 
-    fn create_payload(&self) -> Vec<u8> {
+    fn create_payload(&self) -> Result<Vec<u8>, Error> {
         let mut buffer: Vec<u8> = vec![];
         buffer.push(self.protocol_version);
-        write_string(&mut buffer, &self.username).unwrap();
-        write_string(&mut buffer, &self.server_hostname).unwrap();
+        write_string(&mut buffer, &self.username)?;
+        write_string(&mut buffer, &self.server_hostname)?;
         buffer.extend(self.server_port.to_be_bytes());
-        buffer
+        Ok(buffer)
     }
 }
 
 impl ClientPacket for ClientProtocol {
-    fn write(&self) -> Vec<u8> {
-        //Create the buffer
-        let mut buffer: Vec<u8> = Vec::new();
-
+    fn write_to(&self, buffer: &mut Vec<u8>) -> Result<(), Error> {
         //DON'T FORGET TO ADD THE PACKET ID
         buffer.push(0x02);
 
         // Add all the infos
-        buffer.extend_from_slice(self.create_payload().as_slice());
-        buffer
+        buffer.push(self.protocol_version);
+        write_string(buffer, &self.username)?;
+        write_string(buffer, &self.server_hostname)?;
+        buffer.extend(self.server_port.to_be_bytes());
+
+        Ok(())
     }
 }

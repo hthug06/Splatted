@@ -3,7 +3,7 @@ use crate::packets::ClientPacket;
 use crate::packets::ServerPacket;
 use crate::packets::packet254_server_ping::ServerPing;
 use crate::packets::packet255_kick_disconnect::KickDisconnect;
-use std::io::Error;
+use std::io::{Cursor, Error};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 
@@ -15,7 +15,9 @@ impl ServerInfo {
         let mut stream: TcpStream = TcpStream::connect(address).await?;
 
         // Send first packet
-        stream.write_all(&ServerPing::default().write()).await?;
+        let mut buffer: Vec<u8> = vec![];
+        ServerPing::default().write_to(&mut buffer)?;
+        stream.write_all(buffer.as_slice()).await?;
 
         //Create a buffer
         // in this version, we can't know before the size of the buffer
@@ -33,7 +35,7 @@ impl ServerInfo {
 
             // Check if the right packet is received
             let kick_disconnect_packet = match received_data[0] {
-                255 => Ok(KickDisconnect::read(received_data)),
+                255 => Ok(KickDisconnect::read(&mut Cursor::new(&received_data[1..]))),
                 _ => Err(format!(
                     "{}",
                     WrongPacketError {
@@ -45,7 +47,7 @@ impl ServerInfo {
             .unwrap();
 
             // Print all the infos
-            log::info!("{}", kick_disconnect_packet.format_server_infos());
+            log::info!("{}", kick_disconnect_packet?.format_server_infos());
 
             // After receiving the serverListPacket, the connection close and we stop listening to packet
             stream.shutdown().await?;
