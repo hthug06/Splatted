@@ -8,3 +8,4 @@ clap = { version = "4.5.51", features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
 log = "0.4.29"
 simplelog = "0.12.2"
+rsa = "0.9.10"
