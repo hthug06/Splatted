@@ -15,7 +15,7 @@ impl ServerInfo {
         let mut stream: TcpStream = TcpStream::connect(address).await?;
 
         // Send first packet
-        stream.write_all(&ServerPing::write()).await?;
+        stream.write_all(&ServerPing::default().write()).await?;
 
         //Create a buffer
         // in this version, we can't know before the size of the buffer
