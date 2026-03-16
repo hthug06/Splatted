@@ -1,8 +1,8 @@
 use crate::packets::ServerPacket;
 use crate::utils::{read_byte_array, read_string};
-use std::io::Cursor;
 use rsa::RsaPublicKey;
 use rsa::pkcs8::DecodePublicKey;
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct ServerAuthData {
@@ -11,9 +11,7 @@ pub struct ServerAuthData {
     pub verify_token: Vec<u8>,
 }
 
-impl ServerAuthData {
-
-}
+impl ServerAuthData {}
 
 impl ServerPacket for ServerAuthData {
     fn read(cursor: &mut Cursor<&[u8]>) -> Result<ServerAuthData, std::io::Error> {
@@ -24,7 +22,9 @@ impl ServerPacket for ServerAuthData {
         // this.publicKey = CryptManager.decodePublicKey(readBytesFromStream(par1DataInputStream));
         let public_key = match decode_public_key(read_byte_array(cursor)?.as_slice()) {
             Ok(public_key) => public_key,
-            Err(e) => {panic!("Server public key decode error: {}", e)}
+            Err(e) => {
+                panic!("Server public key decode error: {}", e)
+            }
         };
 
         // this.verifyToken = readBytesFromStream(par1DataInputStream);
@@ -38,7 +38,9 @@ impl ServerPacket for ServerAuthData {
     }
 }
 
-pub(self) fn decode_public_key(public_key_bytes: &[u8]) -> Result<RsaPublicKey, rsa::pkcs8::spki::Error> {
+pub(self) fn decode_public_key(
+    public_key_bytes: &[u8],
+) -> Result<RsaPublicKey, rsa::pkcs8::spki::Error> {
     // like in java:
     // X509EncodedKeySpec var1 = new X509EncodedKeySpec(par0ArrayOfByte);
     // KeyFactory var2 = KeyFactory.getInstance("RSA");

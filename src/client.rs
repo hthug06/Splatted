@@ -96,7 +96,6 @@ impl Client {
 
         log::info!("Received server auth data: {:?}", packet);
 
-
         // Java handle differently with the server id:
         /*
         if (!"-".equals(var2))
