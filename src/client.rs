@@ -1,5 +1,8 @@
 use crate::packets::ClientPacket;
+use crate::packets::ServerPacket;
 use crate::packets::packet2_client_protocol::ClientProtocol;
+use crate::packets::packet253_server_auth_data::ServerAuthData;
+use std::io::Cursor;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 use tokio::net::tcp::OwnedWriteHalf;
@@ -23,7 +26,7 @@ impl Client {
         let stream = TcpStream::connect(address).await?;
         stream.set_nodelay(true)?;
 
-        let (mut reader, mut writer) = stream.into_split();
+        let (mut reader, writer) = stream.into_split();
 
         let parts: Vec<&str> = address.split(':').collect();
         let host: String = parts[0].to_string();
@@ -58,7 +61,7 @@ impl Client {
             match received_data[0] {
                 253 => {
                     log::info!("AuthData (0xFD) received");
-                    log::info!("received data: {:?}", received_data);
+                    self.handle_server_auth_data(&received_data[1..]).await?;
                 }
                 id => log::warn!("Packet {} unknown", id),
             };
@@ -81,6 +84,39 @@ impl Client {
         } else {
             log::error!("Trying to send a packet without being connected");
         }
+
+        Ok(())
+    }
+
+    pub async fn handle_server_auth_data(&self, data: &[u8]) -> std::io::Result<()> {
+        let packet = match ServerAuthData::read(&mut Cursor::new(data)) {
+            Ok(packet) => packet,
+            Err(e) => panic!("Failed to read server auth data packet: {}", e),
+        };
+
+        log::info!("Received server auth data: {:?}", packet);
+
+
+        // Java handle differently with the server id:
+        /*
+        if (!"-".equals(var2))
+        {
+            String var5 = (new BigInteger(CryptManager.getServerIdHash(var2, var3, var4))).toString(16);
+            String var6 = this.sendSessionRequest(this.mc.session.username, this.mc.session.sessionId, var5);
+
+            if (!"ok".equalsIgnoreCase(var6))
+            {
+                this.netManager.networkShutdown("disconnect.loginFailedInfo", new Object[] {var6});
+                return;
+            }
+        }
+         */
+        // TODO handle other server ids
+        if packet.server_id != "-".to_string() {
+            panic!("Received server auth data packet with wrong server id");
+        }
+
+        //TODO send packet252
 
         Ok(())
     }
