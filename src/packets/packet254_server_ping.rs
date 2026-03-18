@@ -1,6 +1,5 @@
 use crate::packets::ClientPacket;
 use std::io::Error;
-#[derive(Default)]
 pub struct ServerPing;
 
 impl ClientPacket for ServerPing {

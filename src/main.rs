@@ -2,8 +2,6 @@ mod client;
 mod errors;
 mod packets;
 mod server_info;
-mod utils;
-
 use crate::client::Client;
 use crate::server_info::ServerInfo;
 use clap::Parser;
