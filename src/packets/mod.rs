@@ -1,5 +1,6 @@
 use std::io::{Cursor, Error};
 
+pub mod packet252_shared_key;
 pub mod packet253_server_auth_data;
 pub mod packet254_server_ping;
 pub mod packet255_kick_disconnect;

@@ -11,8 +11,6 @@ pub struct ServerAuthData {
     pub verify_token: Vec<u8>,
 }
 
-impl ServerAuthData {}
-
 impl ServerPacket for ServerAuthData {
     fn read(cursor: &mut Cursor<&[u8]>) -> Result<ServerAuthData, std::io::Error> {
         // Everything is the same as java:

@@ -9,3 +9,7 @@ tokio = { version = "1", features = ["full"] }
 log = "0.4.29"
 simplelog = "0.12.2"
 rsa = "0.9.10"
+rand = "0.8.5"# TODO understand how to use random with RSA in version 0.10.0 of random
+aes = "0.8.4"
+cfb8 = "0.8.1"
+cipher = "0.4.4"  # TODO understand how to use the latest version with the trait changements
