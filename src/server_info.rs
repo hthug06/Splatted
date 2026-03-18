@@ -16,7 +16,7 @@ impl ServerInfo {
 
         // Send first packet
         let mut buffer: Vec<u8> = vec![];
-        ServerPing::default().write_to(&mut buffer)?;
+        ServerPing.write_to(&mut buffer)?;
         stream.write_all(buffer.as_slice()).await?;
 
         //Create a buffer
@@ -27,34 +27,32 @@ impl ServerInfo {
         let mut buffer: [u8; 1024] = [0; 1024];
 
         // Listen for packet
-        loop {
-            let bytes_read = stream.read(&mut buffer).await?;
-            // We only can get the server infos here
-            // But if we get another packet, we throw an error
-            let received_data: &[u8] = &buffer[..bytes_read];
+        let bytes_read = stream.read(&mut buffer).await?;
+        // We only can get the server infos here
+        // But if we get another packet, we throw an error
+        let received_data: &[u8] = &buffer[..bytes_read];
 
-            // Check if the right packet is received
-            let kick_disconnect_packet = match received_data[0] {
-                255 => Ok(KickDisconnect::read(&mut Cursor::new(&received_data[1..]))),
-                _ => Err(format!(
-                    "{}",
-                    WrongPacketError {
-                        attended: 255,
-                        received: received_data[0]
-                    }
-                )),
-            }
-            .unwrap();
-
-            // Print all the infos
-            log::info!("{}", kick_disconnect_packet?.format_server_infos());
-
-            // After receiving the serverListPacket, the connection close and we stop listening to packet
-            stream.shutdown().await?;
-            log::info!("Connection closed.");
-            break;
+        // Check if the right packet is received
+        let kick_disconnect_packet = match received_data[0] {
+            255 => Ok(KickDisconnect::read(&mut Cursor::new(&received_data[1..]))),
+            _ => Err(format!(
+                "{}",
+                WrongPacketError {
+                    attended: 255,
+                    received: received_data[0]
+                }
+            )),
         }
+        .unwrap();
 
+        // Print all the infos
+        log::info!("{}", kick_disconnect_packet?.format_server_infos());
+
+        // After receiving the serverListPacket, the connection close, and we stop listening to packet
+        // We also drop the stream to really end the connection (and avoid erreur on the server console)
+        stream.shutdown().await?;
+        drop(stream);
+        log::info!("Connection closed.");
         Ok(())
     }
 }

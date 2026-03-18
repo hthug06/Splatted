@@ -1,5 +1,4 @@
-use crate::packets::ServerPacket;
-use crate::utils;
+use crate::packets::{ServerPacket, read_string};
 use std::fmt::{Display, Formatter};
 use std::io::Cursor;
 
@@ -18,7 +17,7 @@ impl ServerPacket for KickDisconnect {
     /// Create the KickDisconnect packet from the entire buffer
     fn read(cursor: &mut Cursor<&[u8]>) -> Result<KickDisconnect, std::io::Error> {
         Ok(Self {
-            reason: utils::read_string(cursor)?,
+            reason: read_string(cursor)?,
         })
     }
 }

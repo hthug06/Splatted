@@ -1,5 +1,5 @@
 use crate::packets::ServerPacket;
-use crate::utils::{read_byte_array, read_string};
+use crate::packets::{read_byte_array, read_string};
 use rsa::RsaPublicKey;
 use rsa::pkcs8::DecodePublicKey;
 use std::io::Cursor;
@@ -36,9 +36,7 @@ impl ServerPacket for ServerAuthData {
     }
 }
 
-pub(self) fn decode_public_key(
-    public_key_bytes: &[u8],
-) -> Result<RsaPublicKey, rsa::pkcs8::spki::Error> {
+fn decode_public_key(public_key_bytes: &[u8]) -> Result<RsaPublicKey, rsa::pkcs8::spki::Error> {
     // like in java:
     // X509EncodedKeySpec var1 = new X509EncodedKeySpec(par0ArrayOfByte);
     // KeyFactory var2 = KeyFactory.getInstance("RSA");

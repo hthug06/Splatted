@@ -1,4 +1,4 @@
-use crate::packets::{ClientPacket, ServerPacket};
+use crate::packets::{ClientPacket, ServerPacket, write_byte_array};
 use rand::RngCore;
 use rsa::{Pkcs1v15Encrypt, RsaPublicKey};
 use std::io::{Cursor, Error, Read};
@@ -45,16 +45,15 @@ impl SharedKeyPacket {
 
 impl ClientPacket for SharedKeyPacket {
     fn write_to(&self, buffer: &mut Vec<u8>) -> Result<(), Error> {
-        buffer.push(0xFC); // ID 252
+        // Shared Key packet ID is 252
+        buffer.push(252);
 
-        //NO
-        // Écriture du secret (Taille u16 + Données)
-        buffer.extend((self.shared_secret.len() as u16).to_be_bytes());
-        buffer.extend(&self.shared_secret);
+        // NO
+        // write shared_secret
+        write_byte_array(buffer, &self.shared_secret);
 
-        // Écriture du token (Taille u16 + Données)
-        buffer.extend((self.verify_token.len() as u16).to_be_bytes());
-        buffer.extend(&self.verify_token);
+        // write verify_token
+        write_byte_array(buffer, &self.verify_token);
 
         Ok(())
     }

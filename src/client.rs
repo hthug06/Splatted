@@ -6,7 +6,6 @@ use crate::packets::packet253_server_auth_data::ServerAuthData;
 use aes::Aes128;
 use cfb8::{Decryptor, Encryptor};
 use cipher::{AsyncStreamCipher, Key, KeyIvInit}; // Traits nécessaires pour utiliser CFB8
-use rsa::{Pkcs1v15Encrypt, RsaPublicKey};
 use std::io::Cursor;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
@@ -67,6 +66,8 @@ impl Client {
                 continue;
             }
 
+            log::info!("a");
+
             let received_data: &mut [u8] = &mut buffer[..bytes_read];
             let packet_id: u8 = received_data[0];
 
@@ -80,6 +81,10 @@ impl Client {
             log::info!("Received data (decrypted or not): {:?}", received_data);
 
             match packet_id {
+                255 => {
+                    // 255 is the kick / disconnect packet, so we stop the listener
+                    break;
+                }
                 253 => {
                     log::info!("AuthData (0xFD) received");
                     self.handle_server_auth_data(&received_data[1..]).await?;
@@ -147,7 +152,7 @@ impl Client {
         }
          */
         // TODO handle other server ids
-        if packet.server_id != "-".to_string() {
+        if packet.server_id != "-" {
             panic!("Received server auth data packet with wrong server id");
         }
 

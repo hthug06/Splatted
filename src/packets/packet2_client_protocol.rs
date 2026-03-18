@@ -1,5 +1,5 @@
 use crate::packets::ClientPacket;
-use crate::utils::write_string;
+use crate::packets::write_string;
 use std::io::Error;
 
 pub struct ClientProtocol {
@@ -13,13 +13,13 @@ pub struct ClientProtocol {
 impl ClientProtocol {
     pub fn new(
         protocol_version: u8,
-        username: &String,
+        username: &str,
         server_hostname: String,
         server_port: u32,
     ) -> Self {
         Self {
             protocol_version,
-            username: username.clone(),
+            username: username.to_owned(),
             server_hostname,
             server_port,
         }
@@ -41,10 +41,7 @@ impl ClientPacket for ClientProtocol {
         buffer.push(0x02);
 
         // Add all the infos
-        buffer.push(self.protocol_version);
-        write_string(buffer, &self.username)?;
-        write_string(buffer, &self.server_hostname)?;
-        buffer.extend(self.server_port.to_be_bytes());
+        buffer.extend(self.create_payload()?);
 
         Ok(())
     }
