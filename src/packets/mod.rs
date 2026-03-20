@@ -1,5 +1,6 @@
 use std::io::{Cursor, Error, ErrorKind, Read};
 
+pub mod packet205_client_command;
 pub mod packet252_shared_key;
 pub mod packet253_server_auth_data;
 pub mod packet254_server_ping;

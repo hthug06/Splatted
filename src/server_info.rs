@@ -49,7 +49,7 @@ impl ServerInfo {
         log::info!("{}", kick_disconnect_packet?.format_server_infos());
 
         // After receiving the serverListPacket, the connection close, and we stop listening to packet
-        // We also drop the stream to really end the connection (and avoid erreur on the server console)
+        // We also drop the stream to really end the connection (and avoid error on the server console)
         stream.shutdown().await?;
         drop(stream);
         log::info!("Connection closed.");
