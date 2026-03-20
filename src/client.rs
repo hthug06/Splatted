@@ -1,12 +1,13 @@
 use crate::packets::ClientPacket;
 use crate::packets::ServerPacket;
 use crate::packets::packet2_client_protocol::ClientProtocol;
+use crate::packets::packet205_client_command::ClientCommandPacket;
 use crate::packets::packet252_shared_key::SharedKeyPacket;
 use crate::packets::packet253_server_auth_data::ServerAuthData;
 use aes::Aes128;
 use cfb8::{Decryptor, Encryptor};
 use cipher::{AsyncStreamCipher, Key, KeyIvInit}; // Traits nécessaires pour utiliser CFB8
-use std::io::Cursor;
+use std::io::{Cursor, Error};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 use tokio::net::tcp::OwnedWriteHalf;
@@ -56,7 +57,7 @@ impl Client {
         // 1024 might be good for now, but we might need to extend it when parsing chunk packet...
         // /** A temporary storage for the compressed chunk data byte array. */
         // private static byte[] temp = new byte[196864]; in source code so yeeeee...
-        let mut buffer: [u8; 1024] = [0; 1024];
+        let mut buffer: [u8; 4096] = [0; 4096];
 
         // Listen for packet
         loop {
@@ -66,17 +67,16 @@ impl Client {
                 continue;
             }
 
-            log::info!("a");
-
             let received_data: &mut [u8] = &mut buffer[..bytes_read];
-            let packet_id: u8 = received_data[0];
 
             // encrypt when the decryptor is ready
-            if packet_id != 252
+            if received_data[0] != 252
                 && let Some(decryptor) = &mut self.decryptor
             {
                 decryptor.clone().decrypt(received_data);
             }
+            // The packet id is always the first byte
+            let packet_id: u8 = received_data[0];
 
             log::info!("Received data (decrypted or not): {:?}", received_data);
 
@@ -86,18 +86,13 @@ impl Client {
                     break;
                 }
                 253 => {
-                    log::info!("AuthData (0xFD) received");
                     self.handle_server_auth_data(&received_data[1..]).await?;
                 }
                 252 => {
-                    // Packet to confirm if the server confirm
-                    log::info!("Shared Key Packet received");
-                    let packet = SharedKeyPacket::read(&mut Cursor::new(&received_data[1..]));
-                    if packet?.is_encryption_confirmed() {
-                        log::info!("Encryption Confirmed");
-                    } else {
-                        log::info!("Encryption Failed");
-                    }
+                    self.handle_shared_key(&received_data[1..]).await?;
+                }
+                1 => {
+                    log::info!("Packet de login reçu",);
                 }
                 id => log::warn!("Packet {} unknown", id),
             };
@@ -136,6 +131,7 @@ impl Client {
             Ok(packet) => packet,
             Err(e) => panic!("Failed to read server auth data packet: {}", e),
         };
+        log::info!("AuthData (0xFD) received");
 
         // Java handle differently with the server id:
         /*
@@ -168,6 +164,24 @@ impl Client {
 
         self.encryptor = Some(AesCfb8Enc::new(key_iv, key_iv));
         self.decryptor = Some(AesCfb8Dec::new(key_iv, key_iv));
+
+        Ok(())
+    }
+
+    pub async fn handle_shared_key(&mut self, data: &[u8]) -> std::io::Result<()> {
+        // Packet to confirm if the server confirm
+        let packet = SharedKeyPacket::read(&mut Cursor::new(data));
+        log::info!("Shared Key Packet received");
+
+        if packet?.is_encryption_confirmed() {
+            log::info!("Encryption Confirmed");
+        } else {
+            return Err(Error::new(
+                std::io::ErrorKind::InvalidData,
+                "Invalid shared key, bad encryption",
+            ));
+        }
+        self.send_packet(ClientCommandPacket::new(0)).await?;
 
         Ok(())
     }
