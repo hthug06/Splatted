@@ -3,7 +3,7 @@ use std::io::{Error, ErrorKind};
 use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
 
-/// READ FUCNTION
+/// READ FUNCTION
 ///
 /// Read an u8
 pub async fn read_u8(
@@ -33,7 +33,7 @@ pub async fn read_byte_array(
     reader: &mut BufReader<OwnedReadHalf>,
     encryption: &mut Encryption,
 ) -> std::io::Result<Vec<u8>> {
-    // read lenght
+    // read length
     let mut len_bytes = [0u8; 2];
     reader.read_exact(&mut len_bytes).await?;
     encryption.decrypt(&mut len_bytes);
@@ -60,6 +60,11 @@ pub async fn read_string(
     reader.read_exact(&mut len_bytes).await?;
     encryption.decrypt(&mut len_bytes);
     let length = u16::from_be_bytes(len_bytes) as usize;
+
+    // From the Minecraft source code
+    if length > 32_767 {
+        return Err(Error::new(ErrorKind::InvalidData, "String too big"));
+    }
 
     // Read UTF16 text (len * 2 bytes)
     let mut utf16_bytes = vec![0u8; length * 2];
@@ -93,7 +98,7 @@ pub fn write_string(buffer: &mut Vec<u8>, text: &str) -> std::io::Result<()> {
     let utf16_iter = text.encode_utf16();
     let length = utf16_iter.clone().count();
 
-    // From the minecraft source code
+    // From the Minecraft source code
     if length > 32_767 {
         return Err(Error::new(ErrorKind::InvalidData, "String too big"));
     }

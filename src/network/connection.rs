@@ -22,10 +22,9 @@ impl Encryption {
     /// Decrypt received bytes in place.
     /// only if the cipher is active (Encrypted phase).
     pub fn decrypt(&mut self, buf: &mut [u8]) {
-        if !self.is_encrypted() {
-            return;
-        }
-        if let Some(cipher) = &mut self.cipher {
+        if self.is_encrypted()
+            && let Some(cipher) = &mut self.cipher
+        {
             cipher.decryptor.decrypt(buf);
         }
     }
