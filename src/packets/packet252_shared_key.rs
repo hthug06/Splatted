@@ -1,7 +1,6 @@
 use crate::network::connection::Encryption;
 use crate::packets::packet_trait::{ClientPacket, ServerPacket};
 use crate::packets::utils::{read_byte_array, write_byte_array};
-use log::info;
 use rand::RngCore;
 use rsa::{Pkcs1v15Encrypt, RsaPublicKey};
 use std::io::Error;

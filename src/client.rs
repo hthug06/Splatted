@@ -1,13 +1,13 @@
 use crate::network::connection::Encryption;
-use crate::packets::ClientPacket;
-use crate::packets::ServerPacket;
+use crate::packets::InboundPacket;
+use crate::packets::packet_trait::ClientPacket;
 use crate::packets::packet2_client_protocol::ClientProtocol;
 use crate::packets::packet205_client_command::ClientCommandPacket;
 use crate::packets::packet252_shared_key::SharedKeyPacket;
 use crate::packets::packet253_server_auth_data::ServerAuthData;
-use std::io::{Cursor, Error, ErrorKind};
+use std::io::{Error, ErrorKind};
 use std::net::SocketAddr;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::io::{AsyncWriteExt, BufReader};
 use tokio::net::TcpStream;
 use tokio::net::tcp::OwnedWriteHalf;
 
@@ -34,7 +34,13 @@ impl Client {
         let stream = TcpStream::connect(address).await?;
         stream.set_nodelay(true)?;
 
-        let (mut reader, writer) = stream.into_split();
+        // Split the TCP stream into owned read and write halves.
+        let (stream_reader, writer) = stream.into_split();
+
+        // Wrap the reader in a BufReader to batch network reads.
+        // This prevents expensive OS syscalls on every tiny read (like 1-byte packet IDs),
+        // significantly improving parsing performance.
+        let mut reader = BufReader::new(stream_reader);
 
         let socket_addr: SocketAddr = address
             .parse()
@@ -51,51 +57,30 @@ impl Client {
         let handshake = ClientProtocol::new(51, &self.username, host, port);
         self.send_packet(handshake).await?;
 
-        // Create a buffer
-        // in this version, we can't know before the size of the buffer
-        // 4096 might be good for now, but we might need to extend it when parsing chunk packet...
-        // /** A temporary storage for the compressed chunk data byte array. */
-        // private static byte[] temp = new byte[196864]; in source code so yeeeee...
-        let mut buffer: [u8; 4096] = [0; 4096];
-
-        // Listen for packet
         loop {
-            let bytes_read: usize = reader.read(&mut buffer).await?;
+            // Read the id and decrypt everything
+            let packet =
+                match InboundPacket::read_from_stream(&mut reader, &mut self.encryption).await {
+                    Ok(p) => p,
+                    Err(e) => {
+                        log::error!("Broken stream or disconnected : {}", e);
+                        break;
+                    }
+                };
 
-            if bytes_read == 0 {
-                log::info!("Connection closed by server");
-                break;
+            // handle the packet
+            match packet {
+                InboundPacket::KeepAlive(keep_alive_packet) => {
+                    self.send_packet(keep_alive_packet).await?;
+                }
+                InboundPacket::ServerAuthData(auth_packet) => {
+                    self.handle_server_auth_data(auth_packet).await?;
+                }
+                InboundPacket::SharedKey(shared_key_packet) => {
+                    self.handle_shared_key(shared_key_packet).await?;
+                }
             }
-
-            // The raw data received from the server
-            let received_data: &mut [u8] = &mut buffer[..bytes_read];
-
-            // decrypt the connection if needed
-            self.encryption.decrypt(received_data);
-
-            log::info!("Received data: {:?}", received_data);
-
-            // The packet id is always the first byte
-            let packet_id: u8 = received_data[0];
-
-            match packet_id {
-                255 => {
-                    // Server closed the connection (kick or normal disconnect)
-                    break;
-                }
-                253 => {
-                    self.handle_server_auth_data(&received_data[1..]).await?;
-                }
-                252 => {
-                    self.handle_shared_key(&received_data[1..]).await?;
-                }
-                1 => {
-                    log::info!("Login packet received");
-                }
-                id => log::warn!("Packet {} unknown", id),
-            };
         }
-
         Ok(())
     }
 
@@ -105,7 +90,7 @@ impl Client {
 
         packet
             .write_to(&mut buffer)
-            .map_err(|e| Error::new(std::io::ErrorKind::InvalidData, e))?;
+            .map_err(|e| Error::new(ErrorKind::InvalidData, e))?;
 
         log::info!("Sending packet: {:?}", &buffer);
 
@@ -127,11 +112,7 @@ impl Client {
     /// First, get the data from the packet (token and public key).
     /// Then, create the Shared key packet (252), with the shared secret between the client and the server.
     /// Finally, send the Shared key packet and prepare the cipher (activated on 0xFC confirmation).
-    pub async fn handle_server_auth_data(&mut self, data: &[u8]) -> std::io::Result<()> {
-        let packet: ServerAuthData = match ServerAuthData::read(&mut Cursor::new(data)) {
-            Ok(packet) => packet,
-            Err(e) => return Err(Error::new(ErrorKind::InvalidData, e.to_string())),
-        };
+    pub async fn handle_server_auth_data(&mut self, packet: ServerAuthData) -> std::io::Result<()> {
         log::info!("AuthData (0xFD) received");
 
         if packet.server_id != "-" {
@@ -165,20 +146,15 @@ impl Client {
     /// First, parse the received packet.
     /// Then, if the packet is right, confirm the encryption.
     /// Finally, send the ClientCommandPacket (205) to spawn the client in the world.
-    pub async fn handle_shared_key(&mut self, data: &[u8]) -> std::io::Result<()> {
-        // Packet to confirm if the server confirm
-        let packet = match SharedKeyPacket::read(&mut Cursor::new(data)) {
-            Ok(packet) => packet,
-            Err(e) => panic!("Failed to read server shared key packet: {}", e),
-        };
-        log::info!("Shared Key Packet received");
+    pub async fn handle_shared_key(&mut self, packet: SharedKeyPacket) -> std::io::Result<()> {
+        log::info!("Shared Key Packet (0xFC) received");
 
         // From now, every sent and received packet will be encrypted
         if packet.is_encryption_confirmed() {
             self.encryption.enable_encryption()
         } else {
             return Err(Error::new(
-                std::io::ErrorKind::InvalidData,
+                ErrorKind::InvalidData,
                 "Invalid shared key, bad encryption",
             ));
         }
