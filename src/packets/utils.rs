@@ -5,7 +5,7 @@ use tokio::net::tcp::OwnedReadHalf;
 
 /// READ FUNCTION
 ///
-/// Read an u8
+/// Read an u8 (byte but unsigned)
 pub async fn read_u8(
     reader: &mut BufReader<OwnedReadHalf>,
     encryption: &mut Encryption,
@@ -14,6 +14,19 @@ pub async fn read_u8(
     reader.read_exact(&mut buf).await?;
     encryption.decrypt(&mut buf);
     Ok(buf[0])
+}
+
+/// Read an i8 (byte but signed)
+pub async fn read_i8(
+    reader: &mut BufReader<OwnedReadHalf>,
+    encryption: &mut Encryption,
+) -> std::io::Result<i8> {
+    let mut buf = [0u8; 1];
+    reader.read_exact(&mut buf).await?;
+    encryption.decrypt(&mut buf);
+
+    // Fait exactement la même chose que `buf[0] as i8`
+    Ok(i8::from_be_bytes(buf))
 }
 
 /// Read an i32

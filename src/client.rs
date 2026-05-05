@@ -73,6 +73,10 @@ impl Client {
                 InboundPacket::KeepAlive(keep_alive_packet) => {
                     self.send_packet(keep_alive_packet).await?;
                 }
+                InboundPacket::Login(login_packet) => {
+                    // Do nothing with the packet, but having information about the client is useful
+                    log::info!("Login packet received, client id: {:?}", login_packet);
+                }
                 InboundPacket::ServerAuthData(auth_packet) => {
                     self.handle_server_auth_data(auth_packet).await?;
                 }
