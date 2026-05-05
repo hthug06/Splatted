@@ -1,6 +1,10 @@
-use crate::packets::{ServerPacket, read_string};
+use crate::network::connection::Encryption;
+use crate::packets::packet_trait::ServerPacket;
+use crate::packets::utils::read_string;
 use std::fmt::{Display, Formatter};
-use std::io::Cursor;
+use std::io::Error;
+use tokio::io::BufReader;
+use tokio::net::tcp::OwnedReadHalf;
 
 pub struct KickDisconnect {
     reason: String,
@@ -15,9 +19,15 @@ impl KickDisconnect {
 
 impl ServerPacket for KickDisconnect {
     /// Create the KickDisconnect packet from the entire buffer
-    fn read(cursor: &mut Cursor<&[u8]>) -> Result<KickDisconnect, std::io::Error> {
+    async fn read(
+        reader: &mut BufReader<OwnedReadHalf>,
+        encryption: &mut Encryption,
+    ) -> Result<Self, Error>
+    where
+        Self: Sized,
+    {
         Ok(Self {
-            reason: read_string(cursor)?,
+            reason: read_string(reader, encryption).await?,
         })
     }
 }

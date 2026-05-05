@@ -1,4 +1,4 @@
-use crate::packets::ClientPacket;
+use crate::packets::packet_trait::ClientPacket;
 use std::io::Error;
 
 pub struct ClientCommandPacket {

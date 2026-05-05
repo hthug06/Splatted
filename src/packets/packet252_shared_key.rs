@@ -1,7 +1,11 @@
-use crate::packets::{ClientPacket, ServerPacket, write_byte_array};
+use crate::network::connection::Encryption;
+use crate::packets::packet_trait::{ClientPacket, ServerPacket};
+use crate::packets::utils::{read_byte_array, write_byte_array};
 use rand::RngCore;
 use rsa::{Pkcs1v15Encrypt, RsaPublicKey};
-use std::io::{Cursor, Error, Read};
+use std::io::Error;
+use tokio::io::BufReader;
+use tokio::net::tcp::OwnedReadHalf;
 
 pub struct SharedKeyPacket {
     pub shared_secret: Vec<u8>,
@@ -48,7 +52,6 @@ impl ClientPacket for SharedKeyPacket {
         // Shared Key packet ID is 252
         buffer.push(252);
 
-        // NO
         // write shared_secret
         write_byte_array(buffer, &self.shared_secret);
 
@@ -60,19 +63,16 @@ impl ClientPacket for SharedKeyPacket {
 }
 
 impl ServerPacket for SharedKeyPacket {
-    fn read(cursor: &mut Cursor<&[u8]>) -> Result<Self, Error>
-    where
-        Self: Sized,
-    {
-        let mut shared_secret: [u8; 2] = [0u8; 2];
-        cursor.read_exact(&mut shared_secret)?;
-
-        let mut verify_token: [u8; 2] = [0u8; 2];
-        cursor.read_exact(&mut verify_token)?;
+    async fn read(
+        reader: &mut BufReader<OwnedReadHalf>,
+        encryption: &mut Encryption,
+    ) -> Result<Self, Error> {
+        let shared_secret = read_byte_array(reader, encryption).await?;
+        let verify_token = read_byte_array(reader, encryption).await?;
 
         Ok(Self {
-            shared_secret: shared_secret.to_vec(),
-            verify_token: verify_token.to_vec(),
+            shared_secret,
+            verify_token,
         })
     }
 }
