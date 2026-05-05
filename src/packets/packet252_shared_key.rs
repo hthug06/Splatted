@@ -44,8 +44,6 @@ impl SharedKeyPacket {
     }
 
     pub fn is_encryption_confirmed(&self) -> bool {
-        info!("{:?}", self.shared_secret);
-        info!("{:?}", self.verify_token);
         self.verify_token.is_empty() && self.shared_secret.is_empty()
     }
 }
