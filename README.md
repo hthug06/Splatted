@@ -27,8 +27,8 @@ Go in the folder where your Splatted program is, open a terminal and use the fol
 
 ## Roadmap
 - [x] Get the server infos like in the multiplayer section of a real client
+- [x] Good structure to read / send packet
 - [ ] Connect 1 single bot (pls)
-- [ ] Good structure to read / send packet
 - [ ] Send bots to a server and make them disconnect
 
 ## Other
