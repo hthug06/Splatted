@@ -1,20 +1,20 @@
 use crate::network::cipher::Cipher;
 
-enum ConnectionState {
+enum EncryptionState {
     Handshaking,
     EncryptionPending,
     Encrypted,
 }
 
-pub struct Connection {
-    state: ConnectionState,
+pub struct Encryption {
+    state: EncryptionState,
     cipher: Option<Cipher>,
 }
 
-impl Connection {
+impl Encryption {
     pub fn new() -> Self {
         Self {
-            state: ConnectionState::Handshaking,
+            state: EncryptionState::Handshaking,
             cipher: None,
         }
     }
@@ -38,22 +38,22 @@ impl Connection {
             cipher.encryptor.encrypt(buf);
         }
     }
-    
+
     /// Get the shared secret to enable the encryption after the packet 252 is received
     pub fn set_encryption(&mut self, shared_secret: &[u8; 16]) {
         self.cipher = Some(Cipher::new(shared_secret));
-        self.state = ConnectionState::EncryptionPending;
+        self.state = EncryptionState::EncryptionPending;
         log::info!("AES-128-CFB8 cipher pending");
     }
 
     /// Activate AES-128-CFB8 encryption for all future reads and writes.
     pub fn enable_encryption(&mut self) {
-        self.state = ConnectionState::Encrypted;
+        self.state = EncryptionState::Encrypted;
         log::info!("AES-128-CFB8 cipher activated");
     }
 
-    /// Check if the connection is fully encrypted 
+    /// Check if the connection is fully encrypted
     pub fn is_encrypted(&self) -> bool {
-        matches!(self.state, ConnectionState::Encrypted)
+        matches!(self.state, EncryptionState::Encrypted)
     }
 }
