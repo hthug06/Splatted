@@ -6,15 +6,22 @@ use crate::packets::packet252_shared_key::SharedKeyPacket;
 use crate::packets::packet253_server_auth_data::ServerAuthData;
 use aes::Aes128;
 use cfb8::{Decryptor, Encryptor};
-use cipher::{AsyncStreamCipher, Key, KeyIvInit}; // Traits nécessaires pour utiliser CFB8
+use cipher::KeyIvInit;
+use log::info;
+use std::cmp::PartialEq;
 use std::io::{Cursor, Error};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 use tokio::net::tcp::OwnedWriteHalf;
 
-// use type for better readability
 type AesCfb8Enc = Encryptor<Aes128>;
 type AesCfb8Dec = Decryptor<Aes128>;
+
+#[derive(PartialEq)]
+enum ConnectionState {
+    HandShake,
+    Encrypted,
+}
 
 pub struct Client {
     username: String,
@@ -23,6 +30,7 @@ pub struct Client {
     writer: Option<OwnedWriteHalf>,
     encryptor: Option<AesCfb8Enc>,
     decryptor: Option<AesCfb8Dec>,
+    connection_state: ConnectionState,
 }
 
 impl Client {
@@ -32,6 +40,7 @@ impl Client {
             writer: None,
             encryptor: None,
             decryptor: None,
+            connection_state: ConnectionState::HandShake,
         }
     }
 
@@ -69,11 +78,12 @@ impl Client {
 
             let received_data: &mut [u8] = &mut buffer[..bytes_read];
 
-            // encrypt when the decryptor is ready
-            if received_data[0] != 252
-                && let Some(decryptor) = &mut self.decryptor
-            {
-                decryptor.clone().decrypt(received_data);
+            // encrypt when the decryptor is ready AND only after the packet 252 is received
+            if self.connection_state == ConnectionState::Encrypted {
+                if let Some(dec) = &mut self.decryptor {
+                    dec.decrypt(received_data);
+                    log::info!("decrypted {} bytes", bytes_read);
+                }
             }
             // The packet id is always the first byte
             let packet_id: u8 = received_data[0];
@@ -92,7 +102,7 @@ impl Client {
                     self.handle_shared_key(&received_data[1..]).await?;
                 }
                 1 => {
-                    log::info!("Packet de login reçu",);
+                    log::info!("Login packet received");
                 }
                 id => log::warn!("Packet {} unknown", id),
             };
@@ -112,8 +122,7 @@ impl Client {
         log::info!("Sending packet: {:?}", &buffer);
 
         if let Some(enc) = &mut self.encryptor {
-            // Chiffre tous les octets du buffer directement
-            enc.clone().encrypt(&mut buffer);
+            enc.encrypt(&mut buffer);
         }
 
         if let Some(writer) = &mut self.writer {
@@ -147,9 +156,8 @@ impl Client {
             }
         }
          */
-        // TODO handle other server ids
         if packet.server_id != "-" {
-            panic!("Received server auth data packet with wrong server id");
+            panic!("Server is in online mode.");
         }
 
         // We fully handle the packet, we can now create the packet 252 and send it
@@ -159,11 +167,19 @@ impl Client {
         // After this packet, every packet will be encrypted
         self.send_packet(packet_252).await?;
 
-        // Create the décryptor and encryptor (work with AES128)
-        let key_iv: &Key<Encryptor<Aes128>> = shared_secret.as_slice().into();
+        // shared_secret is 16 bytes. it's the key and the IV
+        let secret_bytes = shared_secret.as_slice();
 
-        self.encryptor = Some(AesCfb8Enc::new(key_iv, key_iv));
-        self.decryptor = Some(AesCfb8Dec::new(key_iv, key_iv));
+        //Create the décryptor and encryptor (work with AES128)
+        self.encryptor = Some(
+            AesCfb8Enc::new_from_slices(secret_bytes, secret_bytes)
+                .expect("Invalid Key size for AES-128"),
+        );
+
+        self.decryptor = Some(
+            AesCfb8Dec::new_from_slices(secret_bytes, secret_bytes)
+                .expect("Invalid Key size for AES-128"),
+        );
 
         Ok(())
     }
@@ -175,6 +191,7 @@ impl Client {
 
         if packet?.is_encryption_confirmed() {
             log::info!("Encryption Confirmed");
+            self.connection_state = ConnectionState::Encrypted;
         } else {
             return Err(Error::new(
                 std::io::ErrorKind::InvalidData,
