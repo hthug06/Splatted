@@ -6,8 +6,8 @@ type Aes128Cfb8Enc = Encryptor<Aes128>;
 type Aes128Cfb8Dec = Decryptor<Aes128>;
 
 pub struct Cipher {
-    pub encryptor: Aes128Cfb8Enc,
-    pub decryptor: Aes128Cfb8Dec,
+    pub(crate) encryptor: Aes128Cfb8Enc,
+    pub(crate) decryptor: Aes128Cfb8Dec,
 }
 
 impl Cipher {
