@@ -92,7 +92,7 @@ impl Client {
             .write_to(&mut buffer)
             .map_err(|e| Error::new(ErrorKind::InvalidData, e))?;
 
-        log::info!("Sending packet: {:?}", &buffer);
+        log::info!("Sending packet ID {}", &buffer[0]);
 
         // Fill the buffer with the packet data
         // Encrypt the packet if the encryption is enabled
@@ -113,7 +113,7 @@ impl Client {
     /// Then, create the Shared key packet (252), with the shared secret between the client and the server.
     /// Finally, send the Shared key packet and prepare the cipher (activated on 0xFC confirmation).
     pub async fn handle_server_auth_data(&mut self, packet: ServerAuthData) -> std::io::Result<()> {
-        log::info!("AuthData (0xFD) received");
+        log::info!("AuthData (253 | 0xFD) received");
 
         if packet.server_id != "-" {
             return Err(Error::new(
@@ -135,8 +135,6 @@ impl Client {
             .try_into()
             .expect("shared_secret must be exactly 16 bytes for AES-128");
 
-        log::info!("shared_secret ({} bytes): {:?}", secret.len(), secret);
-
         self.encryption.set_encryption(&secret);
 
         Ok(())
@@ -147,7 +145,7 @@ impl Client {
     /// Then, if the packet is right, confirm the encryption.
     /// Finally, send the ClientCommandPacket (205) to spawn the client in the world.
     pub async fn handle_shared_key(&mut self, packet: SharedKeyPacket) -> std::io::Result<()> {
-        log::info!("Shared Key Packet (0xFC) received");
+        log::info!("Shared Key Packet (252 | 0xFC) received");
 
         // From now, every sent and received packet will be encrypted
         if packet.is_encryption_confirmed() {

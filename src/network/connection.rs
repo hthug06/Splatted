@@ -27,7 +27,6 @@ impl Encryption {
         }
         if let Some(cipher) = &mut self.cipher {
             cipher.decryptor.decrypt(buf);
-            log::info!("Decrypted data");
         }
     }
 
@@ -39,17 +38,18 @@ impl Encryption {
         }
     }
 
-    /// Get the shared secret to enable the encryption after the packet 252 is received
+    /// Prepares AES-128-CFB8 encryption after receiving packet 0xFC (Shared Key).
+    /// The cipher is initialized, but encryption is not active until `enable_encryption` is called.
     pub fn set_encryption(&mut self, shared_secret: &[u8; 16]) {
         self.cipher = Some(Cipher::new(shared_secret));
         self.state = EncryptionState::EncryptionPending;
-        log::info!("AES-128-CFB8 cipher pending");
+        log::info!("Encryption prepared (AES-128-CFB8), waiting for activation");
     }
 
     /// Activate AES-128-CFB8 encryption for all future reads and writes.
     pub fn enable_encryption(&mut self) {
         self.state = EncryptionState::Encrypted;
-        log::info!("AES-128-CFB8 cipher activated");
+        log::info!("Encryption enabled (AES-128-CFB8) for all I/O");
     }
 
     /// Check if the connection is fully encrypted
