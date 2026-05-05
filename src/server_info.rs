@@ -1,10 +1,11 @@
 use crate::errors::wrong_packet_error::WrongPacketError;
-use crate::packets::ClientPacket;
-use crate::packets::ServerPacket;
+use crate::network::connection::Encryption;
+use crate::packets::packet_trait::{ClientPacket, ServerPacket};
 use crate::packets::packet254_server_ping::ServerPing;
 use crate::packets::packet255_kick_disconnect::KickDisconnect;
-use std::io::{Cursor, Error};
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use crate::packets::utils::read_u8;
+use std::io::{Error, ErrorKind};
+use tokio::io::{AsyncWriteExt, BufReader};
 use tokio::net::TcpStream;
 
 pub struct ServerInfo;
@@ -12,46 +13,49 @@ pub struct ServerInfo;
 impl ServerInfo {
     pub async fn infos(address: &String) -> Result<(), Error> {
         // Connect to the server
-        let mut stream: TcpStream = TcpStream::connect(address).await?;
+        let stream = TcpStream::connect(address).await?;
 
-        // Send first packet
+        // split the stream + create the reader
+        let (read_half, mut write_half) = stream.into_split();
+        let mut reader = BufReader::new(read_half);
+
+        // When we ping the server, nothing is encrypted. But we still need a base encryption
+        let mut encryption = Encryption::new();
+
+        // Send first packet (Server Ping = 0xFE)
         let mut buffer: Vec<u8> = vec![];
         ServerPing.write_to(&mut buffer)?;
-        stream.write_all(buffer.as_slice()).await?;
+        write_half.write_all(&buffer).await?;
+        write_half.flush().await?;
 
-        //Create a buffer
-        // in this version, we can't know before the size of the buffer
-        // 1024 might be good for now, but we might need to extend it when parsing chunk packet...
-        // /** A temporary storage for the compressed chunk data byte array. */
-        // private static byte[] temp = new byte[196864]; in source code so yeeeee...
-        let mut buffer: [u8; 1024] = [0; 1024];
+        // Listen for the response
+        let packet_id = read_u8(&mut reader, &mut encryption).await?;
 
-        // Listen for packet
-        let bytes_read = stream.read(&mut buffer).await?;
-        // We only can get the server infos here
-        // But if we get another packet, we throw an error
-        let received_data: &[u8] = &buffer[..bytes_read];
-
-        // Check if the right packet is received
-        let kick_disconnect_packet = match received_data[0] {
-            255 => Ok(KickDisconnect::read(&mut Cursor::new(&received_data[1..]))),
-            _ => Err(format!(
-                "{}",
-                WrongPacketError {
-                    attended: 255,
-                    received: received_data[0]
-                }
-            )),
+        // check if we received the right packet
+        if packet_id != 255 {
+            return Err(Error::new(
+                ErrorKind::InvalidData,
+                format!(
+                    "{}",
+                    WrongPacketError {
+                        attended: 255,
+                        received: packet_id
+                    }
+                ),
+            ));
         }
-        .unwrap();
+
+        let kick_disconnect_packet = KickDisconnect::read(&mut reader, &mut encryption).await?;
 
         // Print all the infos
-        log::info!("{}", kick_disconnect_packet?.format_server_infos());
+        log::info!("{}", kick_disconnect_packet.format_server_infos());
 
-        // After receiving the serverListPacket, the connection close, and we stop listening to packet
-        // We also drop the stream to really end the connection (and avoid error on the server console)
-        stream.shutdown().await?;
-        drop(stream);
+        // After receiving the serverListPacket, the connection close
+        write_half.shutdown().await?;
+
+        drop(write_half);
+        drop(reader);
+
         log::info!("Connection closed.");
         Ok(())
     }

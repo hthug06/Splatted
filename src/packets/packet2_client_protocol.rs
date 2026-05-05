@@ -1,5 +1,5 @@
-use crate::packets::ClientPacket;
-use crate::packets::write_string;
+use crate::packets::packet_trait::ClientPacket;
+use crate::packets::utils::write_string;
 use std::io::Error;
 
 pub struct ClientProtocol {
