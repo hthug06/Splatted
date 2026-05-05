@@ -1,6 +1,7 @@
 use crate::network::connection::Encryption;
 use crate::packets::packet_trait::{ClientPacket, ServerPacket};
 use crate::packets::utils::{read_byte_array, write_byte_array};
+use log::info;
 use rand::RngCore;
 use rsa::{Pkcs1v15Encrypt, RsaPublicKey};
 use std::io::Error;
@@ -43,7 +44,9 @@ impl SharedKeyPacket {
     }
 
     pub fn is_encryption_confirmed(&self) -> bool {
-        self.verify_token == [0, 0] && self.shared_secret == [0, 0]
+        info!("{:?}", self.shared_secret);
+        info!("{:?}", self.verify_token);
+        self.verify_token.is_empty() && self.shared_secret.is_empty()
     }
 }
 

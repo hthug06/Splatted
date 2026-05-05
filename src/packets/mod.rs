@@ -49,7 +49,7 @@ impl InboundPacket {
 
             id => Err(Error::new(
                 ErrorKind::InvalidData,
-                format!("Packet ID {} non implémenté", id),
+                format!("Packet ID {} unimplemented", id),
             )),
         }
     }
