@@ -14,7 +14,7 @@ pub enum GameType {
 impl GameType {
     /// Get the game type from the id
     /// Used to parse it from the TCP stream
-    pub fn from_id(id: i32) -> Option<Self> {
+    pub fn from_id(id: i8) -> Option<Self> {
         match id {
             -1 => Some(Self::NotSet),
             0 => Some(Self::Survival),
