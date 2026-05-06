@@ -6,11 +6,11 @@ use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
 #[derive(Debug)]
-pub struct BlockItemSwitch {
+pub struct BlockItemSwitchPacket {
     id: i32,
 }
 
-impl ServerPacket for BlockItemSwitch {
+impl ServerPacket for BlockItemSwitchPacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,

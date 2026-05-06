@@ -6,11 +6,11 @@ use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
 
 #[derive(Debug)]
-pub struct Flying {
+pub struct FlyingPacket {
     on_ground: bool,
 }
 
-impl ServerPacket for Flying {
+impl ServerPacket for FlyingPacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,

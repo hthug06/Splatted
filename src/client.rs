@@ -1,10 +1,10 @@
 use crate::network::connection::Encryption;
 use crate::packets::InboundPacket;
 use crate::packets::packet_trait::ClientPacket;
-use crate::packets::packet2_client_protocol::ClientProtocol;
+use crate::packets::packet2_client_protocol::ClientProtocolPacket;
 use crate::packets::packet205_client_command::ClientCommandPacket;
 use crate::packets::packet252_shared_key::SharedKeyPacket;
-use crate::packets::packet253_server_auth_data::ServerAuthData;
+use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;
 use std::io::{Error, ErrorKind};
 use std::net::SocketAddr;
 use tokio::io::{AsyncWriteExt, BufReader};
@@ -54,7 +54,7 @@ impl Client {
         //After this, we can send the first packet
         // this packet contain the protocol version of the client (51 in 1.4.7)
         // the username, the address and port of the server
-        let handshake = ClientProtocol::new(51, &self.username, host, port);
+        let handshake = ClientProtocolPacket::new(51, &self.username, host, port);
         self.send_packet(handshake).await?;
 
         loop {
@@ -136,7 +136,7 @@ impl Client {
     /// First, get the data from the packet (token and public key).
     /// Then, create the Shared key packet (252), with the shared secret between the client and the server.
     /// Finally, send the Shared key packet and prepare the cipher (activated on 0xFC confirmation).
-    pub async fn handle_server_auth_data(&mut self, packet: ServerAuthData) -> std::io::Result<()> {
+    pub async fn handle_server_auth_data(&mut self, packet: ServerAuthDataPacket) -> std::io::Result<()> {
         log::info!("AuthData (253 | 0xFD) received");
 
         if packet.server_id != "-" {

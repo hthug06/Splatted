@@ -6,13 +6,13 @@ use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
 #[derive(Debug)]
-pub struct PlayerInfo {
+pub struct PlayerInfoPacket {
     pub name: String,
     pub is_connected: bool,
     pub ping: i16,
 }
 
-impl ServerPacket for PlayerInfo {
+impl ServerPacket for PlayerInfoPacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,

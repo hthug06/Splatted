@@ -1,8 +1,8 @@
 use crate::errors::wrong_packet_error::WrongPacketError;
 use crate::network::connection::Encryption;
 use crate::packets::packet_trait::{ClientPacket, ServerPacket};
-use crate::packets::packet254_server_ping::ServerPing;
-use crate::packets::packet255_kick_disconnect::KickDisconnect;
+use crate::packets::packet254_server_ping::ServerPingPacket;
+use crate::packets::packet255_kick_disconnect::KickDisconnectPacket;
 use crate::packets::utils::read_u8;
 use std::io::{Error, ErrorKind};
 use tokio::io::{AsyncWriteExt, BufReader};
@@ -24,7 +24,7 @@ impl ServerInfo {
 
         // Send first packet (Server Ping = 0xFE)
         let mut buffer: Vec<u8> = vec![];
-        ServerPing.write_to(&mut buffer)?;
+        ServerPingPacket.write_to(&mut buffer)?;
         write_half.write_all(&buffer).await?;
         write_half.flush().await?;
 
@@ -45,7 +45,7 @@ impl ServerInfo {
             ));
         }
 
-        let kick_disconnect_packet = KickDisconnect::read(&mut reader, &mut encryption).await?;
+        let kick_disconnect_packet = KickDisconnectPacket::read(&mut reader, &mut encryption).await?;
 
         // Print all the infos
         log::info!("{}", kick_disconnect_packet.format_server_infos());

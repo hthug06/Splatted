@@ -9,7 +9,7 @@ use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
 #[derive(Debug)]
-pub struct Login {
+pub struct LoginPacket {
     client_id: i32,
     terrain_type: WorldType,
     /// true = server in hardcore mode
@@ -25,7 +25,7 @@ pub struct Login {
     max_players: i8,
 }
 
-impl ServerPacket for Login {
+impl ServerPacket for LoginPacket {
     /// Read the packet from the stream IN ORDER (this is important)
     /// Source are from here: https://www.a-centauri.com/archivio/1.4.7/ForgeDOC/src-html/net/minecraft/network/packet/Packet1Login.html#line.11
     async fn read(

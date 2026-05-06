@@ -6,7 +6,7 @@ use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
 #[derive(Debug)]
-pub struct PlayerAbilities {
+pub struct PlayerAbilitiesPacket {
     pub disable_damage: bool,
     pub is_flying: bool,
     pub allow_flying: bool,
@@ -15,7 +15,7 @@ pub struct PlayerAbilities {
     pub walk_speed: f32,
 }
 
-impl ServerPacket for PlayerAbilities {
+impl ServerPacket for PlayerAbilitiesPacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,

@@ -6,12 +6,12 @@ use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
 #[derive(Debug)]
-pub struct UpdateTime {
+pub struct UpdateTimePacket {
     pub world_age: i64,
     pub time_of_day: i64,
 }
 
-impl ServerPacket for UpdateTime {
+impl ServerPacket for UpdateTimePacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,

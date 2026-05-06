@@ -6,13 +6,13 @@ use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
 #[derive(Debug)]
-pub struct SpawnPosition {
+pub struct SpawnPositionPacket {
     pub x: i32,
     pub y: i32,
     pub z: i32,
 }
 
-impl ServerPacket for SpawnPosition {
+impl ServerPacket for SpawnPositionPacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
