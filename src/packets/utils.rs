@@ -57,6 +57,19 @@ pub async fn read_i32(
     Ok(i32::from_be_bytes(buf))
 }
 
+/// Read an i64
+/// it's like reading a long in java
+/// like par1DataInputStream.readLong() in mc code
+pub async fn read_i64(
+    reader: &mut BufReader<OwnedReadHalf>,
+    encryption: &mut Encryption,
+) -> std::io::Result<i64> {
+    let mut buf = [0u8; 8];
+    reader.read_exact(&mut buf).await?;
+    encryption.decrypt(&mut buf);
+    Ok(i64::from_be_bytes(buf))
+}
+
 /// Reads a Minecraft byte array (prefixed with u16 length, then the bytes)
 pub async fn read_byte_array(
     reader: &mut BufReader<OwnedReadHalf>,

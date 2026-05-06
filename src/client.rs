@@ -73,6 +73,9 @@ impl Client {
                 InboundPacket::KeepAlive(keep_alive_packet) => {
                     self.send_packet(keep_alive_packet).await?;
                 }
+                InboundPacket::UpdateTime(update_time) => {
+                    log::info!("Update time packet received: {:?}", update_time);
+                }
                 InboundPacket::SpawnPosition(position) => {
                     log::info!("Spawn position packet received: {:?}", position);
                 }

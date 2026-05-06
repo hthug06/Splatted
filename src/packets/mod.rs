@@ -1,6 +1,6 @@
-pub mod packet0_keep_alive;
+mod packet0_keep_alive;
 mod packet16_block_item_switch;
-pub mod packet1_login;
+mod packet1_login;
 mod packet202_player_abilities;
 pub mod packet205_client_command;
 pub mod packet252_shared_key;
@@ -8,6 +8,7 @@ pub mod packet253_server_auth_data;
 pub mod packet254_server_ping;
 pub mod packet255_kick_disconnect;
 pub mod packet2_client_protocol;
+mod packet4_update_time;
 mod packet6_spawn_position;
 pub mod packet_trait;
 pub mod types;
@@ -16,6 +17,7 @@ pub mod utils;
 use crate::network::connection::Encryption;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet1_login::Login;
+use crate::packets::packet4_update_time::UpdateTime;
 use crate::packets::packet6_spawn_position::SpawnPosition;
 use crate::packets::packet16_block_item_switch::BlockItemSwitch;
 use crate::packets::packet202_player_abilities::PlayerAbilities;
@@ -27,9 +29,10 @@ use std::io::{Error, ErrorKind};
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-/// this enum contain all the packet received packet
+/// this enum contain all the received packet
 pub enum InboundPacket {
     KeepAlive(KeepAlive),
+    UpdateTime(UpdateTime),
     SpawnPosition(SpawnPosition),
     BlockItemSwitch(BlockItemSwitch),
     PlayerAbilities(PlayerAbilities),
@@ -53,6 +56,9 @@ impl InboundPacket {
                 KeepAlive::read(reader, encryption).await?,
             )),
             1 => Ok(InboundPacket::Login(Login::read(reader, encryption).await?)),
+            4 => Ok(InboundPacket::UpdateTime(
+                UpdateTime::read(reader, encryption).await?,
+            )),
             6 => Ok(InboundPacket::SpawnPosition(
                 SpawnPosition::read(reader, encryption).await?,
             )),
