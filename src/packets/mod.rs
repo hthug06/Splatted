@@ -14,6 +14,7 @@ mod packet6_spawn_position;
 pub mod packet_trait;
 pub mod types;
 pub mod utils;
+mod packet10_flying;
 
 use crate::network::connection::Encryption;
 use crate::packets::packet_trait::ServerPacket;
