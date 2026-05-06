@@ -3,8 +3,8 @@ use std::io::{Error, ErrorKind};
 use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
 
-/// READ FUNCTION
-///
+// READ FUNCTION
+
 /// Read an u8 (byte but unsigned)
 pub async fn read_u8(
     reader: &mut BufReader<OwnedReadHalf>,
@@ -151,8 +151,23 @@ pub async fn read_string(
         .map_err(|e| Error::new(ErrorKind::InvalidData, format!("Invalid UTF-16: {:?}", e)))
 }
 
-/// WRITE FUNCTION
-///
+// WRITE FUNCTION
+
+/// Write a boolean (1 byte: 0x01 for true, 0x00 for false)
+pub fn write_bool(buffer: &mut Vec<u8>, value: bool) {
+    buffer.push(if value { 1 } else { 0 });
+}
+
+/// Write a f32 (Float)
+pub fn write_f32(buffer: &mut Vec<u8>, value: f32) {
+    buffer.extend_from_slice(&value.to_be_bytes());
+}
+
+/// Write a f64 (Double)
+pub fn write_f64(buffer: &mut Vec<u8>, value: f64) {
+    buffer.extend_from_slice(&value.to_be_bytes());
+}
+
 /// Write a byte array like Minecraft 1.4.7 do (len as u16 in be_byte + data)
 pub fn write_byte_array(buffer: &mut Vec<u8>, byte_array: &[u8]) {
     buffer.extend((byte_array.len() as u16).to_be_bytes());
