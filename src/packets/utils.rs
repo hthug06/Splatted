@@ -70,6 +70,32 @@ pub async fn read_i64(
     Ok(i64::from_be_bytes(buf))
 }
 
+/// Read a f32
+/// it's like reading a float in java
+/// like par1DataInputStream.readFloat() in mc code
+pub async fn read_f32(
+    reader: &mut BufReader<OwnedReadHalf>,
+    encryption: &mut Encryption,
+) -> std::io::Result<f32> {
+    let mut buf = [0u8; 4];
+    reader.read_exact(&mut buf).await?;
+    encryption.decrypt(&mut buf);
+    Ok(f32::from_be_bytes(buf))
+}
+
+/// Read a f64
+/// it's like reading a double in java
+/// like par1DataInputStream.readDouble() in mc code
+pub async fn read_f64(
+    reader: &mut BufReader<OwnedReadHalf>,
+    encryption: &mut Encryption,
+) -> std::io::Result<f64> {
+    let mut buf = [0u8; 8];
+    reader.read_exact(&mut buf).await?;
+    encryption.decrypt(&mut buf);
+    Ok(f64::from_be_bytes(buf))
+}
+
 /// Reads a Minecraft byte array (prefixed with u16 length, then the bytes)
 pub async fn read_byte_array(
     reader: &mut BufReader<OwnedReadHalf>,
