@@ -2,7 +2,6 @@ use crate::network::connection::Encryption;
 use crate::packets::InboundPacket;
 use crate::packets::packet_trait::ClientPacket;
 use crate::packets::packet2_client_protocol::ClientProtocolPacket;
-use crate::packets::packet13_player_look_move::PlayerLookMovePacket;
 use crate::packets::packet205_client_command::ClientCommandPacket;
 use crate::packets::packet252_shared_key::SharedKeyPacket;
 use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;

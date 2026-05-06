@@ -1,6 +1,5 @@
 use crate::network::connection::Encryption;
 use crate::packets::packet_trait::{ClientPacket, ServerPacket};
-use crate::packets::packet10_flying::FlyingPacket;
 use crate::packets::utils::{read_f32, read_f64, read_u8, write_bool, write_f32, write_f64};
 use std::io::Error;
 use tokio::io::BufReader;
