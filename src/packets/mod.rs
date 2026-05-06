@@ -6,6 +6,7 @@ pub mod packet253_server_auth_data;
 pub mod packet254_server_ping;
 pub mod packet255_kick_disconnect;
 pub mod packet2_client_protocol;
+mod packet6_spawn_position;
 pub mod packet_trait;
 pub mod types;
 pub mod utils;
@@ -13,6 +14,7 @@ pub mod utils;
 use crate::network::connection::Encryption;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet1_login::Login;
+use crate::packets::packet6_spawn_position::SpawnPosition;
 use crate::packets::packet252_shared_key::SharedKeyPacket;
 use crate::packets::packet253_server_auth_data::ServerAuthData;
 use crate::packets::utils::read_u8;
@@ -24,6 +26,7 @@ use tokio::net::tcp::OwnedReadHalf;
 /// this enum contain all the packet received packet
 pub enum InboundPacket {
     KeepAlive(KeepAlive),
+    SpawnPosition(SpawnPosition),
     SharedKey(SharedKeyPacket),
     ServerAuthData(ServerAuthData),
     Login(Login),
@@ -44,6 +47,9 @@ impl InboundPacket {
                 KeepAlive::read(reader, encryption).await?,
             )),
             1 => Ok(InboundPacket::Login(Login::read(reader, encryption).await?)),
+            6 => Ok(InboundPacket::SpawnPosition(
+                SpawnPosition::read(reader, encryption).await?,
+            )),
             252 => Ok(InboundPacket::SharedKey(
                 SharedKeyPacket::read(reader, encryption).await?,
             )),
