@@ -1,6 +1,6 @@
 mod packet0_keep_alive;
 mod packet10_flying;
-mod packet13_player_look_move;
+pub mod packet13_player_look_move;
 mod packet16_block_item_switch;
 mod packet1_login;
 mod packet201_player_info;
@@ -62,7 +62,9 @@ impl InboundPacket {
             0x00 => Ok(InboundPacket::KeepAlive(
                 KeepAlivePacket::read(reader, encryption).await?,
             )),
-            1 => Ok(InboundPacket::Login(LoginPacket::read(reader, encryption).await?)),
+            1 => Ok(InboundPacket::Login(
+                LoginPacket::read(reader, encryption).await?,
+            )),
             4 => Ok(InboundPacket::UpdateTime(
                 UpdateTimePacket::read(reader, encryption).await?,
             )),

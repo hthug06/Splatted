@@ -45,7 +45,8 @@ impl ServerInfo {
             ));
         }
 
-        let kick_disconnect_packet = KickDisconnectPacket::read(&mut reader, &mut encryption).await?;
+        let kick_disconnect_packet =
+            KickDisconnectPacket::read(&mut reader, &mut encryption).await?;
 
         // Print all the infos
         log::info!("{}", kick_disconnect_packet.format_server_infos());
