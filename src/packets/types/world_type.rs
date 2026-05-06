@@ -27,7 +27,7 @@ impl WorldType {
     }
 
     /// Get the id of the world type
-    pub fn get_id(&self) -> i32 {
+    pub fn id(&self) -> i32 {
         match self {
             WorldType::Default => 0,
             WorldType::Flat => 1,
@@ -38,7 +38,7 @@ impl WorldType {
     }
 
     /// Get the generator version of the world type
-    pub fn get_generator_version(&self) -> i32 {
+    pub fn generator_version(&self) -> i32 {
         match self {
             WorldType::Default => 1, // Supposons la version 1 pour le default
             WorldType::Default1_1 => 0,
@@ -52,7 +52,7 @@ impl WorldType {
     }
 
     /// Get the name of the world type
-    pub fn get_name(&self) -> String {
+    pub fn name(&self) -> String {
         match self {
             WorldType::Default => "default".to_string(),
             WorldType::Flat => "flat".to_string(),
