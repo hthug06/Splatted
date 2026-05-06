@@ -5,11 +5,14 @@ use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
 
 #[derive(Debug)]
+/// An ItemStack is a representation of in Item ingame with the id, number of item and NBT
 pub struct ItemStack {
-    // Max 64 so u8, but we parse it from TCP, so we need to respect the read type
+    /// Max 64 so u8, but we parse it from TCP, so we need to respect the read type
     pub id: i16,
-    // I remember seen negative item with glitch, i hope this will be enough to parse it...
+    /// I remember seen negative item with glitch, I hope this will be enough to parse it...
+    /// Even if, we check if the value is > 0 in read_itemstack
     pub stack_size: i8,
+    /// Used for the durability, wool | glass color...
     pub item_damage: i16,
     pub nbt_tag_compound: Option<Vec<u8>>,
 }
