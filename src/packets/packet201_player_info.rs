@@ -1,16 +1,18 @@
 use crate::network::connection::Encryption;
 use crate::packets::packet_trait::ServerPacket;
-use crate::packets::utils::read_i16;
+use crate::packets::utils::{read_i32, read_string, read_u8};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
 #[derive(Debug)]
-pub struct BlockItemSwitch {
-    id: i32,
+pub struct PlayerInfo {
+    pub name: String,
+    pub is_connected: bool,
+    pub ping: i32,
 }
 
-impl ServerPacket for BlockItemSwitch {
+impl ServerPacket for PlayerInfo {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
@@ -19,7 +21,9 @@ impl ServerPacket for BlockItemSwitch {
         Self: Sized,
     {
         Ok(Self {
-            id: read_i16(reader, encryption).await? as i32,
+            name: read_string(reader, encryption).await?,
+            is_connected: read_u8(reader, encryption).await? != 0,
+            ping: read_i32(reader, encryption).await?,
         })
     }
 }

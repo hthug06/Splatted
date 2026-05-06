@@ -83,6 +83,9 @@ impl Client {
                     log::info!("Block item switch packet received: {:?}", block_item_switch);
                     // handle block item switch (NetClientHandler.java -> handleBlockItemSwitch())
                 }
+                InboundPacket::PlayerInfo(player_info) => {
+                    log::info!("Player info packet received: {:?}", player_info);
+                }
                 InboundPacket::PlayerAbilities(abilities) => {
                     log::info!("Player abilities packet received: {:?}", abilities);
                 }
