@@ -76,6 +76,10 @@ impl Client {
                 InboundPacket::SpawnPosition(position) => {
                     log::info!("Spawn position packet received: {:?}", position);
                 }
+                InboundPacket::BlockItemSwitch(block_item_switch) => {
+                    log::info!("Block item switch packet received: {:?}", block_item_switch);
+                    // handle block item switch (NetClientHandler.java -> handleBlockItemSwitch())
+                }
                 InboundPacket::PlayerAbilities(abilities) => {
                     log::info!("Player abilities packet received: {:?}", abilities);
                 }

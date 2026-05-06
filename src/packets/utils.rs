@@ -17,6 +17,8 @@ pub async fn read_u8(
 }
 
 /// Read an i8 (byte but signed)
+/// it's like reading a byte in java
+/// like par1DataInputStream.readByte() in mc code
 pub async fn read_i8(
     reader: &mut BufReader<OwnedReadHalf>,
     encryption: &mut Encryption,
@@ -29,8 +31,22 @@ pub async fn read_i8(
     Ok(i8::from_be_bytes(buf))
 }
 
+/// Read an i16
+/// it's like reading a short in java
+/// like par1DataInputStream.readShort() in mc code
+pub async fn read_i16(
+    reader: &mut BufReader<OwnedReadHalf>,
+    encryption: &mut Encryption,
+) -> std::io::Result<i16> {
+    let mut buf = [0u8; 2];
+    reader.read_exact(&mut buf).await?;
+    encryption.decrypt(&mut buf);
+    Ok(i16::from_be_bytes(buf))
+}
+
 /// Read an i32
 /// it's like reading an integer in java
+/// like par1DataInputStream.readInt() in mc code
 pub async fn read_i32(
     reader: &mut BufReader<OwnedReadHalf>,
     encryption: &mut Encryption,
