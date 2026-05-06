@@ -15,6 +15,7 @@ pub mod packet255_kick_disconnect;
 pub mod packet2_client_protocol;
 mod packet4_update_time;
 mod packet6_spawn_position;
+mod packet70_game_event;
 pub mod packet_trait;
 pub mod types;
 pub mod utils;
@@ -26,6 +27,7 @@ use crate::packets::packet4_update_time::UpdateTimePacket;
 use crate::packets::packet6_spawn_position::SpawnPositionPacket;
 use crate::packets::packet13_player_look_move::PlayerLookMovePacket;
 use crate::packets::packet16_block_item_switch::BlockItemSwitchPacket;
+use crate::packets::packet70_game_event::GameEventPacket;
 use crate::packets::packet103_set_slot::SetSlotPacket;
 use crate::packets::packet104_window_items::WindowItemsPacket;
 use crate::packets::packet201_player_info::PlayerInfoPacket;
@@ -37,21 +39,22 @@ use packet0_keep_alive::KeepAlivePacket;
 use std::io::{Error, ErrorKind};
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
-
-/// this enum contain all the received packet
+// Sorted alphabetically
+/// This enum contain all the received packet
 pub enum InboundPacket {
-    KeepAlive(KeepAlivePacket),
-    UpdateTime(UpdateTimePacket),
-    SpawnPosition(SpawnPositionPacket),
-    PlayerLookMove(PlayerLookMovePacket),
     BlockItemSwitch(BlockItemSwitchPacket),
-    SetSlot(SetSlotPacket),
-    WindowItems(WindowItemsPacket),
-    PlayerInfo(PlayerInfoPacket),
-    PlayerAbilities(PlayerAbilitiesPacket),
-    SharedKey(SharedKeyPacket),
-    ServerAuthData(ServerAuthDataPacket),
+    GameEvent(GameEventPacket),
+    KeepAlive(KeepAlivePacket),
     Login(LoginPacket),
+    PlayerAbilities(PlayerAbilitiesPacket),
+    PlayerInfo(PlayerInfoPacket),
+    PlayerLookMove(PlayerLookMovePacket),
+    ServerAuthData(ServerAuthDataPacket),
+    SetSlot(SetSlotPacket),
+    SharedKey(SharedKeyPacket),
+    SpawnPosition(SpawnPositionPacket),
+    UpdateTime(UpdateTimePacket),
+    WindowItems(WindowItemsPacket),
 }
 
 impl InboundPacket {
@@ -82,6 +85,9 @@ impl InboundPacket {
             )),
             16 => Ok(InboundPacket::BlockItemSwitch(
                 BlockItemSwitchPacket::read(reader, encryption).await?,
+            )),
+            70 => Ok(InboundPacket::GameEvent(
+                GameEventPacket::read(reader, encryption).await?,
             )),
             103 => Ok(InboundPacket::SetSlot(
                 SetSlotPacket::read(reader, encryption).await?,

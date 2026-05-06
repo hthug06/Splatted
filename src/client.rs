@@ -69,15 +69,27 @@ impl Client {
                 };
 
             // handle the packet
+            // Sorted alphabetically
             match packet {
+                InboundPacket::BlockItemSwitch(block_item_switch) => {
+                    log::info!("Block item switch packet received: {:?}", block_item_switch);
+                    // handle block item switch (NetClientHandler.java -> handleBlockItemSwitch())
+                }
+                InboundPacket::GameEvent(game_event) => {
+                    log::info!("Game event packet received: {:?}", game_event);
+                }
                 InboundPacket::KeepAlive(keep_alive_packet) => {
                     self.send_packet(keep_alive_packet).await?;
                 }
-                InboundPacket::UpdateTime(update_time) => {
-                    log::info!("Update time packet received: {:?}", update_time);
+                InboundPacket::Login(login_packet) => {
+                    // Do nothing with the packet, but having information about the client is useful
+                    log::info!("Login packet received: {:?}", login_packet);
                 }
-                InboundPacket::SpawnPosition(position) => {
-                    log::info!("Spawn position packet received: {:?}", position);
+                InboundPacket::PlayerAbilities(abilities) => {
+                    log::info!("Player abilities packet received: {:?}", abilities);
+                }
+                InboundPacket::PlayerInfo(player_info) => {
+                    log::info!("Player info packet received: {:?}", player_info);
                 }
                 InboundPacket::PlayerLookMove(player_look_move) => {
                     log::info!("Player look move packet received: {:?}", player_look_move);
@@ -85,31 +97,23 @@ impl Client {
                     // Resend the same packet
                     self.send_packet(player_look_move).await?;
                 }
-                InboundPacket::BlockItemSwitch(block_item_switch) => {
-                    log::info!("Block item switch packet received: {:?}", block_item_switch);
-                    // handle block item switch (NetClientHandler.java -> handleBlockItemSwitch())
+                InboundPacket::ServerAuthData(auth_packet) => {
+                    self.handle_server_auth_data(auth_packet).await?;
                 }
                 InboundPacket::SetSlot(set_slot) => {
                     log::info!("Set slot packet received: {:?}", set_slot);
                 }
-                InboundPacket::WindowItems(window_items) => {
-                    log::info!("Window items packet received: {:?}", window_items);
-                }
-                InboundPacket::PlayerInfo(player_info) => {
-                    log::info!("Player info packet received: {:?}", player_info);
-                }
-                InboundPacket::PlayerAbilities(abilities) => {
-                    log::info!("Player abilities packet received: {:?}", abilities);
-                }
-                InboundPacket::Login(login_packet) => {
-                    // Do nothing with the packet, but having information about the client is useful
-                    log::info!("Login packet received: {:?}", login_packet);
-                }
-                InboundPacket::ServerAuthData(auth_packet) => {
-                    self.handle_server_auth_data(auth_packet).await?;
-                }
                 InboundPacket::SharedKey(shared_key_packet) => {
                     self.handle_shared_key(shared_key_packet).await?;
+                }
+                InboundPacket::SpawnPosition(position) => {
+                    log::info!("Spawn position packet received: {:?}", position);
+                }
+                InboundPacket::UpdateTime(update_time) => {
+                    log::info!("Update time packet received: {:?}", update_time);
+                }
+                InboundPacket::WindowItems(window_items) => {
+                    log::info!("Window items packet received: {:?}", window_items);
                 }
             }
         }

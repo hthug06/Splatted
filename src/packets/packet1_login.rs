@@ -3,7 +3,7 @@ use crate::packets::packet_trait::ServerPacket;
 use crate::packets::types::dimension_type::DimensionType;
 use crate::packets::types::game_type::GameType;
 use crate::packets::types::world_type::WorldType;
-use crate::packets::utils::{read_i32, read_i8, read_string};
+use crate::packets::utils::{read_i8, read_i32, read_string};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
