@@ -76,6 +76,9 @@ impl Client {
                 InboundPacket::SpawnPosition(position) => {
                     log::info!("Spawn position packet received: {:?}", position);
                 }
+                InboundPacket::PlayerAbilities(abilities) => {
+                    log::info!("Player abilities packet received: {:?}", abilities);
+                }
                 InboundPacket::Login(login_packet) => {
                     // Do nothing with the packet, but having information about the client is useful
                     log::info!("Login packet received: {:?}", login_packet);
