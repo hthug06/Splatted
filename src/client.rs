@@ -79,6 +79,10 @@ impl Client {
                 InboundPacket::SpawnPosition(position) => {
                     log::info!("Spawn position packet received: {:?}", position);
                 }
+                InboundPacket::PlayerLookMove(player_look_move) => {
+                    log::info!("Player look move packet received: {:?}", player_look_move);
+                    // TODO: resend the same packet BUT reverse stance and y (WHY TF?)
+                }
                 InboundPacket::BlockItemSwitch(block_item_switch) => {
                     log::info!("Block item switch packet received: {:?}", block_item_switch);
                     // handle block item switch (NetClientHandler.java -> handleBlockItemSwitch())

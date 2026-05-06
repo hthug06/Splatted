@@ -1,4 +1,6 @@
 mod packet0_keep_alive;
+mod packet10_flying;
+mod packet13_player_look_move;
 mod packet16_block_item_switch;
 mod packet1_login;
 mod packet201_player_info;
@@ -14,13 +16,13 @@ mod packet6_spawn_position;
 pub mod packet_trait;
 pub mod types;
 pub mod utils;
-mod packet10_flying;
 
 use crate::network::connection::Encryption;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet1_login::Login;
 use crate::packets::packet4_update_time::UpdateTime;
 use crate::packets::packet6_spawn_position::SpawnPosition;
+use crate::packets::packet13_player_look_move::PlayerLookMove;
 use crate::packets::packet16_block_item_switch::BlockItemSwitch;
 use crate::packets::packet201_player_info::PlayerInfo;
 use crate::packets::packet202_player_abilities::PlayerAbilities;
@@ -37,6 +39,7 @@ pub enum InboundPacket {
     KeepAlive(KeepAlive),
     UpdateTime(UpdateTime),
     SpawnPosition(SpawnPosition),
+    PlayerLookMove(PlayerLookMove),
     BlockItemSwitch(BlockItemSwitch),
     PlayerInfo(PlayerInfo),
     PlayerAbilities(PlayerAbilities),
@@ -65,6 +68,9 @@ impl InboundPacket {
             )),
             6 => Ok(InboundPacket::SpawnPosition(
                 SpawnPosition::read(reader, encryption).await?,
+            )),
+            13 => Ok(InboundPacket::PlayerLookMove(
+                PlayerLookMove::read(reader, encryption).await?,
             )),
             16 => Ok(InboundPacket::BlockItemSwitch(
                 BlockItemSwitch::read(reader, encryption).await?,
