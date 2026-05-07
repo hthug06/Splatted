@@ -14,6 +14,7 @@ pub mod packet254_server_ping;
 pub mod packet255_kick_disconnect;
 pub mod packet2_client_protocol;
 mod packet4_update_time;
+mod packet56_map_chunk;
 mod packet6_spawn_position;
 mod packet70_game_event;
 pub mod packet_trait;
@@ -27,6 +28,7 @@ use crate::packets::packet4_update_time::UpdateTimePacket;
 use crate::packets::packet6_spawn_position::SpawnPositionPacket;
 use crate::packets::packet13_player_look_move::PlayerLookMovePacket;
 use crate::packets::packet16_block_item_switch::BlockItemSwitchPacket;
+use crate::packets::packet56_map_chunk::MapChunkPacket;
 use crate::packets::packet70_game_event::GameEventPacket;
 use crate::packets::packet103_set_slot::SetSlotPacket;
 use crate::packets::packet104_window_items::WindowItemsPacket;
@@ -39,6 +41,7 @@ use packet0_keep_alive::KeepAlivePacket;
 use std::io::{Error, ErrorKind};
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
+
 // Sorted alphabetically
 /// This enum contain all the received packet
 pub enum InboundPacket {
@@ -46,6 +49,7 @@ pub enum InboundPacket {
     GameEvent(GameEventPacket),
     KeepAlive(KeepAlivePacket),
     Login(LoginPacket),
+    MapChunk(MapChunkPacket),
     PlayerAbilities(PlayerAbilitiesPacket),
     PlayerInfo(PlayerInfoPacket),
     PlayerLookMove(PlayerLookMovePacket),
@@ -85,6 +89,9 @@ impl InboundPacket {
             )),
             16 => Ok(InboundPacket::BlockItemSwitch(
                 BlockItemSwitchPacket::read(reader, encryption).await?,
+            )),
+            56 => Ok(InboundPacket::MapChunk(
+                MapChunkPacket::read(reader, encryption).await?,
             )),
             70 => Ok(InboundPacket::GameEvent(
                 GameEventPacket::read(reader, encryption).await?,

@@ -85,6 +85,18 @@ impl Client {
                     // Do nothing with the packet, but having information about the client is useful
                     log::info!("Login packet received: {:?}", login_packet);
                 }
+                InboundPacket::MapChunk(map_chunk) => {
+                    log::info!(
+                        "Map chunk packet received, {} chunk(s) received",
+                        map_chunk.chunk_count
+                    );
+                    log::info!(
+                        "Chunks details: {:#?}, data lenght: {}, sky light: {}",
+                        map_chunk.metadata,
+                        map_chunk.data_length,
+                        map_chunk.sky_light_sent
+                    );
+                }
                 InboundPacket::PlayerAbilities(abilities) => {
                     log::info!("Player abilities packet received: {:?}", abilities);
                 }
