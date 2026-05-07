@@ -19,6 +19,7 @@ mod packet20_named_entity_spawn;
 mod packet22_collect;
 mod packet23_vehicule_spawn;
 mod packet24_mob_spawn;
+mod packet250_custom_payload;
 pub mod packet252_shared_key;
 pub mod packet253_server_auth_data;
 pub mod packet254_server_ping;
@@ -107,6 +108,7 @@ use crate::packets::packet132_tile_entity_data::TileEntityDataPacket;
 use crate::packets::packet200_statistic::StatisticPacket;
 use crate::packets::packet201_player_info::PlayerInfoPacket;
 use crate::packets::packet202_player_abilities::PlayerAbilitiesPacket;
+use crate::packets::packet250_custom_payload::CustomPayloadPacket;
 use crate::packets::packet252_shared_key::SharedKeyPacket;
 use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;
 use crate::packets::utils::read_u8;
@@ -125,6 +127,7 @@ pub enum InboundPacket {
     BlockItemSwitch(BlockItemSwitchPacket),
     Chat(ChatPacket),
     Collected(CollectPacket),
+    CustomPayload(CustomPayloadPacket),
     DestroyEntity(DestroyEntityPacket),
     DoorChange(DoorChangePacket),
     EntityEffect(EntityEffectPacket),
@@ -292,6 +295,9 @@ impl InboundPacket {
             )),
             202 => Ok(PlayerAbilities(
                 PlayerAbilitiesPacket::read(reader, encryption).await?,
+            )),
+            250 => Ok(CustomPayload(
+                CustomPayloadPacket::read(reader, encryption).await?,
             )),
             252 => Ok(SharedKey(SharedKeyPacket::read(reader, encryption).await?)),
             253 => Ok(ServerAuthData(

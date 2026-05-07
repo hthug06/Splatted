@@ -94,6 +94,9 @@ impl Client {
                 Collected(collected) => {
                     // log::info!("Collected packet received: {:?}", collected);
                 }
+                CustomPayload(custom_payload) => {
+                    log::info!("Custom payload packet received: {:?}", custom_payload);
+                }
                 DestroyEntity(destroy_entity) => {
                     // log::info!("Destroy entity packet received: {:?}", destroy_entity);
                 }
@@ -178,7 +181,7 @@ impl Client {
                     // );
                 }
                 PlayNoteBlock(play_note_block) => {
-                    log::info!("Play note block packet received: {:?}", play_note_block);
+                    // log::info!("Play note block packet received: {:?}", play_note_block);
                 }
                 PlayerAbilities(abilities) => {
                     // log::info!("Player abilities packet received: {:?}", abilities);
@@ -233,7 +236,7 @@ impl Client {
                     // log::info!("Update health packet received: {:?}", update_health);
                 }
                 UpdateSign(update_sign) => {
-                    log::info!("Update sign packet received: {:?}", update_sign);
+                    // log::info!("Update sign packet received: {:?}", update_sign);
                 }
                 UpdateTime(update_time) => {
                     // log::info!("Update time packet received: {:?}", update_time);
