@@ -75,6 +75,12 @@ impl Client {
                     log::info!("Block item switch packet received: {:?}", block_item_switch);
                     // handle block item switch (NetClientHandler.java -> handleBlockItemSwitch())
                 }
+                InboundPacket::EntityHeadRotation(entity_head_rotation) => {
+                    log::info!(
+                        "Entity head rotation packet received: {:?}",
+                        entity_head_rotation
+                    );
+                }
                 InboundPacket::EntityLook(entity_look) => {
                     log::info!("Entity look packet received: {:?}", entity_look);
                 }
