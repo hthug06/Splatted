@@ -101,7 +101,7 @@ impl Client {
                     // log::info!("Door change packet received: {:?}", door_change);
                 }
                 EntityEffect(entity_effect) => {
-                    log::info!("Entity effect packet received: {:?}", entity_effect);
+                    // log::info!("Entity effect packet received: {:?}", entity_effect);
                 }
                 EntityExpOrb(entity_exp_orb) => {
                     // log::info!("Entity exp orb packet received: {:?}", entity_exp_orb);
@@ -133,6 +133,9 @@ impl Client {
                 }
                 Experience(experience) => {
                     // log::info!("Experience packet received: {:?}", experience);
+                }
+                Explosion(explosion) => {
+                    // log::info!("Explosion packet received: {:?}", explosion);
                 }
                 GameEvent(game_event) => {
                     // log::info!("Game event packet received: {:?}", game_event);

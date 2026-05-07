@@ -44,6 +44,7 @@ mod packet54_play_note_block;
 mod packet55_block_destroy;
 mod packet56_map_chunk;
 mod packet5_player_inventory;
+mod packet60_explosion;
 mod packet61_door_change;
 mod packet62_level_sound;
 mod packet6_spawn_position;
@@ -89,6 +90,7 @@ use crate::packets::packet53_block_change::BlockChangePacket;
 use crate::packets::packet54_play_note_block::PlayNoteBlockPacket;
 use crate::packets::packet55_block_destroy::BlockDestroyPacket;
 use crate::packets::packet56_map_chunk::MapChunkPacket;
+use crate::packets::packet60_explosion::ExplosionPacket;
 use crate::packets::packet61_door_change::DoorChangePacket;
 use crate::packets::packet62_level_sound::LevelSoundPacket;
 use crate::packets::packet70_game_event::GameEventPacket;
@@ -128,6 +130,7 @@ pub enum InboundPacket {
     EntityTeleport(EntityTeleportPacket),
     EntityVelocity(EntityVelocityPacket),
     Experience(ExperiencePacket),
+    Explosion(ExplosionPacket),
     GameEvent(GameEventPacket),
     KeepAlive(KeepAlivePacket),
     LevelSound(LevelSoundPacket),
@@ -255,6 +258,7 @@ impl InboundPacket {
                 BlockDestroyPacket::read(reader, encryption).await?,
             )),
             56 => Ok(MapChunk(MapChunkPacket::read(reader, encryption).await?)),
+            60 => Ok(Explosion(ExplosionPacket::read(reader, encryption).await?)),
             61 => Ok(DoorChange(
                 DoorChangePacket::read(reader, encryption).await?,
             )),
