@@ -21,17 +21,19 @@ mod packet56_map_chunk;
 mod packet5_player_inventory;
 mod packet6_spawn_position;
 mod packet70_game_event;
+mod packet8_update_health;
 pub mod packet_trait;
 pub mod types;
 pub mod utils;
 
 use crate::network::connection::Encryption;
-use crate::packets::InboundPacket::{EntityMetadata, MobSpawn};
+use crate::packets::InboundPacket::{EntityMetadata, MobSpawn, UpdateHealth};
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet1_login::LoginPacket;
 use crate::packets::packet4_update_time::UpdateTimePacket;
 use crate::packets::packet5_player_inventory::PlayerInventoryPacket;
 use crate::packets::packet6_spawn_position::SpawnPositionPacket;
+use crate::packets::packet8_update_health::UpdateHealthPacket;
 use crate::packets::packet13_player_look_move::PlayerLookMovePacket;
 use crate::packets::packet16_block_item_switch::BlockItemSwitchPacket;
 use crate::packets::packet24_mob_spawn::MobSpawnPacket;
@@ -70,6 +72,7 @@ pub enum InboundPacket {
     SharedKey(SharedKeyPacket),
     SpawnPosition(SpawnPositionPacket),
     TileEntityData(TileEntityDataPacket),
+    UpdateHealth(UpdateHealthPacket),
     UpdateTime(UpdateTimePacket),
     WindowItems(WindowItemsPacket),
 }
@@ -99,6 +102,9 @@ impl InboundPacket {
             )),
             6 => Ok(InboundPacket::SpawnPosition(
                 SpawnPositionPacket::read(reader, encryption).await?,
+            )),
+            8 => Ok(UpdateHealth(
+                UpdateHealthPacket::read(reader, encryption).await?,
             )),
             13 => Ok(InboundPacket::PlayerLookMove(
                 PlayerLookMovePacket::read(reader, encryption).await?,

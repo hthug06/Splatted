@@ -133,6 +133,9 @@ impl Client {
                 InboundPacket::TileEntityData(tile_entity_data) => {
                     log::info!("Tile entity data packet received: {:?}", tile_entity_data);
                 }
+                InboundPacket::UpdateHealth(update_health) => {
+                    log::info!("Update health packet received: {:?}", update_health);
+                }
                 InboundPacket::UpdateTime(update_time) => {
                     log::info!("Update time packet received: {:?}", update_time);
                 }
