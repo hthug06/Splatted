@@ -6,13 +6,13 @@ use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
 #[derive(Debug)]
-pub struct UpdateHealthPacket {
-    pub health: i16,
-    pub food: i16,
-    pub food_saturation: f32,
+pub struct ExperiencePacket {
+    pub experience: f32,
+    pub experience_level: i16,
+    pub experience_total: i16,
 }
 
-impl ServerPacket for UpdateHealthPacket {
+impl ServerPacket for ExperiencePacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
@@ -21,9 +21,9 @@ impl ServerPacket for UpdateHealthPacket {
         Self: Sized,
     {
         Ok(Self {
-            health: read_i16(reader, encryption).await?,
-            food: read_i16(reader, encryption).await?,
-            food_saturation: read_f32(reader, encryption).await?,
+            experience: read_f32(reader, encryption).await?,
+            experience_level: read_i16(reader, encryption).await?,
+            experience_total: read_i16(reader, encryption).await?,
         })
     }
 }

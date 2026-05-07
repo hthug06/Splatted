@@ -78,6 +78,9 @@ impl Client {
                 InboundPacket::EntityMetadata(entity_metadata) => {
                     log::info!("Entity metadata packet received: {:?}", entity_metadata);
                 }
+                InboundPacket::Experience(experience) => {
+                    log::info!("Experience packet received: {:?}", experience);
+                }
                 InboundPacket::GameEvent(game_event) => {
                     log::info!("Game event packet received: {:?}", game_event);
                 }
