@@ -1,5 +1,6 @@
 pub mod dimension_type;
 pub mod entity_metadata;
+pub mod entity_status;
 pub mod entity_type;
 pub mod event_type;
 pub mod game_type;
