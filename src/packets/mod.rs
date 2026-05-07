@@ -36,6 +36,7 @@ mod packet43_experience;
 mod packet4_update_time;
 mod packet52_multi_block_change;
 mod packet53_block_change;
+mod packet55_block_destroy;
 mod packet56_map_chunk;
 mod packet5_player_inventory;
 mod packet61_door_change;
@@ -76,6 +77,7 @@ use crate::packets::packet40_entity_metadata::EntityMetadataPacket;
 use crate::packets::packet43_experience::ExperiencePacket;
 use crate::packets::packet52_multi_block_change::MultiBlockChangePacket;
 use crate::packets::packet53_block_change::BlockChangePacket;
+use crate::packets::packet55_block_destroy::BlockDestroyPacket;
 use crate::packets::packet56_map_chunk::MapChunkPacket;
 use crate::packets::packet61_door_change::DoorChangePacket;
 use crate::packets::packet62_level_sound::LevelSoundPacket;
@@ -99,6 +101,7 @@ use tokio::net::tcp::OwnedReadHalf;
 pub enum InboundPacket {
     Animation(AnimationPacket),
     BlockChange(BlockChangePacket),
+    BlockDestroy(BlockDestroyPacket),
     BlockItemSwitch(BlockItemSwitchPacket),
     Chat(ChatPacket),
     Collected(CollectPacket),
@@ -217,6 +220,9 @@ impl InboundPacket {
             )),
             53 => Ok(BlockChange(
                 BlockChangePacket::read(reader, encryption).await?,
+            )),
+            55 => Ok(BlockDestroy(
+                BlockDestroyPacket::read(reader, encryption).await?,
             )),
             56 => Ok(MapChunk(MapChunkPacket::read(reader, encryption).await?)),
             61 => Ok(DoorChange(

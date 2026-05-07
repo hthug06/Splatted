@@ -78,6 +78,9 @@ impl Client {
                 BlockChange(block_change) => {
                     // log::info!("Block change packet received: {:?}", block_change);
                 }
+                BlockDestroy(block_destroy) => {
+                    // log::info!("Block destroy packet received: {:?}", block_destroy);
+                }
                 BlockItemSwitch(block_item_switch) => {
                     // log::info!("Block item switch packet received: {:?}", block_item_switch);
                     // handle block item switch (NetClientHandler.java -> handleBlockItemSwitch())
