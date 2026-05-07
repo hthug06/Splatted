@@ -15,6 +15,7 @@ pub mod packet253_server_auth_data;
 pub mod packet254_server_ping;
 pub mod packet255_kick_disconnect;
 mod packet28_entity_velocity;
+mod packet29_destroy_entity;
 pub mod packet2_client_protocol;
 mod packet30_entity;
 mod packet31_rel_entity_move;
@@ -47,6 +48,7 @@ use crate::packets::packet13_player_look_move::PlayerLookMovePacket;
 use crate::packets::packet16_block_item_switch::BlockItemSwitchPacket;
 use crate::packets::packet24_mob_spawn::MobSpawnPacket;
 use crate::packets::packet28_entity_velocity::EntityVelocityPacket;
+use crate::packets::packet29_destroy_entity::DestroyEntityPacket;
 use crate::packets::packet31_rel_entity_move::RelEntityMovePacket;
 use crate::packets::packet32_entity_look::EntityLookPacket;
 use crate::packets::packet33_rel_entity_move_look::RelEntityMoveLookPacket;
@@ -75,6 +77,7 @@ use tokio::net::tcp::OwnedReadHalf;
 pub enum InboundPacket {
     BlockChange(BlockChangePacket),
     BlockItemSwitch(BlockItemSwitchPacket),
+    DestroyEntity(DestroyEntityPacket),
     EntityHeadRotation(EntityHeadRotationPacket),
     EntityLook(EntityLookPacket),
     EntityMetadata(EntityMetadataPacket),
@@ -136,6 +139,9 @@ impl InboundPacket {
             24 => Ok(MobSpawn(MobSpawnPacket::read(reader, encryption).await?)),
             28 => Ok(EntityVelocity(
                 EntityVelocityPacket::read(reader, encryption).await?,
+            )),
+            29 => Ok(DestroyEntity(
+                DestroyEntityPacket::read(reader, encryption).await?,
             )),
             31 => Ok(RelEntityMove(
                 RelEntityMovePacket::read(reader, encryption).await?,
