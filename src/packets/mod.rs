@@ -2,6 +2,7 @@ mod packet0_keep_alive;
 mod packet103_set_slot;
 mod packet104_window_items;
 mod packet10_flying;
+mod packet11_player_position;
 mod packet130_update_sign;
 mod packet132_tile_entity_data;
 pub mod packet13_player_look_move;
