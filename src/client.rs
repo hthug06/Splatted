@@ -190,6 +190,12 @@ impl Client {
                     player_look_move.on_ground = true;
                     self.send_packet(player_look_move).await?;
                 }
+                RemoveEntityEffect(remove_entity_effect) => {
+                    log::info!(
+                        "Remove entity effect packet received: {:?}",
+                        remove_entity_effect
+                    );
+                }
                 RelEntityMove(rel_entity_move) => {
                     // log::info!("Rel entity move packet received: {:?}", rel_entity_move);
                 }
