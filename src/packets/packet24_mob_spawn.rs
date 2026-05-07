@@ -33,7 +33,8 @@ impl ServerPacket for MobSpawnPacket {
     {
         Ok(Self {
             entity_id: read_i32(reader, encryption).await?,
-            entity_type: EntityType::from_id((read_u8(reader, encryption).await? & 255) as i16),
+            // In mc code, they use & 255. Because we have unsigned integer, this is useless
+            entity_type: EntityType::from_id((read_u8(reader, encryption).await?) as i16),
             x: (read_i32(reader, encryption).await?) / 32, // In src code, the /32, is divided by 32 and rounded
             y: (read_i32(reader, encryption).await?) / 32, // So if we want to be precise later, we need to
             z: (read_i32(reader, encryption).await?) / 32, // cast as f64 and divide / 32.0

@@ -36,10 +36,7 @@ pub mod types;
 pub mod utils;
 
 use crate::network::connection::Encryption;
-use crate::packets::InboundPacket::{
-    BlockChange, EntityHeadRotation, EntityLook, EntityMetadata, EntityVelocity, Experience,
-    MobSpawn, MultiBlockChange, RelEntityMove, UpdateHealth,
-};
+use crate::packets::InboundPacket::*;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet1_login::LoginPacket;
 use crate::packets::packet4_update_time::UpdateTimePacket;
@@ -116,28 +113,24 @@ impl InboundPacket {
 
         // Match the id to handle the right packet
         match packet_id {
-            0x00 => Ok(InboundPacket::KeepAlive(
-                KeepAlivePacket::read(reader, encryption).await?,
-            )),
-            1 => Ok(InboundPacket::Login(
-                LoginPacket::read(reader, encryption).await?,
-            )),
-            4 => Ok(InboundPacket::UpdateTime(
+            0x00 => Ok(KeepAlive(KeepAlivePacket::read(reader, encryption).await?)),
+            1 => Ok(Login(LoginPacket::read(reader, encryption).await?)),
+            4 => Ok(UpdateTime(
                 UpdateTimePacket::read(reader, encryption).await?,
             )),
-            5 => Ok(InboundPacket::PlayerInventory(
+            5 => Ok(PlayerInventory(
                 PlayerInventoryPacket::read(reader, encryption).await?,
             )),
-            6 => Ok(InboundPacket::SpawnPosition(
+            6 => Ok(SpawnPosition(
                 SpawnPositionPacket::read(reader, encryption).await?,
             )),
             8 => Ok(UpdateHealth(
                 UpdateHealthPacket::read(reader, encryption).await?,
             )),
-            13 => Ok(InboundPacket::PlayerLookMove(
+            13 => Ok(PlayerLookMove(
                 PlayerLookMovePacket::read(reader, encryption).await?,
             )),
-            16 => Ok(InboundPacket::BlockItemSwitch(
+            16 => Ok(BlockItemSwitch(
                 BlockItemSwitchPacket::read(reader, encryption).await?,
             )),
             24 => Ok(MobSpawn(MobSpawnPacket::read(reader, encryption).await?)),
@@ -150,7 +143,7 @@ impl InboundPacket {
             32 => Ok(EntityLook(
                 EntityLookPacket::read(reader, encryption).await?,
             )),
-            33 => Ok(InboundPacket::RelEntityMoveLook(
+            33 => Ok(RelEntityMoveLook(
                 RelEntityMoveLookPacket::read(reader, encryption).await?,
             )),
             35 => Ok(EntityHeadRotation(
@@ -168,31 +161,23 @@ impl InboundPacket {
             53 => Ok(BlockChange(
                 BlockChangePacket::read(reader, encryption).await?,
             )),
-            56 => Ok(InboundPacket::MapChunk(
-                MapChunkPacket::read(reader, encryption).await?,
-            )),
-            70 => Ok(InboundPacket::GameEvent(
-                GameEventPacket::read(reader, encryption).await?,
-            )),
-            103 => Ok(InboundPacket::SetSlot(
-                SetSlotPacket::read(reader, encryption).await?,
-            )),
-            104 => Ok(InboundPacket::WindowItems(
+            56 => Ok(MapChunk(MapChunkPacket::read(reader, encryption).await?)),
+            70 => Ok(GameEvent(GameEventPacket::read(reader, encryption).await?)),
+            103 => Ok(SetSlot(SetSlotPacket::read(reader, encryption).await?)),
+            104 => Ok(WindowItems(
                 WindowItemsPacket::read(reader, encryption).await?,
             )),
-            132 => Ok(InboundPacket::TileEntityData(
+            132 => Ok(TileEntityData(
                 TileEntityDataPacket::read(reader, encryption).await?,
             )),
-            201 => Ok(InboundPacket::PlayerInfo(
+            201 => Ok(PlayerInfo(
                 PlayerInfoPacket::read(reader, encryption).await?,
             )),
-            202 => Ok(InboundPacket::PlayerAbilities(
+            202 => Ok(PlayerAbilities(
                 PlayerAbilitiesPacket::read(reader, encryption).await?,
             )),
-            252 => Ok(InboundPacket::SharedKey(
-                SharedKeyPacket::read(reader, encryption).await?,
-            )),
-            253 => Ok(InboundPacket::ServerAuthData(
+            252 => Ok(SharedKey(SharedKeyPacket::read(reader, encryption).await?)),
+            253 => Ok(ServerAuthData(
                 ServerAuthDataPacket::read(reader, encryption).await?,
             )),
 

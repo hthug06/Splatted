@@ -1,5 +1,6 @@
 use crate::network::connection::Encryption;
 use crate::packets::InboundPacket;
+use crate::packets::InboundPacket::*;
 use crate::packets::packet_trait::ClientPacket;
 use crate::packets::packet2_client_protocol::ClientProtocolPacket;
 use crate::packets::packet205_client_command::ClientCommandPacket;
@@ -71,42 +72,42 @@ impl Client {
             // handle the packet
             // Sorted alphabetically
             match packet {
-                InboundPacket::BlockChange(block_change) => {
+                BlockChange(block_change) => {
                     log::info!("Block change packet received: {:?}", block_change);
                 }
-                InboundPacket::BlockItemSwitch(block_item_switch) => {
+                BlockItemSwitch(block_item_switch) => {
                     log::info!("Block item switch packet received: {:?}", block_item_switch);
                     // handle block item switch (NetClientHandler.java -> handleBlockItemSwitch())
                 }
-                InboundPacket::EntityHeadRotation(entity_head_rotation) => {
+                EntityHeadRotation(entity_head_rotation) => {
                     log::info!(
                         "Entity head rotation packet received: {:?}",
                         entity_head_rotation
                     );
                 }
-                InboundPacket::EntityLook(entity_look) => {
+                EntityLook(entity_look) => {
                     log::info!("Entity look packet received: {:?}", entity_look);
                 }
-                InboundPacket::EntityMetadata(entity_metadata) => {
+                EntityMetadata(entity_metadata) => {
                     log::info!("Entity metadata packet received: {:?}", entity_metadata);
                 }
-                InboundPacket::EntityVelocity(entity_velocity) => {
+                EntityVelocity(entity_velocity) => {
                     log::info!("Entity velocity packet received: {:?}", entity_velocity);
                 }
-                InboundPacket::Experience(experience) => {
+                Experience(experience) => {
                     log::info!("Experience packet received: {:?}", experience);
                 }
-                InboundPacket::GameEvent(game_event) => {
+                GameEvent(game_event) => {
                     log::info!("Game event packet received: {:?}", game_event);
                 }
-                InboundPacket::KeepAlive(keep_alive_packet) => {
+                KeepAlive(keep_alive_packet) => {
                     self.send_packet(keep_alive_packet).await?;
                 }
-                InboundPacket::Login(login_packet) => {
+                Login(login_packet) => {
                     // Do nothing with the packet, but having information about the client is useful
                     log::info!("Login packet received: {:?}", login_packet);
                 }
-                InboundPacket::MapChunk(map_chunk) => {
+                MapChunk(map_chunk) => {
                     log::info!(
                         "Map chunk packet received, {} chunk(s) received",
                         map_chunk.chunk_count
@@ -118,61 +119,61 @@ impl Client {
                         map_chunk.sky_light_sent
                     );
                 }
-                InboundPacket::MobSpawn(mob_spawn) => {
+                MobSpawn(mob_spawn) => {
                     log::info!("Mob spawn packet received: {:?}", mob_spawn);
                 }
-                InboundPacket::MultiBlockChange(multi_block_change) => {
+                MultiBlockChange(multi_block_change) => {
                     log::info!(
                         "Multi block change packet received: {:?}",
                         multi_block_change
                     );
                 }
-                InboundPacket::PlayerAbilities(abilities) => {
+                PlayerAbilities(abilities) => {
                     log::info!("Player abilities packet received: {:?}", abilities);
                 }
-                InboundPacket::PlayerInfo(player_info) => {
+                PlayerInfo(player_info) => {
                     log::info!("Player info packet received: {:?}", player_info);
                 }
-                InboundPacket::PlayerInventory(player_inventory) => {
+                PlayerInventory(player_inventory) => {
                     log::info!("Player inventory packet received: {:?}", player_inventory);
                 }
-                InboundPacket::PlayerLookMove(player_look_move) => {
+                PlayerLookMove(player_look_move) => {
                     log::info!("Player look move packet received: {:?}", player_look_move);
 
                     // Resend the same packet
                     self.send_packet(player_look_move).await?;
                 }
-                InboundPacket::RelEntityMove(rel_entity_move) => {
+                RelEntityMove(rel_entity_move) => {
                     log::info!("Rel entity move packet received: {:?}", rel_entity_move);
                 }
-                InboundPacket::RelEntityMoveLook(rel_entity_move_look) => {
+                RelEntityMoveLook(rel_entity_move_look) => {
                     log::info!(
                         "Rel entity move packet received: {:?}",
                         rel_entity_move_look
                     );
                 }
-                InboundPacket::ServerAuthData(auth_packet) => {
+                ServerAuthData(auth_packet) => {
                     self.handle_server_auth_data(auth_packet).await?;
                 }
-                InboundPacket::SetSlot(set_slot) => {
+                SetSlot(set_slot) => {
                     log::info!("Set slot packet received: {:?}", set_slot);
                 }
-                InboundPacket::SharedKey(shared_key_packet) => {
+                SharedKey(shared_key_packet) => {
                     self.handle_shared_key(shared_key_packet).await?;
                 }
-                InboundPacket::SpawnPosition(position) => {
+                SpawnPosition(position) => {
                     log::info!("Spawn position packet received: {:?}", position);
                 }
-                InboundPacket::TileEntityData(tile_entity_data) => {
+                TileEntityData(tile_entity_data) => {
                     log::info!("Tile entity data packet received: {:?}", tile_entity_data);
                 }
-                InboundPacket::UpdateHealth(update_health) => {
+                UpdateHealth(update_health) => {
                     log::info!("Update health packet received: {:?}", update_health);
                 }
-                InboundPacket::UpdateTime(update_time) => {
+                UpdateTime(update_time) => {
                     log::info!("Update time packet received: {:?}", update_time);
                 }
-                InboundPacket::WindowItems(window_items) => {
+                WindowItems(window_items) => {
                     log::info!("Window items packet received: {:?}", window_items);
                 }
             }
