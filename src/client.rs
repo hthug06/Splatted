@@ -91,7 +91,7 @@ impl Client {
                         map_chunk.chunk_count
                     );
                     log::info!(
-                        "Chunks details: {:#?}, data lenght: {}, sky light: {}",
+                        "Chunks details: {:?}, data lenght: {}, sky light: {}",
                         map_chunk.metadata,
                         map_chunk.data_length,
                         map_chunk.sky_light_sent
@@ -120,6 +120,9 @@ impl Client {
                 }
                 InboundPacket::SpawnPosition(position) => {
                     log::info!("Spawn position packet received: {:?}", position);
+                }
+                InboundPacket::TileEntityData(tile_entity_data) => {
+                    log::info!("Tile entity data packet received: {:?}", tile_entity_data);
                 }
                 InboundPacket::UpdateTime(update_time) => {
                     log::info!("Update time packet received: {:?}", update_time);

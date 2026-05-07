@@ -2,7 +2,7 @@ use crate::network::connection::Encryption;
 use crate::packets::types::nbt_tag_compound::NbtTagCompound;
 use crate::packets::utils::{read_i8, read_i16};
 use std::io::Error;
-use tokio::io::{AsyncReadExt, BufReader};
+use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
 #[derive(Debug)]

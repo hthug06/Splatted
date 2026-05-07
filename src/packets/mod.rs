@@ -2,6 +2,7 @@ mod packet0_keep_alive;
 mod packet103_set_slot;
 mod packet104_window_items;
 mod packet10_flying;
+mod packet132_tile_entity_data;
 pub mod packet13_player_look_move;
 mod packet16_block_item_switch;
 mod packet1_login;
@@ -32,6 +33,7 @@ use crate::packets::packet56_map_chunk::MapChunkPacket;
 use crate::packets::packet70_game_event::GameEventPacket;
 use crate::packets::packet103_set_slot::SetSlotPacket;
 use crate::packets::packet104_window_items::WindowItemsPacket;
+use crate::packets::packet132_tile_entity_data::TileEntityDataPacket;
 use crate::packets::packet201_player_info::PlayerInfoPacket;
 use crate::packets::packet202_player_abilities::PlayerAbilitiesPacket;
 use crate::packets::packet252_shared_key::SharedKeyPacket;
@@ -57,6 +59,7 @@ pub enum InboundPacket {
     SetSlot(SetSlotPacket),
     SharedKey(SharedKeyPacket),
     SpawnPosition(SpawnPositionPacket),
+    TileEntityData(TileEntityDataPacket),
     UpdateTime(UpdateTimePacket),
     WindowItems(WindowItemsPacket),
 }
@@ -101,6 +104,9 @@ impl InboundPacket {
             )),
             104 => Ok(InboundPacket::WindowItems(
                 WindowItemsPacket::read(reader, encryption).await?,
+            )),
+            132 => Ok(InboundPacket::TileEntityData(
+                TileEntityDataPacket::read(reader, encryption).await?,
             )),
             201 => Ok(InboundPacket::PlayerInfo(
                 PlayerInfoPacket::read(reader, encryption).await?,
