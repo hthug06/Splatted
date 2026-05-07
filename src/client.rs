@@ -145,6 +145,12 @@ impl Client {
                 InboundPacket::RelEntityMove(rel_entity_move) => {
                     log::info!("Rel entity move packet received: {:?}", rel_entity_move);
                 }
+                InboundPacket::RelEntityMoveLook(rel_entity_move_look) => {
+                    log::info!(
+                        "Rel entity move packet received: {:?}",
+                        rel_entity_move_look
+                    );
+                }
                 InboundPacket::ServerAuthData(auth_packet) => {
                     self.handle_server_auth_data(auth_packet).await?;
                 }

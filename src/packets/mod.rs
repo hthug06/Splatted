@@ -19,6 +19,7 @@ pub mod packet2_client_protocol;
 mod packet30_entity;
 mod packet31_rel_entity_move;
 mod packet32_entity_look;
+mod packet33_rel_entity_move_look;
 mod packet35_entity_head_rotation;
 mod packet40_entity_metadata;
 mod packet43_experience;
@@ -51,6 +52,7 @@ use crate::packets::packet24_mob_spawn::MobSpawnPacket;
 use crate::packets::packet28_entity_velocity::EntityVelocityPacket;
 use crate::packets::packet31_rel_entity_move::RelEntityMovePacket;
 use crate::packets::packet32_entity_look::EntityLookPacket;
+use crate::packets::packet33_rel_entity_move_look::RelEntityMoveLookPacket;
 use crate::packets::packet35_entity_head_rotation::EntityHeadRotationPacket;
 use crate::packets::packet40_entity_metadata::EntityMetadataPacket;
 use crate::packets::packet43_experience::ExperiencePacket;
@@ -92,6 +94,7 @@ pub enum InboundPacket {
     PlayerInventory(PlayerInventoryPacket),
     PlayerLookMove(PlayerLookMovePacket),
     RelEntityMove(RelEntityMovePacket),
+    RelEntityMoveLook(RelEntityMoveLookPacket),
     ServerAuthData(ServerAuthDataPacket),
     SetSlot(SetSlotPacket),
     SharedKey(SharedKeyPacket),
@@ -146,6 +149,9 @@ impl InboundPacket {
             )),
             32 => Ok(EntityLook(
                 EntityLookPacket::read(reader, encryption).await?,
+            )),
+            33 => Ok(InboundPacket::RelEntityMoveLook(
+                RelEntityMoveLookPacket::read(reader, encryption).await?,
             )),
             35 => Ok(EntityHeadRotation(
                 EntityHeadRotationPacket::read(reader, encryption).await?,
