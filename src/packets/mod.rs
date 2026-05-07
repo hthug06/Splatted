@@ -40,6 +40,7 @@ mod packet43_experience;
 mod packet4_update_time;
 mod packet52_multi_block_change;
 mod packet53_block_change;
+mod packet54_play_note_block;
 mod packet55_block_destroy;
 mod packet56_map_chunk;
 mod packet5_player_inventory;
@@ -85,6 +86,7 @@ use crate::packets::packet42_remove_entity_effect::RemoveEntityEffectPacket;
 use crate::packets::packet43_experience::ExperiencePacket;
 use crate::packets::packet52_multi_block_change::MultiBlockChangePacket;
 use crate::packets::packet53_block_change::BlockChangePacket;
+use crate::packets::packet54_play_note_block::PlayNoteBlockPacket;
 use crate::packets::packet55_block_destroy::BlockDestroyPacket;
 use crate::packets::packet56_map_chunk::MapChunkPacket;
 use crate::packets::packet61_door_change::DoorChangePacket;
@@ -138,6 +140,7 @@ pub enum InboundPacket {
     PlayerInfo(PlayerInfoPacket),
     PlayerInventory(PlayerInventoryPacket),
     PlayerLookMove(PlayerLookMovePacket),
+    PlayNoteBlock(PlayNoteBlockPacket),
     RelEntityMove(RelEntityMovePacket),
     RelEntityMoveLook(RelEntityMoveLookPacket),
     RemoveEntityEffect(RemoveEntityEffectPacket),
@@ -244,6 +247,9 @@ impl InboundPacket {
             )),
             53 => Ok(BlockChange(
                 BlockChangePacket::read(reader, encryption).await?,
+            )),
+            54 => Ok(PlayNoteBlock(
+                PlayNoteBlockPacket::read(reader, encryption).await?,
             )),
             55 => Ok(BlockDestroy(
                 BlockDestroyPacket::read(reader, encryption).await?,

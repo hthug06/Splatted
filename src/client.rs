@@ -174,6 +174,9 @@ impl Client {
                     //     multi_block_change
                     // );
                 }
+                PlayNoteBlock(play_note_block) => {
+                    log::info!("Play note block packet received: {:?}", play_note_block);
+                }
                 PlayerAbilities(abilities) => {
                     // log::info!("Player abilities packet received: {:?}", abilities);
                 }
