@@ -2,6 +2,7 @@ mod packet0_keep_alive;
 mod packet103_set_slot;
 mod packet104_window_items;
 mod packet10_flying;
+mod packet130_update_sign;
 mod packet132_tile_entity_data;
 pub mod packet13_player_look_move;
 mod packet16_block_item_switch;
@@ -98,6 +99,7 @@ use crate::packets::packet70_game_event::GameEventPacket;
 use crate::packets::packet71_weather::WeatherPacket;
 use crate::packets::packet103_set_slot::SetSlotPacket;
 use crate::packets::packet104_window_items::WindowItemsPacket;
+use crate::packets::packet130_update_sign::UpdateSignPacket;
 use crate::packets::packet132_tile_entity_data::TileEntityDataPacket;
 use crate::packets::packet200_statistic::StatisticPacket;
 use crate::packets::packet201_player_info::PlayerInfoPacket;
@@ -156,6 +158,7 @@ pub enum InboundPacket {
     Statistic(StatisticPacket),
     TileEntityData(TileEntityDataPacket),
     UpdateHealth(UpdateHealthPacket),
+    UpdateSign(UpdateSignPacket),
     UpdateTime(UpdateTimePacket),
     VehiculeSpawn(VehicleSpawnPacket),
     Weather(WeatherPacket),
@@ -273,6 +276,9 @@ impl InboundPacket {
             103 => Ok(SetSlot(SetSlotPacket::read(reader, encryption).await?)),
             104 => Ok(WindowItems(
                 WindowItemsPacket::read(reader, encryption).await?,
+            )),
+            130 => Ok(UpdateSign(
+                UpdateSignPacket::read(reader, encryption).await?,
             )),
             132 => Ok(TileEntityData(
                 TileEntityDataPacket::read(reader, encryption).await?,

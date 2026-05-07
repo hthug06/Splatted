@@ -232,6 +232,9 @@ impl Client {
                 UpdateHealth(update_health) => {
                     // log::info!("Update health packet received: {:?}", update_health);
                 }
+                UpdateSign(update_sign) => {
+                    log::info!("Update sign packet received: {:?}", update_sign);
+                }
                 UpdateTime(update_time) => {
                     // log::info!("Update time packet received: {:?}", update_time);
                 }
@@ -239,7 +242,7 @@ impl Client {
                     // log::info!("Vehicule spawn packet received: {:?}", vehicule_spawn);
                 }
                 Weather(weather) => {
-                    log::info!("Weather packet received: {:?}", weather);
+                    // log::info!("Weather packet received: {:?}", weather);
                 }
                 WindowItems(window_items) => {
                     // log::info!("Window items packet received: {:?}", window_items);
