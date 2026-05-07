@@ -1,4 +1,5 @@
 pub mod dimension_type;
+pub mod entity_animation;
 pub mod entity_metadata;
 pub mod entity_status;
 pub mod entity_type;
