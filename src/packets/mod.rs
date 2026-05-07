@@ -23,6 +23,7 @@ mod packet32_entity_look;
 mod packet33_rel_entity_move_look;
 mod packet34_entity_teleport;
 mod packet35_entity_head_rotation;
+mod packet3_chat;
 mod packet40_entity_metadata;
 mod packet43_experience;
 mod packet4_update_time;
@@ -42,6 +43,7 @@ use crate::network::connection::Encryption;
 use crate::packets::InboundPacket::*;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet1_login::LoginPacket;
+use crate::packets::packet3_chat::ChatPacket;
 use crate::packets::packet4_update_time::UpdateTimePacket;
 use crate::packets::packet5_player_inventory::PlayerInventoryPacket;
 use crate::packets::packet6_spawn_position::SpawnPositionPacket;
@@ -81,6 +83,7 @@ use tokio::net::tcp::OwnedReadHalf;
 pub enum InboundPacket {
     BlockChange(BlockChangePacket),
     BlockItemSwitch(BlockItemSwitchPacket),
+    Chat(ChatPacket),
     DestroyEntity(DestroyEntityPacket),
     DoorChange(DoorChangePacket),
     EntityHeadRotation(EntityHeadRotationPacket),
@@ -124,6 +127,7 @@ impl InboundPacket {
         match packet_id {
             0x00 => Ok(KeepAlive(KeepAlivePacket::read(reader, encryption).await?)),
             1 => Ok(Login(LoginPacket::read(reader, encryption).await?)),
+            3 => Ok(Chat(ChatPacket::read(reader, encryption).await?)),
             4 => Ok(UpdateTime(
                 UpdateTimePacket::read(reader, encryption).await?,
             )),

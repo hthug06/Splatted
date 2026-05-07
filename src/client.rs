@@ -79,6 +79,9 @@ impl Client {
                     log::info!("Block item switch packet received: {:?}", block_item_switch);
                     // handle block item switch (NetClientHandler.java -> handleBlockItemSwitch())
                 }
+                Chat(chat) => {
+                    log::info!("Chat packet received: {:?}", chat);
+                }
                 DestroyEntity(destroy_entity) => {
                     log::info!("Destroy entity packet received: {:?}", destroy_entity);
                 }
