@@ -185,6 +185,9 @@ impl Client {
                 UpdateTime(update_time) => {
                     log::info!("Update time packet received: {:?}", update_time);
                 }
+                VehiculeSpawn(vehicule_spawn) => {
+                    log::info!("Vehicule spawn packet received: {:?}", vehicule_spawn);
+                }
                 WindowItems(window_items) => {
                     log::info!("Window items packet received: {:?}", window_items);
                 }

@@ -65,12 +65,12 @@ pub enum EntityType {
     EnderCrystal, // 200
 
     // In case the mobs id is unknow (once again, mods)
-    Unknown(i16),
+    Unknown(u8),
 }
 
 impl EntityType {
     /// Convert ID to an entity type
-    pub fn from_id(id: i16) -> Self {
+    pub fn from_id(id: u8) -> Self {
         match id {
             1 => EntityType::Item,
             2 => EntityType::XPOrb,
