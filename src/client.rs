@@ -90,6 +90,9 @@ impl Client {
                 InboundPacket::EntityMetadata(entity_metadata) => {
                     log::info!("Entity metadata packet received: {:?}", entity_metadata);
                 }
+                InboundPacket::EntityVelocity(entity_velocity) => {
+                    log::info!("Entity velocity packet received: {:?}", entity_velocity);
+                }
                 InboundPacket::Experience(experience) => {
                     log::info!("Experience packet received: {:?}", experience);
                 }

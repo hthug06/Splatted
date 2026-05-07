@@ -14,6 +14,7 @@ pub mod packet252_shared_key;
 pub mod packet253_server_auth_data;
 pub mod packet254_server_ping;
 pub mod packet255_kick_disconnect;
+mod packet28_entity_velocity;
 pub mod packet2_client_protocol;
 mod packet30_entity;
 mod packet31_rel_entity_move;
@@ -34,8 +35,8 @@ pub mod utils;
 
 use crate::network::connection::Encryption;
 use crate::packets::InboundPacket::{
-    BlockChange, EntityHeadRotation, EntityLook, EntityMetadata, Experience, MobSpawn,
-    RelEntityMove, UpdateHealth,
+    BlockChange, EntityHeadRotation, EntityLook, EntityMetadata, EntityVelocity, Experience,
+    MobSpawn, RelEntityMove, UpdateHealth,
 };
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet1_login::LoginPacket;
@@ -46,6 +47,7 @@ use crate::packets::packet8_update_health::UpdateHealthPacket;
 use crate::packets::packet13_player_look_move::PlayerLookMovePacket;
 use crate::packets::packet16_block_item_switch::BlockItemSwitchPacket;
 use crate::packets::packet24_mob_spawn::MobSpawnPacket;
+use crate::packets::packet28_entity_velocity::EntityVelocityPacket;
 use crate::packets::packet31_rel_entity_move::RelEntityMovePacket;
 use crate::packets::packet32_entity_look::EntityLookPacket;
 use crate::packets::packet35_entity_head_rotation::EntityHeadRotationPacket;
@@ -75,6 +77,7 @@ pub enum InboundPacket {
     EntityHeadRotation(EntityHeadRotationPacket),
     EntityLook(EntityLookPacket),
     EntityMetadata(EntityMetadataPacket),
+    EntityVelocity(EntityVelocityPacket),
     Experience(ExperiencePacket),
     GameEvent(GameEventPacket),
     KeepAlive(KeepAlivePacket),
@@ -132,6 +135,9 @@ impl InboundPacket {
                 BlockItemSwitchPacket::read(reader, encryption).await?,
             )),
             24 => Ok(MobSpawn(MobSpawnPacket::read(reader, encryption).await?)),
+            28 => Ok(EntityVelocity(
+                EntityVelocityPacket::read(reader, encryption).await?,
+            )),
             31 => Ok(RelEntityMove(
                 RelEntityMovePacket::read(reader, encryption).await?,
             )),
