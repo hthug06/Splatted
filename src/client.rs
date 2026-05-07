@@ -100,6 +100,12 @@ impl Client {
                 EntityMetadata(entity_metadata) => {
                     log::info!("Entity metadata packet received: {:?}", entity_metadata);
                 }
+                NamedEntitySpawn(named_entity_spawn) => {
+                    log::info!(
+                        "Named entity spawn packet received: {:?}",
+                        named_entity_spawn
+                    );
+                }
                 EntityStatus(entity_status) => {
                     log::info!("Entity status packet received: {:?}", entity_status);
                 }
