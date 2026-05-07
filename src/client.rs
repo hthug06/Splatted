@@ -85,6 +85,9 @@ impl Client {
                 Chat(chat) => {
                     log::info!("Chat packet received: {:?}", chat);
                 }
+                Collected(collected) => {
+                    log::info!("Collected packet received: {:?}", collected);
+                }
                 DestroyEntity(destroy_entity) => {
                     log::info!("Destroy entity packet received: {:?}", destroy_entity);
                 }

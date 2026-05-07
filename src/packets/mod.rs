@@ -12,6 +12,7 @@ mod packet201_player_info;
 mod packet202_player_abilities;
 pub mod packet205_client_command;
 mod packet20_named_entity_spawn;
+mod packet22_collect;
 mod packet23_vehicule_spawn;
 mod packet24_mob_spawn;
 pub mod packet252_shared_key;
@@ -58,6 +59,7 @@ use crate::packets::packet13_player_look_move::PlayerLookMovePacket;
 use crate::packets::packet16_block_item_switch::BlockItemSwitchPacket;
 use crate::packets::packet18_animation::AnimationPacket;
 use crate::packets::packet20_named_entity_spawn::NamedEntitySpawnPacket;
+use crate::packets::packet22_collect::CollectPacket;
 use crate::packets::packet23_vehicule_spawn::VehicleSpawnPacket;
 use crate::packets::packet24_mob_spawn::MobSpawnPacket;
 use crate::packets::packet28_entity_velocity::EntityVelocityPacket;
@@ -97,6 +99,7 @@ pub enum InboundPacket {
     BlockChange(BlockChangePacket),
     BlockItemSwitch(BlockItemSwitchPacket),
     Chat(ChatPacket),
+    Collected(CollectPacket),
     DestroyEntity(DestroyEntityPacket),
     DoorChange(DoorChangePacket),
     EntityHeadRotation(EntityHeadRotationPacket),
@@ -168,6 +171,7 @@ impl InboundPacket {
             20 => Ok(NamedEntitySpawn(
                 NamedEntitySpawnPacket::read(reader, encryption).await?,
             )),
+            22 => Ok(Collected(CollectPacket::read(reader, encryption).await?)),
             23 => Ok(VehiculeSpawn(
                 VehicleSpawnPacket::read(reader, encryption).await?,
             )),
