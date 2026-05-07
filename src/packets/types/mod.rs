@@ -4,3 +4,4 @@ pub mod game_type;
 pub mod itemstack;
 pub mod nbt_tag_compound;
 pub mod world_type;
+pub mod tile_entity_action;
