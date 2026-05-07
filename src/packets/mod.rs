@@ -19,6 +19,7 @@ pub mod packet252_shared_key;
 pub mod packet253_server_auth_data;
 pub mod packet254_server_ping;
 pub mod packet255_kick_disconnect;
+mod packet25_entity_painting;
 mod packet28_entity_velocity;
 mod packet29_destroy_entity;
 pub mod packet2_client_protocol;
@@ -62,6 +63,7 @@ use crate::packets::packet20_named_entity_spawn::NamedEntitySpawnPacket;
 use crate::packets::packet22_collect::CollectPacket;
 use crate::packets::packet23_vehicule_spawn::VehicleSpawnPacket;
 use crate::packets::packet24_mob_spawn::MobSpawnPacket;
+use crate::packets::packet25_entity_painting::EntityPaintingPacket;
 use crate::packets::packet28_entity_velocity::EntityVelocityPacket;
 use crate::packets::packet29_destroy_entity::DestroyEntityPacket;
 use crate::packets::packet31_rel_entity_move::RelEntityMovePacket;
@@ -105,6 +107,7 @@ pub enum InboundPacket {
     EntityHeadRotation(EntityHeadRotationPacket),
     EntityLook(EntityLookPacket),
     EntityMetadata(EntityMetadataPacket),
+    EntityPainting(EntityPaintingPacket),
     EntityStatus(EntityStatusPacket),
     EntityTeleport(EntityTeleportPacket),
     EntityVelocity(EntityVelocityPacket),
@@ -176,6 +179,9 @@ impl InboundPacket {
                 VehicleSpawnPacket::read(reader, encryption).await?,
             )),
             24 => Ok(MobSpawn(MobSpawnPacket::read(reader, encryption).await?)),
+            25 => Ok(EntityPainting(
+                EntityPaintingPacket::read(reader, encryption).await?,
+            )),
             28 => Ok(EntityVelocity(
                 EntityVelocityPacket::read(reader, encryption).await?,
             )),

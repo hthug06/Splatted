@@ -106,12 +106,10 @@ impl Client {
                 EntityMetadata(entity_metadata) => {
                     log::info!("Entity metadata packet received: {:?}", entity_metadata);
                 }
-                NamedEntitySpawn(named_entity_spawn) => {
-                    log::info!(
-                        "Named entity spawn packet received: {:?}",
-                        named_entity_spawn
-                    );
+                EntityPainting(entity_painting) => {
+                    log::info!("Entity painting packet received: {:?}", entity_painting);
                 }
+
                 EntityStatus(entity_status) => {
                     log::info!("Entity status packet received: {:?}", entity_status);
                 }
@@ -136,6 +134,12 @@ impl Client {
                 Login(login_packet) => {
                     // Do nothing with the packet, but having information about the client is useful
                     log::info!("Login packet received: {:?}", login_packet);
+                }
+                NamedEntitySpawn(named_entity_spawn) => {
+                    log::info!(
+                        "Named entity spawn packet received: {:?}",
+                        named_entity_spawn
+                    );
                 }
                 MapChunk(map_chunk) => {
                     log::info!(
