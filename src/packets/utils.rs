@@ -31,6 +31,19 @@ pub async fn read_i8(
     Ok(i8::from_be_bytes(buf))
 }
 
+/// Read an u16
+/// it's like reading a short in java (but unsigned)
+/// like par1DataInputStream.readShort() in mc code
+pub async fn read_u16(
+    reader: &mut BufReader<OwnedReadHalf>,
+    encryption: &mut Encryption,
+) -> std::io::Result<u16> {
+    let mut buf = [0u8; 2];
+    reader.read_exact(&mut buf).await?;
+    encryption.decrypt(&mut buf);
+    Ok(u16::from_be_bytes(buf))
+}
+
 /// Read an i16
 /// it's like reading a short in java
 /// like par1DataInputStream.readShort() in mc code
