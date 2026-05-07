@@ -76,7 +76,7 @@ impl Client {
                     // log::info!("Animation packet received: {:?}", animation);
                 }
                 AttachEntity(attach_entity) => {
-                    log::info!("Attach entity packet received: {:?}", attach_entity);
+                    // log::info!("Attach entity packet received: {:?}", attach_entity);
                 }
                 BlockChange(block_change) => {
                     // log::info!("Block change packet received: {:?}", block_change);
@@ -100,8 +100,11 @@ impl Client {
                 DoorChange(door_change) => {
                     // log::info!("Door change packet received: {:?}", door_change);
                 }
+                EntityEffect(entity_effect) => {
+                    log::info!("Entity effect packet received: {:?}", entity_effect);
+                }
                 EntityExpOrb(entity_exp_orb) => {
-                    log::info!("Entity exp orb packet received: {:?}", entity_exp_orb);
+                    // log::info!("Entity exp orb packet received: {:?}", entity_exp_orb);
                 }
                 EntityHeadRotation(entity_head_rotation) => {
                     /*log::info!(
