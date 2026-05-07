@@ -7,6 +7,7 @@ pub mod event_type;
 pub mod game_type;
 pub mod itemstack;
 pub mod nbt_tag_compound;
+pub mod player_statistic;
 pub mod sound_effect;
 pub mod tile_entity_action;
 pub mod world_type;
