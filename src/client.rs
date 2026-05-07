@@ -72,94 +72,94 @@ impl Client {
             // handle the packet
             // Sorted alphabetically
             match packet {
-                Animation(animation) => {
+                Animation(_animation) => {
                     // log::info!("Animation packet received: {:?}", animation);
                 }
-                AttachEntity(attach_entity) => {
+                AttachEntity(_attach_entity) => {
                     // log::info!("Attach entity packet received: {:?}", attach_entity);
                 }
-                BlockChange(block_change) => {
+                BlockChange(_block_change) => {
                     // log::info!("Block change packet received: {:?}", block_change);
                 }
-                BlockDestroy(block_destroy) => {
+                BlockDestroy(_block_destroy) => {
                     // log::info!("Block destroy packet received: {:?}", block_destroy);
                 }
-                BlockItemSwitch(block_item_switch) => {
+                BlockItemSwitch(_block_item_switch) => {
                     // log::info!("Block item switch packet received: {:?}", block_item_switch);
                     // handle block item switch (NetClientHandler.java -> handleBlockItemSwitch())
                 }
                 Chat(chat) => {
                     log::info!("Chat packet received: {:?}", chat);
                 }
-                Collected(collected) => {
+                Collected(_collected) => {
                     // log::info!("Collected packet received: {:?}", collected);
                 }
                 CustomPayload(custom_payload) => {
                     log::info!("Custom payload packet received: {:?}", custom_payload);
                 }
-                DestroyEntity(destroy_entity) => {
+                DestroyEntity(_destroy_entity) => {
                     // log::info!("Destroy entity packet received: {:?}", destroy_entity);
                 }
-                DoorChange(door_change) => {
+                DoorChange(_door_change) => {
                     // log::info!("Door change packet received: {:?}", door_change);
                 }
-                EntityEffect(entity_effect) => {
+                EntityEffect(_entity_effect) => {
                     // log::info!("Entity effect packet received: {:?}", entity_effect);
                 }
-                EntityExpOrb(entity_exp_orb) => {
+                EntityExpOrb(_entity_exp_orb) => {
                     // log::info!("Entity exp orb packet received: {:?}", entity_exp_orb);
                 }
-                EntityHeadRotation(entity_head_rotation) => {
+                EntityHeadRotation(_entity_head_rotation) => {
                     /*log::info!(
                         "Entity head rotation packet received: {:?}",
                         entity_head_rotation
                     );*/
                 }
-                EntityLook(entity_look) => {
+                EntityLook(_entity_look) => {
                     // log::info!("Entity look packet received: {:?}", entity_look);
                 }
-                EntityMetadata(entity_metadata) => {
+                EntityMetadata(_entity_metadata) => {
                     // log::info!("Entity metadata packet received: {:?}", entity_metadata);
                 }
-                EntityPainting(entity_painting) => {
+                EntityPainting(_entity_painting) => {
                     // log::info!("Entity painting packet received: {:?}", entity_painting);
                 }
 
-                EntityStatus(entity_status) => {
+                EntityStatus(_entity_status) => {
                     // log::info!("Entity status packet received: {:?}", entity_status);
                 }
-                EntityTeleport(entity_teleport) => {
+                EntityTeleport(_entity_teleport) => {
                     // log::info!("Entity teleport packet received: {:?}", entity_teleport);
                 }
-                EntityVelocity(entity_velocity) => {
+                EntityVelocity(_entity_velocity) => {
                     // log::info!("Entity velocity packet received: {:?}", entity_velocity);
                 }
-                Experience(experience) => {
+                Experience(_experience) => {
                     // log::info!("Experience packet received: {:?}", experience);
                 }
-                Explosion(explosion) => {
+                Explosion(_explosion) => {
                     // log::info!("Explosion packet received: {:?}", explosion);
                 }
-                GameEvent(game_event) => {
+                GameEvent(_game_event) => {
                     // log::info!("Game event packet received: {:?}", game_event);
                 }
                 KeepAlive(keep_alive_packet) => {
                     self.send_packet(keep_alive_packet).await?;
                 }
-                LevelSound(level_sound) => {
+                LevelSound(_level_sound) => {
                     // log::info!("Level sound packet received: {:?}", level_sound);
                 }
-                Login(login_packet) => {
+                Login(_login_packet) => {
                     // Do nothing with the packet, but having information about the client is useful
                     // log::info!("Login packet received: {:?}", login_packet);
                 }
-                NamedEntitySpawn(named_entity_spawn) => {
+                NamedEntitySpawn(_named_entity_spawn) => {
                     // log::info!(
                     //     "Named entity spawn packet received: {:?}",
                     //     named_entity_spawn
                     // );
                 }
-                MapChunk(map_chunk) => {
+                MapChunk(_map_chunk) => {
                     // log::info!(
                     //     "Map chunk packet received, {} chunk(s) received",
                     //     map_chunk.chunk_count
@@ -171,25 +171,25 @@ impl Client {
                     //     map_chunk.sky_light_sent
                     // );
                 }
-                MobSpawn(mob_spawn) => {
+                MobSpawn(_mob_spawn) => {
                     // log::info!("Mob spawn packet received: {:?}", mob_spawn);
                 }
-                MultiBlockChange(multi_block_change) => {
+                MultiBlockChange(_multi_block_change) => {
                     // log::info!(
                     //     "Multi block change packet received: {:?}",
                     //     multi_block_change
                     // );
                 }
-                PlayNoteBlock(play_note_block) => {
+                PlayNoteBlock(_play_note_block) => {
                     // log::info!("Play note block packet received: {:?}", play_note_block);
                 }
-                PlayerAbilities(abilities) => {
+                PlayerAbilities(_abilities) => {
                     // log::info!("Player abilities packet received: {:?}", abilities);
                 }
-                PlayerInfo(player_info) => {
+                PlayerInfo(_player_info) => {
                     // log::info!("Player info packet received: {:?}", player_info);
                 }
-                PlayerInventory(player_inventory) => {
+                PlayerInventory(_player_inventory) => {
                     // log::info!("Player inventory packet received: {:?}", player_inventory);
                 }
                 PlayerLookMove(mut player_look_move) => {
@@ -199,16 +199,16 @@ impl Client {
                     player_look_move.on_ground = true;
                     self.send_packet(player_look_move).await?;
                 }
-                RemoveEntityEffect(remove_entity_effect) => {
+                RemoveEntityEffect(_remove_entity_effect) => {
                     /*log::info!(
                         "Remove entity effect packet received: {:?}",
                         remove_entity_effect
                     );*/
                 }
-                RelEntityMove(rel_entity_move) => {
+                RelEntityMove(_rel_entity_move) => {
                     // log::info!("Rel entity move packet received: {:?}", rel_entity_move);
                 }
-                RelEntityMoveLook(rel_entity_move_look) => {
+                RelEntityMoveLook(_rel_entity_move_look) => {
                     /*log::info!(
                         "Rel entity move packet received: {:?}",
                         rel_entity_move_look
@@ -217,37 +217,37 @@ impl Client {
                 ServerAuthData(auth_packet) => {
                     self.handle_server_auth_data(auth_packet).await?;
                 }
-                SetSlot(set_slot) => {
+                SetSlot(_set_slot) => {
                     // log::info!("Set slot packet received: {:?}", set_slot);
                 }
                 SharedKey(shared_key_packet) => {
                     self.handle_shared_key(shared_key_packet).await?;
                 }
-                Statistic(statistic) => {
+                Statistic(_statistic) => {
                     // log::info!("Statistic packet received: {:?}", statistic);
                 }
-                SpawnPosition(position) => {
+                SpawnPosition(_position) => {
                     // log::info!("Spawn position packet received: {:?}", position);
                 }
-                TileEntityData(tile_entity_data) => {
+                TileEntityData(_tile_entity_data) => {
                     // log::info!("Tile entity data packet received: {:?}", tile_entity_data);
                 }
-                UpdateHealth(update_health) => {
+                UpdateHealth(_update_health) => {
                     // log::info!("Update health packet received: {:?}", update_health);
                 }
-                UpdateSign(update_sign) => {
+                UpdateSign(_update_sign) => {
                     // log::info!("Update sign packet received: {:?}", update_sign);
                 }
-                UpdateTime(update_time) => {
+                UpdateTime(_update_time) => {
                     // log::info!("Update time packet received: {:?}", update_time);
                 }
-                VehiculeSpawn(vehicule_spawn) => {
+                VehiculeSpawn(_vehicule_spawn) => {
                     // log::info!("Vehicule spawn packet received: {:?}", vehicule_spawn);
                 }
-                Weather(weather) => {
+                Weather(_weather) => {
                     // log::info!("Weather packet received: {:?}", weather);
                 }
-                WindowItems(window_items) => {
+                WindowItems(_window_items) => {
                     // log::info!("Window items packet received: {:?}", window_items);
                 }
             }

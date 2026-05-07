@@ -30,7 +30,7 @@ impl ServerPacket for UpdateSignPacket {
         let mut sign_line = Vec::with_capacity(4);
         for _ in 0..4 {
             let read_line = read_string(reader, encryption).await?;
-            let line = if read_line == "" {
+            let line = if read_line.is_empty() {
                 None
             } else {
                 Some(read_line)
