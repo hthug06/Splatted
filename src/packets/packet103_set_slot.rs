@@ -27,7 +27,7 @@ impl ServerPacket for SetSlotPacket {
             slot: read_i16(reader, encryption).await?,
             // Normally, if this set slot the itemstack will be 100% there
             // But just to be sure (and because I don't want any crash), let's have an Option<ItemStack>
-            item_stack: ItemStack::read_itemstack(reader, encryption).await?,
+            item_stack: ItemStack::read(reader, encryption).await?,
         })
     }
 }

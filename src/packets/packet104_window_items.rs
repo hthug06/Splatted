@@ -28,7 +28,7 @@ impl ServerPacket for WindowItemsPacket {
         // Read all the itemStack
         let mut itemstacks: Vec<Option<ItemStack>> = Vec::with_capacity(number_of_item as usize);
         for _ in 0..number_of_item {
-            itemstacks.push(ItemStack::read_itemstack(reader, encryption).await?);
+            itemstacks.push(ItemStack::read(reader, encryption).await?);
         }
 
         Ok(Self {
