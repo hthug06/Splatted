@@ -13,6 +13,7 @@ mod packet1_login;
 mod packet200_statistic;
 mod packet201_player_info;
 mod packet202_player_abilities;
+mod packet204_client_info;
 pub mod packet205_client_command;
 mod packet20_named_entity_spawn;
 mod packet22_collect;
