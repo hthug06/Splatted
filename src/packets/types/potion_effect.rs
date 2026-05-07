@@ -23,12 +23,12 @@ pub enum PotionEffect {
     Wither,
 
     // In case of mod once again
-    Unknown(i8),
+    Unknown(u8),
 }
 
 impl PotionEffect {
     /// Convertit l'ID reçu du réseau en PotionEffect
-    pub fn from_id(id: i8) -> Self {
+    pub fn from_id(id: u8) -> Self {
         match id {
             1 => PotionEffect::Speed,
             2 => PotionEffect::Slowness,
@@ -55,7 +55,7 @@ impl PotionEffect {
     }
 
     /// Get the id from the PotionEffect
-    pub fn id(&self) -> i8 {
+    pub fn id(&self) -> u8 {
         match self {
             PotionEffect::Speed => 1,
             PotionEffect::Slowness => 2,
