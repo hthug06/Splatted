@@ -15,7 +15,7 @@ pub struct ItemStack {
     pub stack_size: i8,
     /// Used for the durability, wool | glass color...
     pub item_damage: i16,
-    pub nbt_tag_compound: Option<NbtTagCompound>,
+    pub nbt_tag_compound: NbtTagCompound,
 }
 
 impl ItemStack {
