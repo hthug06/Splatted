@@ -9,6 +9,7 @@ mod packet1_login;
 mod packet201_player_info;
 mod packet202_player_abilities;
 pub mod packet205_client_command;
+mod packet24_mob_spawn;
 pub mod packet252_shared_key;
 pub mod packet253_server_auth_data;
 pub mod packet254_server_ping;
@@ -23,12 +24,14 @@ pub mod types;
 pub mod utils;
 
 use crate::network::connection::Encryption;
+use crate::packets::InboundPacket::MobSpawn;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet1_login::LoginPacket;
 use crate::packets::packet4_update_time::UpdateTimePacket;
 use crate::packets::packet6_spawn_position::SpawnPositionPacket;
 use crate::packets::packet13_player_look_move::PlayerLookMovePacket;
 use crate::packets::packet16_block_item_switch::BlockItemSwitchPacket;
+use crate::packets::packet24_mob_spawn::MobSpawnPacket;
 use crate::packets::packet56_map_chunk::MapChunkPacket;
 use crate::packets::packet70_game_event::GameEventPacket;
 use crate::packets::packet103_set_slot::SetSlotPacket;
@@ -52,6 +55,7 @@ pub enum InboundPacket {
     KeepAlive(KeepAlivePacket),
     Login(LoginPacket),
     MapChunk(MapChunkPacket),
+    MobSpawn(MobSpawnPacket),
     PlayerAbilities(PlayerAbilitiesPacket),
     PlayerInfo(PlayerInfoPacket),
     PlayerLookMove(PlayerLookMovePacket),
@@ -93,6 +97,7 @@ impl InboundPacket {
             16 => Ok(InboundPacket::BlockItemSwitch(
                 BlockItemSwitchPacket::read(reader, encryption).await?,
             )),
+            24 => Ok(MobSpawn(MobSpawnPacket::read(reader, encryption).await?)),
             56 => Ok(InboundPacket::MapChunk(
                 MapChunkPacket::read(reader, encryption).await?,
             )),

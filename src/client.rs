@@ -97,6 +97,9 @@ impl Client {
                         map_chunk.sky_light_sent
                     );
                 }
+                InboundPacket::MobSpawn(mob_spawn) => {
+                    log::info!("Mob spawn packet received: {:?}", mob_spawn);
+                }
                 InboundPacket::PlayerAbilities(abilities) => {
                     log::info!("Player abilities packet received: {:?}", abilities);
                 }

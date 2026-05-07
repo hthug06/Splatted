@@ -2,11 +2,11 @@
 /// This is more clear how the Tile entity will be used
 #[derive(Debug, PartialEq, Eq)]
 pub enum TileEntityAction {
-    MobSpawner,     // Action = 1
-    CommandBlock,   // Action = 2
-    Beacon,         // Action = 3
-    Skull,          // Action = 4
-    Unknown(u8),    // for mods
+    MobSpawner,   // Action = 1
+    CommandBlock, // Action = 2
+    Beacon,       // Action = 3
+    Skull,        // Action = 4
+    Unknown(u8),  // for mods
 }
 
 impl TileEntityAction {
