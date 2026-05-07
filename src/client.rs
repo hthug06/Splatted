@@ -121,6 +121,12 @@ impl Client {
                 InboundPacket::MobSpawn(mob_spawn) => {
                     log::info!("Mob spawn packet received: {:?}", mob_spawn);
                 }
+                InboundPacket::MultiBlockChange(multi_block_change) => {
+                    log::info!(
+                        "Multi block change packet received: {:?}",
+                        multi_block_change
+                    );
+                }
                 InboundPacket::PlayerAbilities(abilities) => {
                     log::info!("Player abilities packet received: {:?}", abilities);
                 }

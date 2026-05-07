@@ -23,6 +23,7 @@ mod packet35_entity_head_rotation;
 mod packet40_entity_metadata;
 mod packet43_experience;
 mod packet4_update_time;
+mod packet52_multi_block_change;
 mod packet53_block_change;
 mod packet56_map_chunk;
 mod packet5_player_inventory;
@@ -36,7 +37,7 @@ pub mod utils;
 use crate::network::connection::Encryption;
 use crate::packets::InboundPacket::{
     BlockChange, EntityHeadRotation, EntityLook, EntityMetadata, EntityVelocity, Experience,
-    MobSpawn, RelEntityMove, UpdateHealth,
+    MobSpawn, MultiBlockChange, RelEntityMove, UpdateHealth,
 };
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet1_login::LoginPacket;
@@ -53,6 +54,7 @@ use crate::packets::packet32_entity_look::EntityLookPacket;
 use crate::packets::packet35_entity_head_rotation::EntityHeadRotationPacket;
 use crate::packets::packet40_entity_metadata::EntityMetadataPacket;
 use crate::packets::packet43_experience::ExperiencePacket;
+use crate::packets::packet52_multi_block_change::MultiBlockChangePacket;
 use crate::packets::packet53_block_change::BlockChangePacket;
 use crate::packets::packet56_map_chunk::MapChunkPacket;
 use crate::packets::packet70_game_event::GameEventPacket;
@@ -84,6 +86,7 @@ pub enum InboundPacket {
     Login(LoginPacket),
     MapChunk(MapChunkPacket),
     MobSpawn(MobSpawnPacket),
+    MultiBlockChange(MultiBlockChangePacket),
     PlayerAbilities(PlayerAbilitiesPacket),
     PlayerInfo(PlayerInfoPacket),
     PlayerInventory(PlayerInventoryPacket),
@@ -152,6 +155,9 @@ impl InboundPacket {
             )),
             43 => Ok(Experience(
                 ExperiencePacket::read(reader, encryption).await?,
+            )),
+            52 => Ok(MultiBlockChange(
+                MultiBlockChangePacket::read(reader, encryption).await?,
             )),
             53 => Ok(BlockChange(
                 BlockChangePacket::read(reader, encryption).await?,
