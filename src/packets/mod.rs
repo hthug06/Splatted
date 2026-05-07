@@ -22,6 +22,7 @@ mod packet35_entity_head_rotation;
 mod packet40_entity_metadata;
 mod packet43_experience;
 mod packet4_update_time;
+mod packet53_block_change;
 mod packet56_map_chunk;
 mod packet5_player_inventory;
 mod packet6_spawn_position;
@@ -33,8 +34,8 @@ pub mod utils;
 
 use crate::network::connection::Encryption;
 use crate::packets::InboundPacket::{
-    EntityHeadRotation, EntityLook, EntityMetadata, Experience, MobSpawn, RelEntityMove,
-    UpdateHealth,
+    BlockChange, EntityHeadRotation, EntityLook, EntityMetadata, Experience, MobSpawn,
+    RelEntityMove, UpdateHealth,
 };
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet1_login::LoginPacket;
@@ -50,6 +51,7 @@ use crate::packets::packet32_entity_look::EntityLookPacket;
 use crate::packets::packet35_entity_head_rotation::EntityHeadRotationPacket;
 use crate::packets::packet40_entity_metadata::EntityMetadataPacket;
 use crate::packets::packet43_experience::ExperiencePacket;
+use crate::packets::packet53_block_change::BlockChangePacket;
 use crate::packets::packet56_map_chunk::MapChunkPacket;
 use crate::packets::packet70_game_event::GameEventPacket;
 use crate::packets::packet103_set_slot::SetSlotPacket;
@@ -68,6 +70,7 @@ use tokio::net::tcp::OwnedReadHalf;
 // Sorted alphabetically
 /// This enum contain all the received packet
 pub enum InboundPacket {
+    BlockChange(BlockChangePacket),
     BlockItemSwitch(BlockItemSwitchPacket),
     EntityHeadRotation(EntityHeadRotationPacket),
     EntityLook(EntityLookPacket),
@@ -143,6 +146,9 @@ impl InboundPacket {
             )),
             43 => Ok(Experience(
                 ExperiencePacket::read(reader, encryption).await?,
+            )),
+            53 => Ok(BlockChange(
+                BlockChangePacket::read(reader, encryption).await?,
             )),
             56 => Ok(InboundPacket::MapChunk(
                 MapChunkPacket::read(reader, encryption).await?,

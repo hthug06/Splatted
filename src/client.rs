@@ -71,6 +71,9 @@ impl Client {
             // handle the packet
             // Sorted alphabetically
             match packet {
+                InboundPacket::BlockChange(block_change) => {
+                    log::info!("Block change packet received: {:?}", block_change);
+                }
                 InboundPacket::BlockItemSwitch(block_item_switch) => {
                     log::info!("Block item switch packet received: {:?}", block_item_switch);
                     // handle block item switch (NetClientHandler.java -> handleBlockItemSwitch())
