@@ -9,6 +9,7 @@ mod packet1_login;
 mod packet201_player_info;
 mod packet202_player_abilities;
 pub mod packet205_client_command;
+mod packet23_vehicule_spawn;
 mod packet24_mob_spawn;
 pub mod packet252_shared_key;
 pub mod packet253_server_auth_data;
@@ -50,6 +51,7 @@ use crate::packets::packet6_spawn_position::SpawnPositionPacket;
 use crate::packets::packet8_update_health::UpdateHealthPacket;
 use crate::packets::packet13_player_look_move::PlayerLookMovePacket;
 use crate::packets::packet16_block_item_switch::BlockItemSwitchPacket;
+use crate::packets::packet23_vehicule_spawn::VehicleSpawnPacket;
 use crate::packets::packet24_mob_spawn::MobSpawnPacket;
 use crate::packets::packet28_entity_velocity::EntityVelocityPacket;
 use crate::packets::packet29_destroy_entity::DestroyEntityPacket;
@@ -111,6 +113,7 @@ pub enum InboundPacket {
     TileEntityData(TileEntityDataPacket),
     UpdateHealth(UpdateHealthPacket),
     UpdateTime(UpdateTimePacket),
+    VehiculeSpawn(VehicleSpawnPacket),
     WindowItems(WindowItemsPacket),
 }
 
@@ -145,6 +148,9 @@ impl InboundPacket {
             )),
             16 => Ok(BlockItemSwitch(
                 BlockItemSwitchPacket::read(reader, encryption).await?,
+            )),
+            23 => Ok(VehiculeSpawn(
+                VehicleSpawnPacket::read(reader, encryption).await?,
             )),
             24 => Ok(MobSpawn(MobSpawnPacket::read(reader, encryption).await?)),
             28 => Ok(EntityVelocity(
