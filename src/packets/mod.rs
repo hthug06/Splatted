@@ -30,6 +30,7 @@ mod packet33_rel_entity_move_look;
 mod packet34_entity_teleport;
 mod packet35_entity_head_rotation;
 mod packet38_entity_status;
+mod packet39_attach_entity;
 mod packet3_chat;
 mod packet40_entity_metadata;
 mod packet43_experience;
@@ -73,6 +74,7 @@ use crate::packets::packet33_rel_entity_move_look::RelEntityMoveLookPacket;
 use crate::packets::packet34_entity_teleport::EntityTeleportPacket;
 use crate::packets::packet35_entity_head_rotation::EntityHeadRotationPacket;
 use crate::packets::packet38_entity_status::EntityStatusPacket;
+use crate::packets::packet39_attach_entity::AttachEntityPacket;
 use crate::packets::packet40_entity_metadata::EntityMetadataPacket;
 use crate::packets::packet43_experience::ExperiencePacket;
 use crate::packets::packet52_multi_block_change::MultiBlockChangePacket;
@@ -100,6 +102,7 @@ use tokio::net::tcp::OwnedReadHalf;
 /// This enum contain all the received packet
 pub enum InboundPacket {
     Animation(AnimationPacket),
+    AttachEntity(AttachEntityPacket),
     BlockChange(BlockChangePacket),
     BlockDestroy(BlockDestroyPacket),
     BlockItemSwitch(BlockItemSwitchPacket),
@@ -208,6 +211,9 @@ impl InboundPacket {
             )),
             38 => Ok(EntityStatus(
                 EntityStatusPacket::read(reader, encryption).await?,
+            )),
+            39 => Ok(AttachEntity(
+                AttachEntityPacket::read(reader, encryption).await?,
             )),
             40 => Ok(EntityMetadata(
                 EntityMetadataPacket::read(reader, encryption).await?,

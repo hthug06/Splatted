@@ -75,6 +75,9 @@ impl Client {
                 Animation(animation) => {
                     // log::info!("Animation packet received: {:?}", animation);
                 }
+                AttachEntity(attach_entity) => {
+                    log::info!("Attach entity packet received: {:?}", attach_entity);
+                }
                 BlockChange(block_change) => {
                     // log::info!("Block change packet received: {:?}", block_change);
                 }
