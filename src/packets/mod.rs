@@ -5,6 +5,7 @@ mod packet10_flying;
 mod packet132_tile_entity_data;
 pub mod packet13_player_look_move;
 mod packet16_block_item_switch;
+mod packet18_animation;
 mod packet1_login;
 mod packet201_player_info;
 mod packet202_player_abilities;
@@ -54,6 +55,7 @@ use crate::packets::packet6_spawn_position::SpawnPositionPacket;
 use crate::packets::packet8_update_health::UpdateHealthPacket;
 use crate::packets::packet13_player_look_move::PlayerLookMovePacket;
 use crate::packets::packet16_block_item_switch::BlockItemSwitchPacket;
+use crate::packets::packet18_animation::AnimationPacket;
 use crate::packets::packet20_named_entity_spawn::NamedEntitySpawnPacket;
 use crate::packets::packet23_vehicule_spawn::VehicleSpawnPacket;
 use crate::packets::packet24_mob_spawn::MobSpawnPacket;
@@ -89,6 +91,7 @@ use tokio::net::tcp::OwnedReadHalf;
 // Sorted alphabetically
 /// This enum contain all the received packet
 pub enum InboundPacket {
+    Animation(AnimationPacket),
     BlockChange(BlockChangePacket),
     BlockItemSwitch(BlockItemSwitchPacket),
     Chat(ChatPacket),
@@ -158,6 +161,7 @@ impl InboundPacket {
             16 => Ok(BlockItemSwitch(
                 BlockItemSwitchPacket::read(reader, encryption).await?,
             )),
+            18 => Ok(Animation(AnimationPacket::read(reader, encryption).await?)),
             20 => Ok(NamedEntitySpawn(
                 NamedEntitySpawnPacket::read(reader, encryption).await?,
             )),

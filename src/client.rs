@@ -72,6 +72,9 @@ impl Client {
             // handle the packet
             // Sorted alphabetically
             match packet {
+                Animation(animation) => {
+                    log::info!("Animation packet received: {:?}", animation);
+                }
                 BlockChange(block_change) => {
                     log::info!("Block change packet received: {:?}", block_change);
                 }
