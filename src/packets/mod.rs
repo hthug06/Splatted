@@ -30,6 +30,7 @@ mod packet52_multi_block_change;
 mod packet53_block_change;
 mod packet56_map_chunk;
 mod packet5_player_inventory;
+mod packet61_door_change;
 mod packet6_spawn_position;
 mod packet70_game_event;
 mod packet8_update_health;
@@ -60,6 +61,7 @@ use crate::packets::packet43_experience::ExperiencePacket;
 use crate::packets::packet52_multi_block_change::MultiBlockChangePacket;
 use crate::packets::packet53_block_change::BlockChangePacket;
 use crate::packets::packet56_map_chunk::MapChunkPacket;
+use crate::packets::packet61_door_change::DoorChangePacket;
 use crate::packets::packet70_game_event::GameEventPacket;
 use crate::packets::packet103_set_slot::SetSlotPacket;
 use crate::packets::packet104_window_items::WindowItemsPacket;
@@ -80,6 +82,7 @@ pub enum InboundPacket {
     BlockChange(BlockChangePacket),
     BlockItemSwitch(BlockItemSwitchPacket),
     DestroyEntity(DestroyEntityPacket),
+    DoorChange(DoorChangePacket),
     EntityHeadRotation(EntityHeadRotationPacket),
     EntityLook(EntityLookPacket),
     EntityMetadata(EntityMetadataPacket),
@@ -174,6 +177,9 @@ impl InboundPacket {
                 BlockChangePacket::read(reader, encryption).await?,
             )),
             56 => Ok(MapChunk(MapChunkPacket::read(reader, encryption).await?)),
+            61 => Ok(DoorChange(
+                DoorChangePacket::read(reader, encryption).await?,
+            )),
             70 => Ok(GameEvent(GameEventPacket::read(reader, encryption).await?)),
             103 => Ok(SetSlot(SetSlotPacket::read(reader, encryption).await?)),
             104 => Ok(WindowItems(

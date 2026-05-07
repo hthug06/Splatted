@@ -82,6 +82,9 @@ impl Client {
                 DestroyEntity(destroy_entity) => {
                     log::info!("Destroy entity packet received: {:?}", destroy_entity);
                 }
+                DoorChange(door_change) => {
+                    log::info!("Door change packet received: {:?}", door_change);
+                }
                 EntityHeadRotation(entity_head_rotation) => {
                     log::info!(
                         "Entity head rotation packet received: {:?}",
