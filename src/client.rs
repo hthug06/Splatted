@@ -115,6 +115,9 @@ impl Client {
                 KeepAlive(keep_alive_packet) => {
                     self.send_packet(keep_alive_packet).await?;
                 }
+                LevelSound(level_sound) => {
+                    log::info!("Level sound packet received: {:?}", level_sound);
+                }
                 Login(login_packet) => {
                     // Do nothing with the packet, but having information about the client is useful
                     log::info!("Login packet received: {:?}", login_packet);
