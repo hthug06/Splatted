@@ -197,10 +197,10 @@ impl Client {
                     self.send_packet(player_look_move).await?;
                 }
                 RemoveEntityEffect(remove_entity_effect) => {
-                    log::info!(
+                    /*log::info!(
                         "Remove entity effect packet received: {:?}",
                         remove_entity_effect
-                    );
+                    );*/
                 }
                 RelEntityMove(rel_entity_move) => {
                     // log::info!("Rel entity move packet received: {:?}", rel_entity_move);
@@ -237,6 +237,9 @@ impl Client {
                 }
                 VehiculeSpawn(vehicule_spawn) => {
                     // log::info!("Vehicule spawn packet received: {:?}", vehicule_spawn);
+                }
+                Weather(weather) => {
+                    log::info!("Weather packet received: {:?}", weather);
                 }
                 WindowItems(window_items) => {
                     // log::info!("Window items packet received: {:?}", window_items);

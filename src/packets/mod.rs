@@ -49,6 +49,7 @@ mod packet61_door_change;
 mod packet62_level_sound;
 mod packet6_spawn_position;
 mod packet70_game_event;
+mod packet71_weather;
 mod packet8_update_health;
 pub mod packet_trait;
 pub mod types;
@@ -94,6 +95,7 @@ use crate::packets::packet60_explosion::ExplosionPacket;
 use crate::packets::packet61_door_change::DoorChangePacket;
 use crate::packets::packet62_level_sound::LevelSoundPacket;
 use crate::packets::packet70_game_event::GameEventPacket;
+use crate::packets::packet71_weather::WeatherPacket;
 use crate::packets::packet103_set_slot::SetSlotPacket;
 use crate::packets::packet104_window_items::WindowItemsPacket;
 use crate::packets::packet132_tile_entity_data::TileEntityDataPacket;
@@ -156,6 +158,7 @@ pub enum InboundPacket {
     UpdateHealth(UpdateHealthPacket),
     UpdateTime(UpdateTimePacket),
     VehiculeSpawn(VehicleSpawnPacket),
+    Weather(WeatherPacket),
     WindowItems(WindowItemsPacket),
 }
 
@@ -266,6 +269,7 @@ impl InboundPacket {
                 LevelSoundPacket::read(reader, encryption).await?,
             )),
             70 => Ok(GameEvent(GameEventPacket::read(reader, encryption).await?)),
+            71 => Ok(Weather(WeatherPacket::read(reader, encryption).await?)),
             103 => Ok(SetSlot(SetSlotPacket::read(reader, encryption).await?)),
             104 => Ok(WindowItems(
                 WindowItemsPacket::read(reader, encryption).await?,
