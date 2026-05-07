@@ -1,5 +1,5 @@
 use crate::packets::packet_trait::ClientPacket;
-use crate::packets::utils::write_f64;
+use crate::packets::utils::{write_bool, write_f64};
 use std::io::Error;
 
 pub struct PlayerPositionPacket {
@@ -16,7 +16,7 @@ impl ClientPacket for PlayerPositionPacket {
         write_f64(buffer, self.y);
         write_f64(buffer, self.stance);
         write_f64(buffer, self.z);
-        buffer.push(if self.on_ground { 1 } else { 0 });
+        write_bool(buffer, self.on_ground);
 
         Ok(())
     }
