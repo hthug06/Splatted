@@ -7,6 +7,7 @@ pub mod packet13_player_look_move;
 mod packet16_block_item_switch;
 mod packet18_animation;
 mod packet1_login;
+mod packet200_statistic;
 mod packet201_player_info;
 mod packet202_player_abilities;
 pub mod packet205_client_command;
@@ -78,6 +79,7 @@ use crate::packets::packet70_game_event::GameEventPacket;
 use crate::packets::packet103_set_slot::SetSlotPacket;
 use crate::packets::packet104_window_items::WindowItemsPacket;
 use crate::packets::packet132_tile_entity_data::TileEntityDataPacket;
+use crate::packets::packet200_statistic::StatisticPacket;
 use crate::packets::packet201_player_info::PlayerInfoPacket;
 use crate::packets::packet202_player_abilities::PlayerAbilitiesPacket;
 use crate::packets::packet252_shared_key::SharedKeyPacket;
@@ -122,6 +124,7 @@ pub enum InboundPacket {
     SetSlot(SetSlotPacket),
     SharedKey(SharedKeyPacket),
     SpawnPosition(SpawnPositionPacket),
+    Statistic(StatisticPacket),
     TileEntityData(TileEntityDataPacket),
     UpdateHealth(UpdateHealthPacket),
     UpdateTime(UpdateTimePacket),
@@ -220,6 +223,7 @@ impl InboundPacket {
             132 => Ok(TileEntityData(
                 TileEntityDataPacket::read(reader, encryption).await?,
             )),
+            200 => Ok(Statistic(StatisticPacket::read(reader, encryption).await?)),
             201 => Ok(PlayerInfo(
                 PlayerInfoPacket::read(reader, encryption).await?,
             )),

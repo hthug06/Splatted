@@ -188,6 +188,9 @@ impl Client {
                 SharedKey(shared_key_packet) => {
                     self.handle_shared_key(shared_key_packet).await?;
                 }
+                Statistic(statistic) => {
+                    log::info!("Statistic packet received: {:?}", statistic);
+                }
                 SpawnPosition(position) => {
                     log::info!("Spawn position packet received: {:?}", position);
                 }
