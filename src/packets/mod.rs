@@ -18,6 +18,7 @@ pub mod packet2_client_protocol;
 mod packet40_entity_metadata;
 mod packet4_update_time;
 mod packet56_map_chunk;
+mod packet5_player_inventory;
 mod packet6_spawn_position;
 mod packet70_game_event;
 pub mod packet_trait;
@@ -29,6 +30,7 @@ use crate::packets::InboundPacket::{EntityMetadata, MobSpawn};
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet1_login::LoginPacket;
 use crate::packets::packet4_update_time::UpdateTimePacket;
+use crate::packets::packet5_player_inventory::PlayerInventoryPacket;
 use crate::packets::packet6_spawn_position::SpawnPositionPacket;
 use crate::packets::packet13_player_look_move::PlayerLookMovePacket;
 use crate::packets::packet16_block_item_switch::BlockItemSwitchPacket;
@@ -61,6 +63,7 @@ pub enum InboundPacket {
     MobSpawn(MobSpawnPacket),
     PlayerAbilities(PlayerAbilitiesPacket),
     PlayerInfo(PlayerInfoPacket),
+    PlayerInventory(PlayerInventoryPacket),
     PlayerLookMove(PlayerLookMovePacket),
     ServerAuthData(ServerAuthDataPacket),
     SetSlot(SetSlotPacket),
@@ -90,6 +93,9 @@ impl InboundPacket {
             )),
             4 => Ok(InboundPacket::UpdateTime(
                 UpdateTimePacket::read(reader, encryption).await?,
+            )),
+            5 => Ok(InboundPacket::PlayerInventory(
+                PlayerInventoryPacket::read(reader, encryption).await?,
             )),
             6 => Ok(InboundPacket::SpawnPosition(
                 SpawnPositionPacket::read(reader, encryption).await?,

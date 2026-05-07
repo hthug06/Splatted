@@ -109,6 +109,9 @@ impl Client {
                 InboundPacket::PlayerInfo(player_info) => {
                     log::info!("Player info packet received: {:?}", player_info);
                 }
+                InboundPacket::PlayerInventory(player_inventory) => {
+                    log::info!("Player inventory packet received: {:?}", player_inventory);
+                }
                 InboundPacket::PlayerLookMove(player_look_move) => {
                     log::info!("Player look move packet received: {:?}", player_look_move);
 
