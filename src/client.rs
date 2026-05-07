@@ -100,6 +100,9 @@ impl Client {
                 DoorChange(door_change) => {
                     // log::info!("Door change packet received: {:?}", door_change);
                 }
+                EntityExpOrb(entity_exp_orb) => {
+                    log::info!("Entity exp orb packet received: {:?}", entity_exp_orb);
+                }
                 EntityHeadRotation(entity_head_rotation) => {
                     /*log::info!(
                         "Entity head rotation packet received: {:?}",
