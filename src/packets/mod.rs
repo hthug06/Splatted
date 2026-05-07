@@ -28,11 +28,10 @@ mod packet8_update_health;
 pub mod packet_trait;
 pub mod types;
 pub mod utils;
+mod packet31_rel_entity_move;
 
 use crate::network::connection::Encryption;
-use crate::packets::InboundPacket::{
-    EntityLook, EntityMetadata, Experience, MobSpawn, UpdateHealth,
-};
+use crate::packets::InboundPacket::{EntityLook, EntityMetadata, Experience, MobSpawn, RelEntityMove, UpdateHealth};
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet1_login::LoginPacket;
 use crate::packets::packet4_update_time::UpdateTimePacket;
@@ -59,6 +58,7 @@ use packet0_keep_alive::KeepAlivePacket;
 use std::io::{Error, ErrorKind};
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
+use crate::packets::packet31_rel_entity_move::RelEntityMovePacket;
 
 // Sorted alphabetically
 /// This enum contain all the received packet
@@ -76,6 +76,7 @@ pub enum InboundPacket {
     PlayerInfo(PlayerInfoPacket),
     PlayerInventory(PlayerInventoryPacket),
     PlayerLookMove(PlayerLookMovePacket),
+    RelEntityMove(RelEntityMovePacket),
     ServerAuthData(ServerAuthDataPacket),
     SetSlot(SetSlotPacket),
     SharedKey(SharedKeyPacket),
@@ -122,6 +123,7 @@ impl InboundPacket {
                 BlockItemSwitchPacket::read(reader, encryption).await?,
             )),
             24 => Ok(MobSpawn(MobSpawnPacket::read(reader, encryption).await?)),
+            31 => Ok(RelEntityMove(RelEntityMovePacket::read(reader, encryption).await?)),
             32 => Ok(EntityLook(
                 EntityLookPacket::read(reader, encryption).await?,
             )),

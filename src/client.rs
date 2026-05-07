@@ -124,6 +124,9 @@ impl Client {
                     // Resend the same packet
                     self.send_packet(player_look_move).await?;
                 }
+                InboundPacket::RelEntityMove(rel_entity_move) => {
+                    log::info!("Rel entity move packet received: {:?}", rel_entity_move);
+                }
                 InboundPacket::ServerAuthData(auth_packet) => {
                     self.handle_server_auth_data(auth_packet).await?;
                 }
