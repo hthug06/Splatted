@@ -24,6 +24,7 @@ mod packet32_entity_look;
 mod packet33_rel_entity_move_look;
 mod packet34_entity_teleport;
 mod packet35_entity_head_rotation;
+mod packet38_entity_status;
 mod packet3_chat;
 mod packet40_entity_metadata;
 mod packet43_experience;
@@ -61,6 +62,7 @@ use crate::packets::packet32_entity_look::EntityLookPacket;
 use crate::packets::packet33_rel_entity_move_look::RelEntityMoveLookPacket;
 use crate::packets::packet34_entity_teleport::EntityTeleportPacket;
 use crate::packets::packet35_entity_head_rotation::EntityHeadRotationPacket;
+use crate::packets::packet38_entity_status::EntityStatusPacket;
 use crate::packets::packet40_entity_metadata::EntityMetadataPacket;
 use crate::packets::packet43_experience::ExperiencePacket;
 use crate::packets::packet52_multi_block_change::MultiBlockChangePacket;
@@ -93,6 +95,7 @@ pub enum InboundPacket {
     EntityHeadRotation(EntityHeadRotationPacket),
     EntityLook(EntityLookPacket),
     EntityMetadata(EntityMetadataPacket),
+    EntityStatus(EntityStatusPacket),
     EntityTeleport(EntityTeleportPacket),
     EntityVelocity(EntityVelocityPacket),
     Experience(ExperiencePacket),
@@ -176,6 +179,9 @@ impl InboundPacket {
             )),
             35 => Ok(EntityHeadRotation(
                 EntityHeadRotationPacket::read(reader, encryption).await?,
+            )),
+            38 => Ok(EntityStatus(
+                EntityStatusPacket::read(reader, encryption).await?,
             )),
             40 => Ok(EntityMetadata(
                 EntityMetadataPacket::read(reader, encryption).await?,
