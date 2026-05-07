@@ -15,6 +15,8 @@ pub mod packet253_server_auth_data;
 pub mod packet254_server_ping;
 pub mod packet255_kick_disconnect;
 pub mod packet2_client_protocol;
+mod packet30_entity;
+mod packet32_entity_look;
 mod packet40_entity_metadata;
 mod packet43_experience;
 mod packet4_update_time;
@@ -28,7 +30,9 @@ pub mod types;
 pub mod utils;
 
 use crate::network::connection::Encryption;
-use crate::packets::InboundPacket::{EntityMetadata, Experience, MobSpawn, UpdateHealth};
+use crate::packets::InboundPacket::{
+    EntityLook, EntityMetadata, Experience, MobSpawn, UpdateHealth,
+};
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet1_login::LoginPacket;
 use crate::packets::packet4_update_time::UpdateTimePacket;
@@ -38,6 +42,7 @@ use crate::packets::packet8_update_health::UpdateHealthPacket;
 use crate::packets::packet13_player_look_move::PlayerLookMovePacket;
 use crate::packets::packet16_block_item_switch::BlockItemSwitchPacket;
 use crate::packets::packet24_mob_spawn::MobSpawnPacket;
+use crate::packets::packet32_entity_look::EntityLookPacket;
 use crate::packets::packet40_entity_metadata::EntityMetadataPacket;
 use crate::packets::packet43_experience::ExperiencePacket;
 use crate::packets::packet56_map_chunk::MapChunkPacket;
@@ -59,6 +64,7 @@ use tokio::net::tcp::OwnedReadHalf;
 /// This enum contain all the received packet
 pub enum InboundPacket {
     BlockItemSwitch(BlockItemSwitchPacket),
+    EntityLook(EntityLookPacket),
     EntityMetadata(EntityMetadataPacket),
     Experience(ExperiencePacket),
     GameEvent(GameEventPacket),
@@ -116,6 +122,9 @@ impl InboundPacket {
                 BlockItemSwitchPacket::read(reader, encryption).await?,
             )),
             24 => Ok(MobSpawn(MobSpawnPacket::read(reader, encryption).await?)),
+            32 => Ok(EntityLook(
+                EntityLookPacket::read(reader, encryption).await?,
+            )),
             40 => Ok(EntityMetadata(
                 EntityMetadataPacket::read(reader, encryption).await?,
             )),
