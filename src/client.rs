@@ -94,6 +94,9 @@ impl Client {
                 EntityMetadata(entity_metadata) => {
                     log::info!("Entity metadata packet received: {:?}", entity_metadata);
                 }
+                EntityTeleport(entity_teleport) => {
+                    log::info!("Entity teleport packet received: {:?}", entity_teleport);
+                }
                 EntityVelocity(entity_velocity) => {
                     log::info!("Entity velocity packet received: {:?}", entity_velocity);
                 }

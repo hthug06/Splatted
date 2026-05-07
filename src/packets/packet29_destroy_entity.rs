@@ -1,7 +1,7 @@
 use crate::network::connection::Encryption;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet30_entity::EntityPacket;
-use crate::packets::utils::{read_i32, read_u8};
+use crate::packets::utils::read_u8;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
