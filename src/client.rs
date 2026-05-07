@@ -75,6 +75,9 @@ impl Client {
                     log::info!("Block item switch packet received: {:?}", block_item_switch);
                     // handle block item switch (NetClientHandler.java -> handleBlockItemSwitch())
                 }
+                InboundPacket::EntityMetadata(entity_metadata) => {
+                    log::info!("Entity metadata packet received: {:?}", entity_metadata);
+                }
                 InboundPacket::GameEvent(game_event) => {
                     log::info!("Game event packet received: {:?}", game_event);
                 }
