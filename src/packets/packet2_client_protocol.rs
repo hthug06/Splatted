@@ -2,7 +2,7 @@ use crate::packets::packet_trait::ClientPacket;
 use crate::packets::utils::write_string;
 use std::io::Error;
 
-pub struct ClientProtocol {
+pub struct ClientProtocolPacket {
     /// This might change if we try to support more version ( > 1.10.2 is u16)
     pub protocol_version: u8,
     pub username: String,
@@ -10,7 +10,7 @@ pub struct ClientProtocol {
     pub server_port: u32,
 }
 
-impl ClientProtocol {
+impl ClientProtocolPacket {
     pub fn new(
         protocol_version: u8,
         username: &str,
@@ -35,7 +35,7 @@ impl ClientProtocol {
     }
 }
 
-impl ClientPacket for ClientProtocol {
+impl ClientPacket for ClientProtocolPacket {
     fn write_to(&self, buffer: &mut Vec<u8>) -> Result<(), Error> {
         //DON'T FORGET TO ADD THE PACKET ID
         buffer.push(0x02);

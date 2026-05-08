@@ -5,11 +5,11 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-pub struct KeepAlive {
+pub struct KeepAlivePacket {
     pub random_id: i32,
 }
 
-impl ClientPacket for KeepAlive {
+impl ClientPacket for KeepAlivePacket {
     fn write_to(&self, buffer: &mut Vec<u8>) -> Result<(), Error> {
         buffer.push(0);
         buffer.extend(self.random_id.to_be_bytes());
@@ -17,7 +17,7 @@ impl ClientPacket for KeepAlive {
     }
 }
 
-impl ServerPacket for KeepAlive {
+impl ServerPacket for KeepAlivePacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,

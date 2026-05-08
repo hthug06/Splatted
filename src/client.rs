@@ -1,10 +1,11 @@
 use crate::network::connection::Encryption;
 use crate::packets::InboundPacket;
+use crate::packets::InboundPacket::*;
 use crate::packets::packet_trait::ClientPacket;
-use crate::packets::packet2_client_protocol::ClientProtocol;
+use crate::packets::packet2_client_protocol::ClientProtocolPacket;
 use crate::packets::packet205_client_command::ClientCommandPacket;
 use crate::packets::packet252_shared_key::SharedKeyPacket;
-use crate::packets::packet253_server_auth_data::ServerAuthData;
+use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;
 use std::io::{Error, ErrorKind};
 use std::net::SocketAddr;
 use tokio::io::{AsyncWriteExt, BufReader};
@@ -54,7 +55,7 @@ impl Client {
         //After this, we can send the first packet
         // this packet contain the protocol version of the client (51 in 1.4.7)
         // the username, the address and port of the server
-        let handshake = ClientProtocol::new(51, &self.username, host, port);
+        let handshake = ClientProtocolPacket::new(51, &self.username, host, port);
         self.send_packet(handshake).await?;
 
         loop {
@@ -69,15 +70,185 @@ impl Client {
                 };
 
             // handle the packet
+            // Sorted alphabetically
             match packet {
-                InboundPacket::KeepAlive(keep_alive_packet) => {
+                Animation(_animation) => {
+                    // log::info!("Animation packet received: {:?}", animation);
+                }
+                AttachEntity(_attach_entity) => {
+                    // log::info!("Attach entity packet received: {:?}", attach_entity);
+                }
+                BlockChange(_block_change) => {
+                    // log::info!("Block change packet received: {:?}", block_change);
+                }
+                BlockDestroy(_block_destroy) => {
+                    // log::info!("Block destroy packet received: {:?}", block_destroy);
+                }
+                BlockItemSwitch(_block_item_switch) => {
+                    // log::info!("Block item switch packet received: {:?}", block_item_switch);
+                    // handle block item switch (NetClientHandler.java -> handleBlockItemSwitch())
+                }
+                Chat(chat) => {
+                    log::info!("Chat packet received: {:?}", chat);
+                }
+                Collected(_collected) => {
+                    // log::info!("Collected packet received: {:?}", collected);
+                }
+                CustomPayload(custom_payload) => {
+                    log::info!("Custom payload packet received: {:?}", custom_payload);
+                }
+                DestroyEntity(_destroy_entity) => {
+                    // log::info!("Destroy entity packet received: {:?}", destroy_entity);
+                }
+                DoorChange(_door_change) => {
+                    // log::info!("Door change packet received: {:?}", door_change);
+                }
+                EntityEffect(_entity_effect) => {
+                    // log::info!("Entity effect packet received: {:?}", entity_effect);
+                }
+                EntityExpOrb(_entity_exp_orb) => {
+                    // log::info!("Entity exp orb packet received: {:?}", entity_exp_orb);
+                }
+                EntityHeadRotation(_entity_head_rotation) => {
+                    /*log::info!(
+                        "Entity head rotation packet received: {:?}",
+                        entity_head_rotation
+                    );*/
+                }
+                EntityLook(_entity_look) => {
+                    // log::info!("Entity look packet received: {:?}", entity_look);
+                }
+                EntityMetadata(_entity_metadata) => {
+                    // log::info!("Entity metadata packet received: {:?}", entity_metadata);
+                }
+                EntityPainting(_entity_painting) => {
+                    // log::info!("Entity painting packet received: {:?}", entity_painting);
+                }
+
+                EntityStatus(_entity_status) => {
+                    // log::info!("Entity status packet received: {:?}", entity_status);
+                }
+                EntityTeleport(_entity_teleport) => {
+                    // log::info!("Entity teleport packet received: {:?}", entity_teleport);
+                }
+                EntityVelocity(_entity_velocity) => {
+                    // log::info!("Entity velocity packet received: {:?}", entity_velocity);
+                }
+                Experience(_experience) => {
+                    // log::info!("Experience packet received: {:?}", experience);
+                }
+                Explosion(_explosion) => {
+                    // log::info!("Explosion packet received: {:?}", explosion);
+                }
+                GameEvent(_game_event) => {
+                    // log::info!("Game event packet received: {:?}", game_event);
+                }
+                KeepAlive(keep_alive_packet) => {
                     self.send_packet(keep_alive_packet).await?;
                 }
-                InboundPacket::ServerAuthData(auth_packet) => {
+                LevelSound(_level_sound) => {
+                    // log::info!("Level sound packet received: {:?}", level_sound);
+                }
+                Login(_login_packet) => {
+                    // Do nothing with the packet, but having information about the client is useful
+                    // log::info!("Login packet received: {:?}", login_packet);
+                }
+                NamedEntitySpawn(_named_entity_spawn) => {
+                    // log::info!(
+                    //     "Named entity spawn packet received: {:?}",
+                    //     named_entity_spawn
+                    // );
+                }
+                MapChunk(_map_chunk) => {
+                    // log::info!(
+                    //     "Map chunk packet received, {} chunk(s) received",
+                    //     map_chunk.chunk_count
+                    // );
+                    // log::info!(
+                    //     "Chunks details: {:?}, data lenght: {}, sky light: {}",
+                    //     map_chunk.metadata,
+                    //     map_chunk.data_length,
+                    //     map_chunk.sky_light_sent
+                    // );
+                }
+                MobSpawn(_mob_spawn) => {
+                    // log::info!("Mob spawn packet received: {:?}", mob_spawn);
+                }
+                MultiBlockChange(_multi_block_change) => {
+                    // log::info!(
+                    //     "Multi block change packet received: {:?}",
+                    //     multi_block_change
+                    // );
+                }
+                PlayNoteBlock(_play_note_block) => {
+                    // log::info!("Play note block packet received: {:?}", play_note_block);
+                }
+                PlayerAbilities(_abilities) => {
+                    // log::info!("Player abilities packet received: {:?}", abilities);
+                }
+                PlayerInfo(_player_info) => {
+                    // log::info!("Player info packet received: {:?}", player_info);
+                }
+                PlayerInventory(_player_inventory) => {
+                    // log::info!("Player inventory packet received: {:?}", player_inventory);
+                }
+                PlayerLookMove(mut player_look_move) => {
+                    // log::info!("Player look move packet received: {:?}", player_look_move);
+
+                    // Resend the same packet
+                    player_look_move.on_ground = true;
+                    self.send_packet(player_look_move).await?;
+                }
+                RemoveEntityEffect(_remove_entity_effect) => {
+                    /*log::info!(
+                        "Remove entity effect packet received: {:?}",
+                        remove_entity_effect
+                    );*/
+                }
+                RelEntityMove(_rel_entity_move) => {
+                    // log::info!("Rel entity move packet received: {:?}", rel_entity_move);
+                }
+                RelEntityMoveLook(_rel_entity_move_look) => {
+                    /*log::info!(
+                        "Rel entity move packet received: {:?}",
+                        rel_entity_move_look
+                    );*/
+                }
+                ServerAuthData(auth_packet) => {
                     self.handle_server_auth_data(auth_packet).await?;
                 }
-                InboundPacket::SharedKey(shared_key_packet) => {
+                SetSlot(_set_slot) => {
+                    // log::info!("Set slot packet received: {:?}", set_slot);
+                }
+                SharedKey(shared_key_packet) => {
                     self.handle_shared_key(shared_key_packet).await?;
+                }
+                Statistic(_statistic) => {
+                    // log::info!("Statistic packet received: {:?}", statistic);
+                }
+                SpawnPosition(_position) => {
+                    // log::info!("Spawn position packet received: {:?}", position);
+                }
+                TileEntityData(_tile_entity_data) => {
+                    // log::info!("Tile entity data packet received: {:?}", tile_entity_data);
+                }
+                UpdateHealth(_update_health) => {
+                    // log::info!("Update health packet received: {:?}", update_health);
+                }
+                UpdateSign(_update_sign) => {
+                    // log::info!("Update sign packet received: {:?}", update_sign);
+                }
+                UpdateTime(_update_time) => {
+                    // log::info!("Update time packet received: {:?}", update_time);
+                }
+                VehiculeSpawn(_vehicule_spawn) => {
+                    // log::info!("Vehicule spawn packet received: {:?}", vehicule_spawn);
+                }
+                Weather(_weather) => {
+                    // log::info!("Weather packet received: {:?}", weather);
+                }
+                WindowItems(_window_items) => {
+                    // log::info!("Window items packet received: {:?}", window_items);
                 }
             }
         }
@@ -112,7 +283,10 @@ impl Client {
     /// First, get the data from the packet (token and public key).
     /// Then, create the Shared key packet (252), with the shared secret between the client and the server.
     /// Finally, send the Shared key packet and prepare the cipher (activated on 0xFC confirmation).
-    pub async fn handle_server_auth_data(&mut self, packet: ServerAuthData) -> std::io::Result<()> {
+    pub async fn handle_server_auth_data(
+        &mut self,
+        packet: ServerAuthDataPacket,
+    ) -> std::io::Result<()> {
         log::info!("AuthData (253 | 0xFD) received");
 
         if packet.server_id != "-" {

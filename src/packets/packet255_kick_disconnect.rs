@@ -6,18 +6,18 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-pub struct KickDisconnect {
+pub struct KickDisconnectPacket {
     reason: String,
 }
 
-impl KickDisconnect {
+impl KickDisconnectPacket {
     /// Get all the server infos like in the minecraft server list
     pub fn format_server_infos(&self) -> ServerPingResponse {
         ServerPingResponse::from_kickdisconnect(self)
     }
 }
 
-impl ServerPacket for KickDisconnect {
+impl ServerPacket for KickDisconnectPacket {
     /// Create the KickDisconnect packet from the entire buffer
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
@@ -54,7 +54,7 @@ impl ServerPingResponse {
     /// The §1 is here to say that the version of the server is > 1.3, and you need to read thing differents thing than the previous version.
     /// Ex: the protocol version
     // TODO: read motd of version < 1.4
-    pub fn from_kickdisconnect(kickdisconnect: &KickDisconnect) -> Self {
+    pub fn from_kickdisconnect(kickdisconnect: &KickDisconnectPacket) -> Self {
         // In order (everything is in UTF16 String:
         // 0: lenght of the packet + magic chain (to indicate the server is > 1.3
         // 1: protocol version (ex: 51 for 1.4.7)

@@ -7,13 +7,13 @@ use std::io::{Error, ErrorKind};
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-pub struct ServerAuthData {
+pub struct ServerAuthDataPacket {
     pub server_id: String,
     pub public_key: RsaPublicKey,
     pub verify_token: Vec<u8>,
 }
 
-impl ServerPacket for ServerAuthData {
+impl ServerPacket for ServerAuthDataPacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,

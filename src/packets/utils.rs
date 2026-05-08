@@ -3,9 +3,9 @@ use std::io::{Error, ErrorKind};
 use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
 
-/// READ FUNCTION
-///
-/// Read an u8
+// READ FUNCTION
+
+/// Read an u8 (byte but unsigned)
 pub async fn read_u8(
     reader: &mut BufReader<OwnedReadHalf>,
     encryption: &mut Encryption,
@@ -16,8 +16,50 @@ pub async fn read_u8(
     Ok(buf[0])
 }
 
+/// Read an i8 (byte but signed)
+/// it's like reading a byte in java
+/// like par1DataInputStream.readByte() in mc code
+pub async fn read_i8(
+    reader: &mut BufReader<OwnedReadHalf>,
+    encryption: &mut Encryption,
+) -> std::io::Result<i8> {
+    let mut buf = [0u8; 1];
+    reader.read_exact(&mut buf).await?;
+    encryption.decrypt(&mut buf);
+
+    // Fait exactement la même chose que `buf[0] as i8`
+    Ok(i8::from_be_bytes(buf))
+}
+
+/// Read an u16
+/// it's like reading a short in java (but unsigned)
+/// like par1DataInputStream.readShort() in mc code
+pub async fn read_u16(
+    reader: &mut BufReader<OwnedReadHalf>,
+    encryption: &mut Encryption,
+) -> std::io::Result<u16> {
+    let mut buf = [0u8; 2];
+    reader.read_exact(&mut buf).await?;
+    encryption.decrypt(&mut buf);
+    Ok(u16::from_be_bytes(buf))
+}
+
+/// Read an i16
+/// it's like reading a short in java
+/// like par1DataInputStream.readShort() in mc code
+pub async fn read_i16(
+    reader: &mut BufReader<OwnedReadHalf>,
+    encryption: &mut Encryption,
+) -> std::io::Result<i16> {
+    let mut buf = [0u8; 2];
+    reader.read_exact(&mut buf).await?;
+    encryption.decrypt(&mut buf);
+    Ok(i16::from_be_bytes(buf))
+}
+
 /// Read an i32
 /// it's like reading an integer in java
+/// like par1DataInputStream.readInt() in mc code
 pub async fn read_i32(
     reader: &mut BufReader<OwnedReadHalf>,
     encryption: &mut Encryption,
@@ -26,6 +68,45 @@ pub async fn read_i32(
     reader.read_exact(&mut buf).await?;
     encryption.decrypt(&mut buf);
     Ok(i32::from_be_bytes(buf))
+}
+
+/// Read an i64
+/// it's like reading a long in java
+/// like par1DataInputStream.readLong() in mc code
+pub async fn read_i64(
+    reader: &mut BufReader<OwnedReadHalf>,
+    encryption: &mut Encryption,
+) -> std::io::Result<i64> {
+    let mut buf = [0u8; 8];
+    reader.read_exact(&mut buf).await?;
+    encryption.decrypt(&mut buf);
+    Ok(i64::from_be_bytes(buf))
+}
+
+/// Read a f32
+/// it's like reading a float in java
+/// like par1DataInputStream.readFloat() in mc code
+pub async fn read_f32(
+    reader: &mut BufReader<OwnedReadHalf>,
+    encryption: &mut Encryption,
+) -> std::io::Result<f32> {
+    let mut buf = [0u8; 4];
+    reader.read_exact(&mut buf).await?;
+    encryption.decrypt(&mut buf);
+    Ok(f32::from_be_bytes(buf))
+}
+
+/// Read a f64
+/// it's like reading a double in java
+/// like par1DataInputStream.readDouble() in mc code
+pub async fn read_f64(
+    reader: &mut BufReader<OwnedReadHalf>,
+    encryption: &mut Encryption,
+) -> std::io::Result<f64> {
+    let mut buf = [0u8; 8];
+    reader.read_exact(&mut buf).await?;
+    encryption.decrypt(&mut buf);
+    Ok(f64::from_be_bytes(buf))
 }
 
 /// Reads a Minecraft byte array (prefixed with u16 length, then the bytes)
@@ -83,8 +164,23 @@ pub async fn read_string(
         .map_err(|e| Error::new(ErrorKind::InvalidData, format!("Invalid UTF-16: {:?}", e)))
 }
 
-/// WRITE FUNCTION
-///
+// WRITE FUNCTION
+
+/// Write a boolean (1 byte: 0x01 for true, 0x00 for false)
+pub fn write_bool(buffer: &mut Vec<u8>, value: bool) {
+    buffer.push(if value { 1 } else { 0 });
+}
+
+/// Write a f32 (Float)
+pub fn write_f32(buffer: &mut Vec<u8>, value: f32) {
+    buffer.extend_from_slice(&value.to_be_bytes());
+}
+
+/// Write a f64 (Double)
+pub fn write_f64(buffer: &mut Vec<u8>, value: f64) {
+    buffer.extend_from_slice(&value.to_be_bytes());
+}
+
 /// Write a byte array like Minecraft 1.4.7 do (len as u16 in be_byte + data)
 pub fn write_byte_array(buffer: &mut Vec<u8>, byte_array: &[u8]) {
     buffer.extend((byte_array.len() as u16).to_be_bytes());
