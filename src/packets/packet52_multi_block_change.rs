@@ -1,7 +1,7 @@
 use crate::network::connection::Encryption;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::utils::{read_i32, read_u16};
-use std::io::Error;
+use std::io::{Error, ErrorKind};
 use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
 
@@ -48,7 +48,7 @@ impl ServerPacket for MultiBlockChangePacket {
         // If the server is malicious and what to make su crash
         else if metadata_size > MAX_METADATA_SIZE {
             return Err(Error::new(
-                std::io::ErrorKind::InvalidData,
+                ErrorKind::InvalidData,
                 format!("Metadata size is too big: {}", metadata_size),
             ));
         } else {

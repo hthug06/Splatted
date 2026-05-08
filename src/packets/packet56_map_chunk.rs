@@ -3,9 +3,12 @@
 use crate::network::connection::Encryption;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::utils::{read_i8, read_i16, read_i32, read_u16};
-use std::io::Error;
+use std::io::{Error, ErrorKind};
 use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
+
+// Because 1 chunk can be max 1 Mo, here considering modded server , 20 BIG chunk should be enough
+const MAX_METADATA_SIZE: i32 = 20_971_520;
 
 /// The packet MapChunk
 /// This packet contain:
@@ -59,6 +62,11 @@ impl ServerPacket for MapChunkPacket {
         if data_length > 0 {
             reader.read_exact(&mut compressed_data).await?;
             encryption.decrypt(&mut compressed_data);
+        } else if data_length > MAX_METADATA_SIZE {
+            return Err(Error::new(
+                ErrorKind::InvalidData,
+                format!("Bulk Chunk size is dangerously huge: {}", data_length),
+            ));
         }
 
         // Read EVERY chunk (yes multiple chunk in 1 packet)
