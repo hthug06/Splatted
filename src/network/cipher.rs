@@ -1,6 +1,6 @@
 use aes::Aes128;
+use aes::cipher::KeyIvInit;
 use cfb8::{Decryptor, Encryptor};
-use cipher::KeyIvInit;
 
 type Aes128Cfb8Enc = Encryptor<Aes128>;
 type Aes128Cfb8Dec = Decryptor<Aes128>;
