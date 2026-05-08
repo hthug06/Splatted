@@ -6,6 +6,7 @@ use crate::packets::packet2_client_protocol::ClientProtocolPacket;
 use crate::packets::packet205_client_command::ClientCommandPacket;
 use crate::packets::packet252_shared_key::SharedKeyPacket;
 use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;
+use crate::packets::packet255_kick_disconnect::KickDisconnectPacket;
 use std::io::{Error, ErrorKind};
 use std::net::SocketAddr;
 use tokio::io::{AsyncWriteExt, BufReader};
@@ -89,7 +90,7 @@ impl Client {
                     // handle block item switch (NetClientHandler.java -> handleBlockItemSwitch())
                 }
                 Chat(chat) => {
-                    log::info!("Chat packet received: {:?}", chat);
+                    // log::info!("Chat packet received: {:?}", chat);
                 }
                 Collected(_collected) => {
                     // log::info!("Collected packet received: {:?}", collected);
@@ -145,6 +146,13 @@ impl Client {
                 }
                 KeepAlive(keep_alive_packet) => {
                     self.send_packet(keep_alive_packet).await?;
+                }
+                KickDisconnect(kick_disconnect_packet) => {
+                    log::info!(
+                        "Kick disconnect packet received: {:?}",
+                        kick_disconnect_packet
+                    );
+                    break;
                 }
                 LevelSound(_level_sound) => {
                     // log::info!("Level sound packet received: {:?}", level_sound);
@@ -263,7 +271,7 @@ impl Client {
             .write_to(&mut buffer)
             .map_err(|e| Error::new(ErrorKind::InvalidData, e))?;
 
-        log::info!("Sending packet ID {}", &buffer[0]);
+        // log::info!("Sending packet ID {}", &buffer[0]);
 
         // Fill the buffer with the packet data
         // Encrypt the packet if the encryption is enabled
@@ -287,7 +295,7 @@ impl Client {
         &mut self,
         packet: ServerAuthDataPacket,
     ) -> std::io::Result<()> {
-        log::info!("AuthData (253 | 0xFD) received");
+        // log::info!("AuthData (253 | 0xFD) received");
 
         if packet.server_id != "-" {
             return Err(Error::new(
@@ -319,7 +327,7 @@ impl Client {
     /// Then, if the packet is right, confirm the encryption.
     /// Finally, send the ClientCommandPacket (205) to spawn the client in the world.
     pub async fn handle_shared_key(&mut self, packet: SharedKeyPacket) -> std::io::Result<()> {
-        log::info!("Shared Key Packet (252 | 0xFC) received");
+        // log::info!("Shared Key Packet (252 | 0xFC) received");
 
         // From now, every sent and received packet will be encrypted
         if packet.is_encryption_confirmed() {

@@ -42,13 +42,13 @@ impl Encryption {
     pub fn set_encryption(&mut self, shared_secret: &[u8; 16]) {
         self.cipher = Some(Cipher::new(shared_secret));
         self.state = EncryptionState::EncryptionPending;
-        log::info!("Encryption prepared (AES-128-CFB8), waiting for activation");
+        // log::info!("Encryption prepared (AES-128-CFB8), waiting for activation");
     }
 
     /// Activate AES-128-CFB8 encryption for all future reads and writes.
     pub fn enable_encryption(&mut self) {
         self.state = EncryptionState::Encrypted;
-        log::info!("Encryption enabled (AES-128-CFB8) for all I/O");
+        // log::info!("Encryption enabled (AES-128-CFB8) for all I/O");
     }
 
     /// Check if the connection is fully encrypted
