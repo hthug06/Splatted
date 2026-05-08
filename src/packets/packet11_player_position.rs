@@ -12,6 +12,10 @@ pub struct PlayerPositionPacket {
 
 impl ClientPacket for PlayerPositionPacket {
     fn write_to(&self, buffer: &mut Vec<u8>) -> Result<(), Error> {
+        // Packet ID
+        buffer.push(11);
+
+        // Packet Data
         write_f64(buffer, self.x);
         write_f64(buffer, self.y);
         write_f64(buffer, self.stance);
