@@ -24,6 +24,10 @@ pub struct ClientInfoPacket {
 
 impl ClientPacket for ClientInfoPacket {
     fn write_to(&self, buffer: &mut Vec<u8>) -> Result<(), Error> {
+        // Packet ID
+        buffer.push(204);
+
+        // Packet Data
         write_string(buffer, &self.locale)?;
         buffer.push(self.view_distance);
 
