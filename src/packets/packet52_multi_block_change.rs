@@ -34,6 +34,14 @@ impl ServerPacket for MultiBlockChangePacket {
         // The size of the metadata is precised, so we need to read it first
         let metadata_size = read_i32(reader, encryption).await?;
 
+        // Too many block change can cause a lot of allocation, we need to prevent that
+        if metadata_size > MAX_METADATA_SIZE {
+            return Err(Error::new(
+                ErrorKind::InvalidData,
+                format!("Metadata size is too big: {}", metadata_size),
+            ));
+        }
+
         // After that, if the size > 0, there is metadata
         let metadata = if metadata_size > 0 {
             // Because we have the size, we can read it
@@ -44,13 +52,6 @@ impl ServerPacket for MultiBlockChangePacket {
             encryption.decrypt(&mut metadata);
 
             Some(metadata)
-        }
-        // If the server is malicious and what to make su crash
-        else if metadata_size > MAX_METADATA_SIZE {
-            return Err(Error::new(
-                ErrorKind::InvalidData,
-                format!("Metadata size is too big: {}", metadata_size),
-            ));
         } else {
             None
         };

@@ -7,7 +7,7 @@ use std::io::{Error, ErrorKind};
 use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
 
-// Because 1 chunk can be max 1 Mo, here considering modded server , 20 BIG chunk should be enough
+// Because 1 chunk can be max 1 Mo, here considering modded server , 20 BIG chunk should be enough (20 Mo max)
 const MAX_METADATA_SIZE: i32 = 20_971_520;
 
 /// The packet MapChunk
@@ -42,6 +42,13 @@ impl ServerPacket for MapChunkPacket {
     {
         let chunk_count = read_i16(reader, encryption).await?;
         let data_length = read_i32(reader, encryption).await?;
+        if data_length > MAX_METADATA_SIZE {
+            return Err(Error::new(
+                ErrorKind::InvalidData,
+                format!("Bulk Chunk size is too big: {}", data_length),
+            ));
+        }
+
         let sky_light_sent = read_i8(reader, encryption).await? != 0;
 
         // Read compressed data
@@ -62,11 +69,6 @@ impl ServerPacket for MapChunkPacket {
         if data_length > 0 {
             reader.read_exact(&mut compressed_data).await?;
             encryption.decrypt(&mut compressed_data);
-        } else if data_length > MAX_METADATA_SIZE {
-            return Err(Error::new(
-                ErrorKind::InvalidData,
-                format!("Bulk Chunk size is dangerously huge: {}", data_length),
-            ));
         }
 
         // Read EVERY chunk (yes multiple chunk in 1 packet)
