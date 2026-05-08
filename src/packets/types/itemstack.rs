@@ -5,7 +5,7 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// An ItemStack is a representation of in Item ingame with the id, number of item and NBT
 pub struct ItemStack {
     /// Max 64 so u8, but we parse it from TCP, so we need to respect the read type
