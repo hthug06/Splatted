@@ -65,7 +65,7 @@ impl Client {
                 match InboundPacket::read_from_stream(&mut reader, &mut self.encryption).await {
                     Ok(p) => p,
                     Err(e) => {
-                        log::error!("Broken stream or disconnected : {}", e);
+                        log::error!("[{}] Broken stream or disconnected : {}", self.username, e);
                         break;
                     }
                 };
