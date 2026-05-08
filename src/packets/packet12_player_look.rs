@@ -10,6 +10,10 @@ pub struct PlayerLookPacket {
 
 impl ClientPacket for PlayerLookPacket {
     fn write_to(&self, buffer: &mut Vec<u8>) -> Result<(), Error> {
+        // Packet ID
+        buffer.push(12);
+
+        // Packet data
         write_f32(buffer, self.yaw);
         write_f32(buffer, self.pitch);
         write_bool(buffer, self.on_ground);
