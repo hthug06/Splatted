@@ -1,9 +1,10 @@
 use crate::network::connection::Encryption;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::utils::{read_f32, read_f64, read_i8, read_i32};
-use std::io::Error;
+use std::io::{Error, ErrorKind};
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
+const MAX_DESTROYED_BLOCKS: i32 = 100_000;
 
 #[derive(Debug)]
 pub struct ExplosionPacket {
@@ -33,6 +34,16 @@ impl ServerPacket for ExplosionPacket {
 
         let destroyed_block_count = read_i32(reader, encryption).await?;
 
+        // Check if this explosion is too big
+        if destroyed_block_count < 0 || destroyed_block_count > MAX_DESTROYED_BLOCKS {
+            return Err(Error::new(
+                ErrorKind::InvalidData,
+                format!(
+                    "Explosion destroyed_block_count is invalid or too big: {}",
+                    destroyed_block_count
+                ),
+            ));
+        }
         // The coordinate of where the explosion start
         let base_x = x as i32;
         let base_y = y as i32;
