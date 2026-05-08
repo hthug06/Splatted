@@ -35,7 +35,7 @@ impl ServerPacket for ExplosionPacket {
         let destroyed_block_count = read_i32(reader, encryption).await?;
 
         // Check if this explosion is too big
-        if destroyed_block_count < 0 || destroyed_block_count > MAX_DESTROYED_BLOCKS {
+        if !(0..=MAX_DESTROYED_BLOCKS).contains(&destroyed_block_count) {
             return Err(Error::new(
                 ErrorKind::InvalidData,
                 format!(

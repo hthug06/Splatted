@@ -6,7 +6,6 @@ use crate::packets::packet2_client_protocol::ClientProtocolPacket;
 use crate::packets::packet205_client_command::ClientCommandPacket;
 use crate::packets::packet252_shared_key::SharedKeyPacket;
 use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;
-use crate::packets::packet255_kick_disconnect::KickDisconnectPacket;
 use std::io::{Error, ErrorKind};
 use std::net::SocketAddr;
 use tokio::io::{AsyncWriteExt, BufReader};
@@ -65,6 +64,10 @@ impl Client {
                 match InboundPacket::read_from_stream(&mut reader, &mut self.encryption).await {
                     Ok(p) => p,
                     Err(e) => {
+                        if e.to_string() == "early eof" {
+                            log::error!("[{}] Server dead for more than 30 seconds", self.username);
+                            break;
+                        }
                         log::error!("[{}] Broken stream or disconnected : {}", self.username, e);
                         break;
                     }
@@ -89,7 +92,7 @@ impl Client {
                     // log::info!("Block item switch packet received: {:?}", block_item_switch);
                     // handle block item switch (NetClientHandler.java -> handleBlockItemSwitch())
                 }
-                Chat(chat) => {
+                Chat(_chat) => {
                     // log::info!("Chat packet received: {:?}", chat);
                 }
                 Collected(_collected) => {
@@ -144,15 +147,15 @@ impl Client {
                 GameEvent(_game_event) => {
                     // log::info!("Game event packet received: {:?}", game_event);
                 }
-                KeepAlive(keep_alive_packet) => {
-                    self.send_packet(keep_alive_packet).await?;
-                }
-                KickDisconnect(kick_disconnect_packet) => {
-                    log::info!(
+                KickDisconnect(_kick_disconnect_packet) => {
+                    /*log::info!(
                         "Kick disconnect packet received: {:?}",
                         kick_disconnect_packet
-                    );
+                    );*/
                     break;
+                }
+                KeepAlive(keep_alive_packet) => {
+                    self.send_packet(keep_alive_packet).await?;
                 }
                 LevelSound(_level_sound) => {
                     // log::info!("Level sound packet received: {:?}", level_sound);
