@@ -5,6 +5,8 @@ use std::io::Error;
 use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
 
+const MAX_METADATA_SIZE: i32 = 32767;
+
 #[derive(Debug)]
 pub struct MultiBlockChangePacket {
     pub x: i32,
@@ -42,6 +44,13 @@ impl ServerPacket for MultiBlockChangePacket {
             encryption.decrypt(&mut metadata);
 
             Some(metadata)
+        }
+        // If the server is malicious and what to make su crash
+        else if metadata_size > MAX_METADATA_SIZE {
+            return Err(Error::new(
+                std::io::ErrorKind::InvalidData,
+                format!("Metadata size is too big: {}", metadata_size),
+            ));
         } else {
             None
         };
