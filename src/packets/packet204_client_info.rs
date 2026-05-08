@@ -31,12 +31,10 @@ impl ClientPacket for ClientInfoPacket {
         write_string(buffer, &self.locale)?;
         buffer.push(self.view_distance);
 
-        // Use bitmask for chat flags and colors
-        let mut chat_byte = self.chat_flags & 3;
-        if self.chat_colors {
-            chat_byte |= 8;
-        }
-        buffer.push(chat_byte);
+        // Using real Minecraft implementation (or MCP I don't really know ?)
+        // Java code:
+        // par1DataOutputStream.writeByte(this.chatVisisble | (this.chatColours ? 1 : 0) << 3);
+        buffer.push(self.chat_flags | (if self.chat_colors { 1 } else { 0 }) << 3);
 
         buffer.push(self.difficulty);
         write_bool(buffer, self.show_cape);
