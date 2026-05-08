@@ -111,6 +111,7 @@ use crate::packets::packet202_player_abilities::PlayerAbilitiesPacket;
 use crate::packets::packet250_custom_payload::CustomPayloadPacket;
 use crate::packets::packet252_shared_key::SharedKeyPacket;
 use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;
+use crate::packets::packet255_kick_disconnect::KickDisconnectPacket;
 use crate::packets::utils::read_u8;
 use packet0_keep_alive::KeepAlivePacket;
 use std::io::{Error, ErrorKind};
@@ -143,6 +144,7 @@ pub enum InboundPacket {
     Explosion(ExplosionPacket),
     GameEvent(GameEventPacket),
     KeepAlive(KeepAlivePacket),
+    KickDisconnect(KickDisconnectPacket),
     LevelSound(LevelSoundPacket),
     Login(LoginPacket),
     MapChunk(MapChunkPacket),
@@ -302,6 +304,9 @@ impl InboundPacket {
             252 => Ok(SharedKey(SharedKeyPacket::read(reader, encryption).await?)),
             253 => Ok(ServerAuthData(
                 ServerAuthDataPacket::read(reader, encryption).await?,
+            )),
+            255 => Ok(KickDisconnect(
+                KickDisconnectPacket::read(reader, encryption).await?,
             )),
 
             id => Err(Error::new(

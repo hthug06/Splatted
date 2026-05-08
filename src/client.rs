@@ -64,7 +64,11 @@ impl Client {
                 match InboundPacket::read_from_stream(&mut reader, &mut self.encryption).await {
                     Ok(p) => p,
                     Err(e) => {
-                        log::error!("Broken stream or disconnected : {}", e);
+                        if e.to_string() == "early eof" {
+                            log::error!("[{}] Server dead for more than 30 seconds", self.username);
+                            break;
+                        }
+                        log::error!("[{}] Broken stream or disconnected : {}", self.username, e);
                         break;
                     }
                 };
@@ -88,8 +92,8 @@ impl Client {
                     // log::info!("Block item switch packet received: {:?}", block_item_switch);
                     // handle block item switch (NetClientHandler.java -> handleBlockItemSwitch())
                 }
-                Chat(chat) => {
-                    log::info!("Chat packet received: {:?}", chat);
+                Chat(_chat) => {
+                    // log::info!("Chat packet received: {:?}", chat);
                 }
                 Collected(_collected) => {
                     // log::info!("Collected packet received: {:?}", collected);
@@ -142,6 +146,13 @@ impl Client {
                 }
                 GameEvent(_game_event) => {
                     // log::info!("Game event packet received: {:?}", game_event);
+                }
+                KickDisconnect(_kick_disconnect_packet) => {
+                    /*log::info!(
+                        "Kick disconnect packet received: {:?}",
+                        kick_disconnect_packet
+                    );*/
+                    break;
                 }
                 KeepAlive(keep_alive_packet) => {
                     self.send_packet(keep_alive_packet).await?;
@@ -263,7 +274,7 @@ impl Client {
             .write_to(&mut buffer)
             .map_err(|e| Error::new(ErrorKind::InvalidData, e))?;
 
-        log::info!("Sending packet ID {}", &buffer[0]);
+        // log::info!("Sending packet ID {}", &buffer[0]);
 
         // Fill the buffer with the packet data
         // Encrypt the packet if the encryption is enabled
@@ -287,7 +298,7 @@ impl Client {
         &mut self,
         packet: ServerAuthDataPacket,
     ) -> std::io::Result<()> {
-        log::info!("AuthData (253 | 0xFD) received");
+        // log::info!("AuthData (253 | 0xFD) received");
 
         if packet.server_id != "-" {
             return Err(Error::new(
@@ -319,7 +330,7 @@ impl Client {
     /// Then, if the packet is right, confirm the encryption.
     /// Finally, send the ClientCommandPacket (205) to spawn the client in the world.
     pub async fn handle_shared_key(&mut self, packet: SharedKeyPacket) -> std::io::Result<()> {
-        log::info!("Shared Key Packet (252 | 0xFC) received");
+        // log::info!("Shared Key Packet (252 | 0xFC) received");
 
         // From now, every sent and received packet will be encrypted
         if packet.is_encryption_confirmed() {

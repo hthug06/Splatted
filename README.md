@@ -3,33 +3,34 @@ Splatted is a lightweight command-line utility written in Rust for interacting w
 ## How to use it 
 First of all, make sure you have [Rust and Cargo](https://rustup.rs/) installed on your system.
 
-### installation
+## Installation (Optional, you can download the precompiled binaries from the releases section)
 ```bash
-git clone https://github.com/your-username/splatted.git
+git clone https://github.com/hthug06/splatted.git
 cd splatted
 cargo build --release
 ```
 
-### Usage
+## Usage
 Go in the folder where your Splatted program is, open a terminal and use the following command:
 
 ```bash
-./Splatted --adress <adress> [-p <port> | -i]
+./Splatted --address <address> [-p <port> | -i | -b <bot_number>]
 ```
--i is for the info of the server (like in the server list of your minecraft client)
+-i is for the info of the server (like in the server list of your Minecraft client)
 
 
-| Arguments       |  Short   | Default      |                    Description                     |
-|-----------------|:--------:|--------------|:--------------------------------------------------:|
-| ```--address``` |    -     | **Required** |             The server IP or hostname              |
-| ```--port```    | ```-p``` | ```25565```  |               The target server port               |
-| ```--info```    | ```-i``` | ``` false``` | See like in the server list of a minecraft  client |
+| Arguments          |  Short   | Default        |                    Description                    |
+|--------------------|:--------:|----------------|:-------------------------------------------------:|
+| ```--address```    |    -     | **Required**   |             The server IP or hostname             |
+| ```--port```       | ```-p``` | ```25565```    |              The target server port               |
+| ```--info```       | ```-i``` | ``` false```   | See like in the server list of a minecraft client |
+| ```--bot_number``` | ```-b``` | ``` 10```      | The number of bots you want to send to the server |
 
 ## Roadmap
 - [x] Get the server infos like in the multiplayer section of a real client
 - [x] Good structure to read / send packet
-- [ ] Connect 1 single bot (pls)
-- [ ] Send bots to a server and make them disconnect
+- [x] Connect 1 single bot (pls)
+- [x] Send bots to a server and make them disconnect
 
 ## Other
 Thx [tetram](https://github.com/tetram2674562) ur the goat :)

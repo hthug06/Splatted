@@ -1,13 +1,14 @@
 use crate::network::connection::Encryption;
-use crate::packets::packet_trait::ServerPacket;
-use crate::packets::utils::read_string;
+use crate::packets::packet_trait::{ClientPacket, ServerPacket};
+use crate::packets::utils::{read_string, write_string};
 use std::fmt::{Display, Formatter};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
+#[derive(Debug)]
 pub struct KickDisconnectPacket {
-    reason: String,
+    pub reason: String,
 }
 
 impl KickDisconnectPacket {
@@ -29,6 +30,15 @@ impl ServerPacket for KickDisconnectPacket {
         Ok(Self {
             reason: read_string(reader, encryption).await?,
         })
+    }
+}
+
+impl ClientPacket for KickDisconnectPacket {
+    fn write_to(&self, buffer: &mut Vec<u8>) -> Result<(), Error> {
+        buffer.push(255);
+        write_string(buffer, &self.reason)?;
+
+        Ok(())
     }
 }
 
