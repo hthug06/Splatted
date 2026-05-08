@@ -26,10 +26,19 @@ impl ServerPacket for WindowItemsPacket {
         let number_of_item = read_i16(reader, encryption).await?;
 
         // Read all the itemStack
-        let mut itemstacks: Vec<Option<ItemStack>> = Vec::with_capacity(number_of_item as usize);
-        for _ in 0..number_of_item {
-            itemstacks.push(ItemStack::read(reader, encryption).await?);
-        }
+        // Normally, it's 0 or > 0 item, but we need to be sure it's not a malformed | malicious packet
+        let itemstacks: Vec<Option<ItemStack>> = if number_of_item >= 0 {
+            let mut itemstacks: Vec<Option<ItemStack>> =
+                Vec::with_capacity(number_of_item as usize);
+            for _ in 0..number_of_item {
+                itemstacks.push(ItemStack::read(reader, encryption).await?);
+            }
+
+            itemstacks
+        } else {
+            // 45 = number of slot in a Minecraft inventory
+            vec![None; 45]
+        };
 
         Ok(Self {
             window_id,
