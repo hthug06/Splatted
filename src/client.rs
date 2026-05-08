@@ -64,7 +64,7 @@ impl Client {
                 match InboundPacket::read_from_stream(&mut reader, &mut self.encryption).await {
                     Ok(p) => p,
                     Err(e) => {
-                        if e.to_string() == "early eof" {
+                        if e.kind() == ErrorKind::UnexpectedEof {
                             log::error!("[{}] Server dead for more than 30 seconds", self.username);
                             break;
                         }
