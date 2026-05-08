@@ -12,4 +12,3 @@ rsa = "0.9.10"
 rand = "0.8.5"# TODO understand how to use random with RSA in version 0.10.0 of random
 aes = "0.9.0"
 cfb8 = "0.9.0"
-cipher = "0.5.1"
