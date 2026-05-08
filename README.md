@@ -14,7 +14,7 @@ cargo build --release
 Go in the folder where your Splatted program is, open a terminal and use the following command:
 
 ```bash
-./Splatted --adress <adress> [-p <port> | -i | -b <bot_number>]
+./Splatted --address <address> [-p <port> | -i | -b <bot_number>]
 ```
 -i is for the info of the server (like in the server list of your Minecraft client)
 
