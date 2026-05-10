@@ -49,7 +49,7 @@ impl ServerInfo {
             KickDisconnectPacket::read(&mut reader, &mut encryption).await?;
 
         // Print all the infos
-        log::info!("{}", kick_disconnect_packet.format_server_infos());
+        log::info!("{}", kick_disconnect_packet.format_server_infos()?);
 
         // After receiving the serverListPacket, the connection close
         write_half.shutdown().await?;

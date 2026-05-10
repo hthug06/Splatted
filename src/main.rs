@@ -40,7 +40,7 @@ async fn main() -> Result<(), Error> {
         TerminalMode::Mixed,
         ColorChoice::Auto,
     )
-    .unwrap();
+    .expect("Failed to initialize logger");
 
     info!("Starting Splatted");
 

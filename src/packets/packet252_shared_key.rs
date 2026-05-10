@@ -32,7 +32,7 @@ impl SharedKeyPacket {
         // encrypt the token
         let encrypted_token = rsa_public_key
             .encrypt(&mut rng, Pkcs1v15Encrypt, verify_token)
-            .expect("Failed to encrypt shared secret");
+            .expect("Failed to encrypt verify token");
 
         let packet = Self {
             shared_secret: encrypted_secret,

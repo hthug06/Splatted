@@ -65,7 +65,10 @@ impl Client {
                     Ok(p) => p,
                     Err(e) => {
                         if e.kind() == ErrorKind::UnexpectedEof {
-                            log::error!("[{}] Server dead for more than 30 seconds", self.username);
+                            log::error!(
+                                "[{}] Server dead for more than 30 seconds or stopped ",
+                                self.username
+                            );
                             break;
                         }
                         log::error!("[{}] Broken stream or disconnected : {}", self.username, e);

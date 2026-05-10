@@ -2,7 +2,7 @@ use crate::network::connection::Encryption;
 use crate::packets::packet_trait::{ClientPacket, ServerPacket};
 use crate::packets::utils::{read_string, write_string};
 use std::fmt::{Display, Formatter};
-use std::io::Error;
+use std::io::{Error, ErrorKind};
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
@@ -12,8 +12,8 @@ pub struct KickDisconnectPacket {
 
 impl KickDisconnectPacket {
     /// Get all the server infos like in the minecraft server list
-    pub fn format_server_infos(&self) -> ServerPingResponse {
-        ServerPingResponse::from_kickdisconnect(self)
+    pub fn format_server_infos(&self) -> Result<ServerPingResponse, Error> {
+        Ok(ServerPingResponse::from_kickdisconnect(self)?)
     }
 }
 
@@ -63,7 +63,7 @@ impl ServerPingResponse {
     /// The §1 is here to say that the version of the server is > 1.3, and you need to read thing differents thing than the previous version.
     /// Ex: the protocol version
     // TODO: read motd of version < 1.4
-    pub fn from_kickdisconnect(kickdisconnect: &KickDisconnectPacket) -> Self {
+    pub fn from_kickdisconnect(kickdisconnect: &KickDisconnectPacket) -> Result<Self, Error> {
         // In order (everything is in UTF16 String:
         // 0: lenght of the packet + magic chain (to indicate the server is > 1.3
         // 1: protocol version (ex: 51 for 1.4.7)
@@ -73,19 +73,38 @@ impl ServerPingResponse {
         // 5: max player
         let split: Vec<&str> = kickdisconnect.reason.split('\0').collect();
 
-        let protocol: u16 = split[1].parse().unwrap();
+        if split.len() < 6 {
+            return Err(Error::new(
+                ErrorKind::InvalidData,
+                "The KickDisconnect packet is not in the right format, it should contain at least 6 parts separated by \\0".to_string(),
+            ));
+        }
+
+        let protocol: u16 = split[1]
+            .parse()
+            .map_err(|e| Error::new(ErrorKind::InvalidData, format!("Invalid Protocol : {}", e)))?;
         let server_version: String = split[2].to_string();
         let motd: String = split[3].to_string();
-        let player_count: u16 = split[4].parse().unwrap();
-        let max_players: u16 = split[5].parse().unwrap();
+        let player_count: u16 = split[4].parse().map_err(|e| {
+            Error::new(
+                ErrorKind::InvalidData,
+                format!("Invalid player count : {}", e),
+            )
+        })?;
+        let max_players: u16 = split[5].parse().map_err(|e| {
+            Error::new(
+                ErrorKind::InvalidData,
+                format!("Invalid max players : {}", e),
+            )
+        })?;
 
-        Self {
+        Ok(Self {
             protocol,
             server_version,
             motd,
             player_count,
             max_players,
-        }
+        })
     }
 }
 
