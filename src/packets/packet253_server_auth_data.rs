@@ -8,9 +8,9 @@ use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
 pub struct ServerAuthDataPacket {
-    pub server_id: String,
-    pub public_key: RsaPublicKey,
-    pub verify_token: Vec<u8>,
+    pub(crate) server_id: String,
+    pub(crate) public_key: RsaPublicKey,
+    pub(crate) verify_token: Vec<u8>,
 }
 
 impl ServerPacket for ServerAuthDataPacket {
