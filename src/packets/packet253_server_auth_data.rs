@@ -1,6 +1,6 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
-use crate::packets::utils::{read_byte_array, read_string};
 use rsa::RsaPublicKey;
 use rsa::pkcs8::DecodePublicKey;
 use std::io::{Error, ErrorKind};
@@ -20,10 +20,10 @@ impl ServerPacket for ServerAuthDataPacket {
     ) -> Result<Self, Error> {
         // Everything is the same as java:
         // this.serverId = readString(par1DataInputStream, 20);  (server id)
-        let server_id = read_string(reader, encryption).await?;
+        let server_id = reader.read_string(encryption).await?;
 
         // this.publicKey = CryptManager.decodePublicKey(readBytesFromStream(par1DataInputStream));
-        let public_key_bytes = read_byte_array(reader, encryption).await?;
+        let public_key_bytes = reader.read_byte_array(encryption).await?;
 
         let public_key = match decode_public_key(&public_key_bytes) {
             Ok(key) => key,
@@ -36,7 +36,7 @@ impl ServerPacket for ServerAuthDataPacket {
         };
 
         // this.verifyToken = readBytesFromStream(par1DataInputStream);
-        let verify_token = read_byte_array(reader, encryption).await?;
+        let verify_token = reader.read_byte_array(encryption).await?;
 
         Ok(Self {
             server_id,

@@ -1,8 +1,8 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet30_entity::EntityPacket;
 use crate::packets::types::potion_effect::PotionEffect;
-use crate::packets::utils::{read_i8, read_i16, read_u8};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -24,9 +24,9 @@ impl ServerPacket for EntityEffectPacket {
     ) -> Result<Self, Error> {
         Ok(Self {
             entity_id: EntityPacket::read(reader, encryption).await?,
-            effect: PotionEffect::from_id(read_u8(reader, encryption).await?),
-            amplifier: read_i8(reader, encryption).await?,
-            duration: read_i16(reader, encryption).await?,
+            effect: PotionEffect::from_id(reader.read_u8(encryption).await?),
+            amplifier: reader.read_i8(encryption).await?,
+            duration: reader.read_i16(encryption).await?,
         })
     }
 }

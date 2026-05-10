@@ -1,5 +1,5 @@
+use crate::packets::io::MinecraftWriteExt;
 use crate::packets::packet_trait::ClientPacket;
-use crate::packets::utils::write_string;
 use bytes::{BufMut, BytesMut};
 use std::io::Error;
 
@@ -34,8 +34,8 @@ impl ClientPacket for ClientProtocolPacket {
 
         // Add all the infos
         buffer.put_u8(self.protocol_version);
-        write_string(buffer, &self.username)?;
-        write_string(buffer, &self.server_hostname)?;
+        buffer.write_string(&self.username)?;
+        buffer.write_string(&self.server_hostname)?;
         buffer.extend(self.server_port.to_be_bytes());
 
         Ok(())

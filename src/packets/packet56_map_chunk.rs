@@ -1,8 +1,8 @@
 //! The Map Chunk Packet
 //! For now, we parse everything, but we do nothing with the data
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
-use crate::packets::utils::{read_i8, read_i16, read_i32, read_u16};
 use std::io::{Error, ErrorKind};
 use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
@@ -38,8 +38,8 @@ impl ServerPacket for MapChunkPacket {
     where
         Self: Sized,
     {
-        let chunk_count = read_i16(reader, encryption).await?;
-        let data_length = read_i32(reader, encryption).await?;
+        let chunk_count = MinecraftReadExt::read_i16(reader, encryption).await?;
+        let data_length = MinecraftReadExt::read_i32(reader, encryption).await?;
         if data_length > MAX_METADATA_SIZE {
             return Err(Error::new(
                 ErrorKind::InvalidData,
@@ -47,7 +47,7 @@ impl ServerPacket for MapChunkPacket {
             ));
         }
 
-        let sky_light_sent = read_i8(reader, encryption).await? != 0;
+        let sky_light_sent = MinecraftReadExt::read_i8(reader, encryption).await? != 0;
 
         // Read compressed data
         // Data is compressed in ZLib
@@ -73,10 +73,10 @@ impl ServerPacket for MapChunkPacket {
         let mut metadata = Vec::new();
         for _ in 0..chunk_count {
             metadata.push(ChunkMetaData {
-                chunk_x: read_i32(reader, encryption).await?,
-                chunk_z: read_i32(reader, encryption).await?,
-                primary_bitmap: read_u16(reader, encryption).await?,
-                add_bitmap: read_u16(reader, encryption).await?,
+                chunk_x: MinecraftReadExt::read_i32(reader, encryption).await?,
+                chunk_z: MinecraftReadExt::read_i32(reader, encryption).await?,
+                primary_bitmap: MinecraftReadExt::read_u16(reader, encryption).await?,
+                add_bitmap: MinecraftReadExt::read_u16(reader, encryption).await?,
             });
         }
 

@@ -1,6 +1,6 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::types::nbt_tag_compound::NbtTagCompound;
-use crate::packets::utils::{read_i8, read_i16};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -26,7 +26,7 @@ impl ItemStack {
         // Read all the itemstack value (id, stack size and item damage)
 
         // First the id
-        let id = read_i16(reader, encryption).await?;
+        let id = reader.read_i16(encryption).await?;
 
         // an id < 0 can't exist, or maybe it's just air ?
         if id < 0 {
@@ -34,10 +34,10 @@ impl ItemStack {
         }
 
         // The stack size
-        let stack_size = read_i8(reader, encryption).await?;
+        let stack_size = reader.read_i8(encryption).await?;
 
         // The item damage
-        let item_damage = read_i16(reader, encryption).await?;
+        let item_damage = reader.read_i16(encryption).await?;
 
         // Read the NBT Tag Compound
         let nbt_tag_compound = NbtTagCompound::read(reader, encryption).await?;

@@ -1,6 +1,6 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
-use crate::packets::utils::{read_i16, read_string, read_u8};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -20,9 +20,9 @@ impl ServerPacket for PlayerInfoPacket {
         Self: Sized,
     {
         Ok(Self {
-            name: read_string(reader, encryption).await?,
-            is_connected: read_u8(reader, encryption).await? != 0,
-            ping: read_i16(reader, encryption).await?,
+            name: reader.read_string(encryption).await?,
+            is_connected: reader.read_u8(encryption).await? != 0,
+            ping: reader.read_i16(encryption).await?,
         })
     }
 }

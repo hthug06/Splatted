@@ -1,4 +1,5 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet30_entity::EntityPacket;
 use std::io::Error;
@@ -23,7 +24,7 @@ impl ServerPacket for EntityHeadRotationPacket {
             // Because we created the EntityPacket Who parse an i32 and have an attribute named 'entity_id',
             // We might as well re-use it
             entity_id: EntityPacket::read(reader, encryption).await?,
-            head_rotation_yaw: crate::packets::utils::read_i8(reader, encryption).await?,
+            head_rotation_yaw: reader.read_i8(encryption).await?,
         })
     }
 }

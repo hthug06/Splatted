@@ -1,6 +1,6 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
-use crate::packets::utils::read_i16;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -18,7 +18,7 @@ impl ServerPacket for BlockItemSwitchPacket {
         Self: Sized,
     {
         Ok(Self {
-            id: read_i16(reader, encryption).await? as i32,
+            id: reader.read_i16(encryption).await? as i32,
         })
     }
 }

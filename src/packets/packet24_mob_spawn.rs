@@ -1,8 +1,8 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::types::entity_metadata::EntityMetadata;
 use crate::packets::types::entity_type::EntityType;
-use crate::packets::utils::{read_i8, read_i16, read_i32, read_u8};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -31,18 +31,18 @@ impl ServerPacket for MobSpawnPacket {
         Self: Sized,
     {
         Ok(Self {
-            entity_id: read_i32(reader, encryption).await?,
+            entity_id: reader.read_i32(encryption).await?,
             // In mc code, they use & 255. Because we have unsigned integer, this is useless
-            entity_type: EntityType::from_id(read_u8(reader, encryption).await?),
-            x: (read_i32(reader, encryption).await?) / 32, // In src code, the /32, is divided by 32 and rounded
-            y: (read_i32(reader, encryption).await?) / 32, // So if we want to be precise later, we need to
-            z: (read_i32(reader, encryption).await?) / 32, // cast as f64 and divide / 32.0
-            yaw: read_i8(reader, encryption).await?,
-            pitch: read_i8(reader, encryption).await?,
-            head_yaw: read_i8(reader, encryption).await?,
-            velocity_x: read_i16(reader, encryption).await?,
-            velocity_y: read_i16(reader, encryption).await?,
-            velocity_z: read_i16(reader, encryption).await?,
+            entity_type: EntityType::from_id(reader.read_u8(encryption).await?),
+            x: (reader.read_i32(encryption).await?) / 32, // In src code, the /32, is divided by 32 and rounded
+            y: (reader.read_i32(encryption).await?) / 32, // So if we want to be precise later, we need to
+            z: (reader.read_i32(encryption).await?) / 32, // cast as f64 and divide / 32.0
+            yaw: reader.read_i8(encryption).await?,
+            pitch: reader.read_i8(encryption).await?,
+            head_yaw: reader.read_i8(encryption).await?,
+            velocity_x: reader.read_i16(encryption).await?,
+            velocity_y: reader.read_i16(encryption).await?,
+            velocity_z: reader.read_i16(encryption).await?,
             metadata: EntityMetadata::read(reader, encryption).await?,
         })
     }

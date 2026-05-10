@@ -1,7 +1,7 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet30_entity::EntityPacket;
-use crate::packets::utils::{read_i32, read_string};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -25,11 +25,11 @@ impl ServerPacket for EntityPaintingPacket {
     {
         Ok(Self {
             entity: EntityPacket::read(reader, encryption).await?,
-            title: read_string(reader, encryption).await?,
-            x: read_i32(reader, encryption).await?,
-            y: read_i32(reader, encryption).await?,
-            z: read_i32(reader, encryption).await?,
-            direction: read_i32(reader, encryption).await?,
+            title: reader.read_string(encryption).await?,
+            x: reader.read_i32(encryption).await?,
+            y: reader.read_i32(encryption).await?,
+            z: reader.read_i32(encryption).await?,
+            direction: reader.read_i32(encryption).await?,
         })
     }
 }

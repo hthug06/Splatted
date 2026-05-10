@@ -104,7 +104,6 @@ impl SoundEffect {
             SoundEffect::MobSpawnParticle => 2004,
             SoundEffect::BonemealParticle => 2005,
 
-            // Si c'est un unknown, on renvoie simplement la valeur qu'il contient !
             SoundEffect::Unknown(id) => *id,
         }
     }

@@ -1,6 +1,6 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
-use crate::packets::utils::{read_i16, read_i32, read_u8};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -22,11 +22,11 @@ impl ServerPacket for BlockChangePacket {
         Self: Sized,
     {
         Ok(Self {
-            x: read_i32(reader, encryption).await?,
-            y: read_u8(reader, encryption).await?,
-            z: read_i32(reader, encryption).await?,
-            block_id: read_i16(reader, encryption).await?,
-            metadata: read_u8(reader, encryption).await?,
+            x: reader.read_i32(encryption).await?,
+            y: reader.read_u8(encryption).await?,
+            z: reader.read_i32(encryption).await?,
+            block_id: reader.read_i16(encryption).await?,
+            metadata: reader.read_u8(encryption).await?,
         })
     }
 }

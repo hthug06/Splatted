@@ -1,5 +1,5 @@
+use crate::packets::io::MinecraftWriteExt;
 use crate::packets::packet_trait::ClientPacket;
-use crate::packets::utils::{write_bool, write_f32};
 use bytes::{BufMut, BytesMut};
 use std::io::Error;
 
@@ -15,9 +15,9 @@ impl ClientPacket for PlayerLookPacket {
         buffer.put_u8(12);
 
         // Packet data
-        write_f32(buffer, self.yaw);
-        write_f32(buffer, self.pitch);
-        write_bool(buffer, self.on_ground);
+        buffer.put_f32(self.yaw);
+        buffer.put_f32(self.pitch);
+        buffer.write_bool(self.on_ground);
         Ok(())
     }
 }

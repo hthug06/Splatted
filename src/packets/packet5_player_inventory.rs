@@ -1,7 +1,7 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::types::itemstack::ItemStack;
-use crate::packets::utils::{read_i16, read_i32};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -21,8 +21,8 @@ impl ServerPacket for PlayerInventoryPacket {
         Self: Sized,
     {
         Ok(Self {
-            entity_id: read_i32(reader, encryption).await?,
-            slot: read_i16(reader, encryption).await?,
+            entity_id: reader.read_i32(encryption).await?,
+            slot: reader.read_i16(encryption).await?,
             item: ItemStack::read(reader, encryption).await?,
         })
     }

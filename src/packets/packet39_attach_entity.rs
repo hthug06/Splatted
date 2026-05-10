@@ -7,9 +7,9 @@ use tokio::net::tcp::OwnedReadHalf;
 
 /// Used when an entity mounts or dismounts a vehicle (like a minecart, boat, or horse).
 pub struct AttachEntityPacket {
-    /// The entity who mount the vehicule
+    /// The entity who mount the vehicle
     pub entity: EntityPacket,
-    /// Some = get into the vehicule | None = get out of the vehicule
+    /// Some = get into the vehicle | None = get out of the vehicle
     /// Also this is an entity id
     pub vehicle_entity: Option<EntityPacket>,
 }
@@ -24,10 +24,10 @@ impl ServerPacket for AttachEntityPacket {
 
         // On transforme le hack de Notch en beau code Rust
         let vehicle_entity = if raw_vehicle_entity.entity_id == -1 {
-            // Get out of the vehicule
+            // Get out of the vehicle
             None
         } else {
-            // Get in the vehicule
+            // Get in the vehicle
             Some(raw_vehicle_entity)
         };
 

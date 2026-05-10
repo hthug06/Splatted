@@ -1,6 +1,6 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
-use crate::packets::utils::{read_f32, read_i16};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -20,9 +20,9 @@ impl ServerPacket for ExperiencePacket {
         Self: Sized,
     {
         Ok(Self {
-            experience: read_f32(reader, encryption).await?,
-            experience_level: read_i16(reader, encryption).await?,
-            experience_total: read_i16(reader, encryption).await?,
+            experience: reader.read_f32(encryption).await?,
+            experience_level: reader.read_i16(encryption).await?,
+            experience_total: reader.read_i16(encryption).await?,
         })
     }
 }

@@ -1,8 +1,8 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet30_entity::EntityPacket;
 use crate::packets::types::entity_type::EntityType;
-use crate::packets::utils::{read_i8, read_i16, read_i32, read_u8};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -30,19 +30,19 @@ impl ServerPacket for VehicleSpawnPacket {
         Self: Sized,
     {
         let entity = EntityPacket::read(reader, encryption).await?;
-        let entity_type = EntityType::from_id(read_u8(reader, encryption).await?);
-        let x = read_i32(reader, encryption).await?;
-        let y = read_i32(reader, encryption).await?;
-        let z = read_i32(reader, encryption).await?;
-        let yaw = read_i8(reader, encryption).await?;
-        let pitch = read_i8(reader, encryption).await?;
+        let entity_type = EntityType::from_id(reader.read_u8(encryption).await?);
+        let x = reader.read_i32(encryption).await?;
+        let y = reader.read_i32(encryption).await?;
+        let z = reader.read_i32(encryption).await?;
+        let yaw = reader.read_i8(encryption).await?;
+        let pitch = reader.read_i8(encryption).await?;
         let thrower_entity = EntityPacket::read(reader, encryption).await?;
 
         let (speed_x, speed_y, speed_z) = if thrower_entity.entity_id > 0 {
             (
-                Some(read_i16(reader, encryption).await?),
-                Some(read_i16(reader, encryption).await?),
-                Some(read_i16(reader, encryption).await?),
+                Some(reader.read_i16(encryption).await?),
+                Some(reader.read_i16(encryption).await?),
+                Some(reader.read_i16(encryption).await?),
             )
         } else {
             (None, None, None)

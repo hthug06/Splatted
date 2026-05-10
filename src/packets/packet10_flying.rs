@@ -1,6 +1,6 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
-use crate::packets::utils::read_u8;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -18,7 +18,7 @@ impl ServerPacket for FlyingPacket {
         Self: Sized,
     {
         Ok(Self {
-            on_ground: read_u8(reader, encryption).await? != 0,
+            on_ground: reader.read_u8(encryption).await? != 0,
         })
     }
 }

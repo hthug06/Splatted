@@ -1,6 +1,6 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::{MinecraftReadExt, MinecraftWriteExt};
 use crate::packets::packet_trait::{ClientPacket, ServerPacket};
-use crate::packets::utils::{read_f32, read_f64, read_u8, write_bool, write_f32, write_f64};
 use bytes::{BufMut, BytesMut};
 use std::io::Error;
 use tokio::io::BufReader;
@@ -26,13 +26,13 @@ impl ServerPacket for PlayerLookMovePacket {
     {
         // Reverse the y and stance when reading (idk why Notch did this)
         Ok(Self {
-            x: read_f64(reader, encryption).await?,
-            stance: read_f64(reader, encryption).await?,
-            y: read_f64(reader, encryption).await?,
-            z: read_f64(reader, encryption).await?,
-            yaw: read_f32(reader, encryption).await?,
-            pitch: read_f32(reader, encryption).await?,
-            on_ground: read_u8(reader, encryption).await? != 0,
+            x: reader.read_f64(encryption).await?,
+            stance: reader.read_f64(encryption).await?,
+            y: reader.read_f64(encryption).await?,
+            z: reader.read_f64(encryption).await?,
+            yaw: reader.read_f32(encryption).await?,
+            pitch: reader.read_f32(encryption).await?,
+            on_ground: reader.read_u8(encryption).await? != 0,
         })
     }
 }
@@ -42,13 +42,13 @@ impl ClientPacket for PlayerLookMovePacket {
         buffer.put_u8(13); // packet id
 
         // packet data
-        write_f64(buffer, self.x);
-        write_f64(buffer, self.y);
-        write_f64(buffer, self.stance);
-        write_f64(buffer, self.z);
-        write_f32(buffer, self.yaw);
-        write_f32(buffer, self.pitch);
-        write_bool(buffer, self.on_ground);
+        buffer.put_f64(self.x);
+        buffer.put_f64(self.y);
+        buffer.put_f64(self.stance);
+        buffer.put_f64(self.z);
+        buffer.put_f32(self.yaw);
+        buffer.put_f32(self.pitch);
+        buffer.write_bool(self.on_ground);
 
         Ok(())
     }

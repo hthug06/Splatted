@@ -1,6 +1,6 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
-use crate::packets::utils::{read_f32, read_f64, read_i8, read_i32};
 use std::io::{Error, ErrorKind};
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -26,12 +26,12 @@ impl ServerPacket for ExplosionPacket {
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
     ) -> Result<Self, Error> {
-        let x = read_f64(reader, encryption).await?;
-        let y = read_f64(reader, encryption).await?;
-        let z = read_f64(reader, encryption).await?;
-        let radius = read_f32(reader, encryption).await?;
+        let x = reader.read_f64(encryption).await?;
+        let y = reader.read_f64(encryption).await?;
+        let z = reader.read_f64(encryption).await?;
+        let radius = reader.read_f32(encryption).await?;
 
-        let destroyed_block_count = read_i32(reader, encryption).await?;
+        let destroyed_block_count = reader.read_i32(encryption).await?;
 
         // Check if this explosion is too big
         if !(0..=MAX_DESTROYED_BLOCKS).contains(&destroyed_block_count) {
@@ -51,16 +51,16 @@ impl ServerPacket for ExplosionPacket {
         let mut destroyed_blocks = Vec::with_capacity(destroyed_block_count as usize);
 
         for _ in 0..destroyed_block_count {
-            let offset_x = read_i8(reader, encryption).await? as i32;
-            let offset_y = read_i8(reader, encryption).await? as i32;
-            let offset_z = read_i8(reader, encryption).await? as i32;
+            let offset_x = reader.read_i8(encryption).await? as i32;
+            let offset_y = reader.read_i8(encryption).await? as i32;
+            let offset_z = reader.read_i8(encryption).await? as i32;
 
             destroyed_blocks.push((base_x + offset_x, base_y + offset_y, base_z + offset_z));
         }
 
-        let velocity_x = read_f32(reader, encryption).await?;
-        let velocity_y = read_f32(reader, encryption).await?;
-        let velocity_z = read_f32(reader, encryption).await?;
+        let velocity_x = reader.read_f32(encryption).await?;
+        let velocity_y = reader.read_f32(encryption).await?;
+        let velocity_z = reader.read_f32(encryption).await?;
 
         Ok(Self {
             x,

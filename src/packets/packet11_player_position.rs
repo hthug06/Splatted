@@ -1,5 +1,5 @@
+use crate::packets::io::MinecraftWriteExt;
 use crate::packets::packet_trait::ClientPacket;
-use crate::packets::utils::{write_bool, write_f64};
 use bytes::{BufMut, BytesMut};
 use std::io::Error;
 
@@ -17,11 +17,11 @@ impl ClientPacket for PlayerPositionPacket {
         buffer.put_u8(11);
 
         // Packet Data
-        write_f64(buffer, self.x);
-        write_f64(buffer, self.y);
-        write_f64(buffer, self.stance);
-        write_f64(buffer, self.z);
-        write_bool(buffer, self.on_ground);
+        buffer.put_f64(self.x);
+        buffer.put_f64(self.y);
+        buffer.put_f64(self.stance);
+        buffer.put_f64(self.z);
+        buffer.write_bool(self.on_ground);
 
         Ok(())
     }

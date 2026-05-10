@@ -1,11 +1,10 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::types::itemstack::ItemStack;
 use std::collections::HashMap;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
-// N'oublie pas d'importer tes utilitaires et ton ItemStack
-use crate::packets::utils::{read_f32, read_i8, read_i16, read_i32, read_string, read_u8};
 
 /// All Possible metadata value
 pub enum MetadataValue {
@@ -36,7 +35,7 @@ impl EntityMetadata {
 
         loop {
             // The header byte is read (as unsigned for bitwise operations)
-            let header = read_u8(reader, encryption).await?;
+            let header = reader.read_u8(encryption).await?;
 
             // 127 (0x7F) say that it's the end of the Metadata
             if header == 127 {
@@ -49,16 +48,16 @@ impl EntityMetadata {
 
             // read_data for the type
             let value = match data_type {
-                0 => MetadataValue::Byte(read_i8(reader, encryption).await?),
-                1 => MetadataValue::Short(read_i16(reader, encryption).await?),
-                2 => MetadataValue::Int(read_i32(reader, encryption).await?),
-                3 => MetadataValue::Float(read_f32(reader, encryption).await?),
-                4 => MetadataValue::String(read_string(reader, encryption).await?),
+                0 => MetadataValue::Byte(reader.read_i8(encryption).await?),
+                1 => MetadataValue::Short(reader.read_i16(encryption).await?),
+                2 => MetadataValue::Int(reader.read_i32(encryption).await?),
+                3 => MetadataValue::Float(reader.read_f32(encryption).await?),
+                4 => MetadataValue::String(reader.read_string(encryption).await?),
                 5 => MetadataValue::Item(ItemStack::read(reader, encryption).await?),
                 6 => MetadataValue::ChunkCoordinates(
-                    read_i32(reader, encryption).await?,
-                    read_i32(reader, encryption).await?,
-                    read_i32(reader, encryption).await?,
+                    reader.read_i32(encryption).await?,
+                    reader.read_i32(encryption).await?,
+                    reader.read_i32(encryption).await?,
                 ),
                 _ => {
                     return Err(Error::new(

@@ -1,7 +1,7 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet30_entity::EntityPacket;
-use crate::packets::utils::read_i8;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -23,9 +23,9 @@ impl ServerPacket for RelEntityMovePacket {
     {
         Ok(Self {
             entity: EntityPacket::read(reader, encryption).await?,
-            x: read_i8(reader, encryption).await?,
-            y: read_i8(reader, encryption).await?,
-            z: read_i8(reader, encryption).await?,
+            x: reader.read_i8(encryption).await?,
+            y: reader.read_i8(encryption).await?,
+            z: reader.read_i8(encryption).await?,
         })
     }
 }

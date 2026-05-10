@@ -1,6 +1,6 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::{MinecraftReadExt, MinecraftWriteExt};
 use crate::packets::packet_trait::{ClientPacket, ServerPacket};
-use crate::packets::utils::{read_string, write_string};
 use bytes::{BufMut, BytesMut};
 use std::fmt::{Display, Formatter};
 use std::io::{Error, ErrorKind};
@@ -28,7 +28,7 @@ impl ServerPacket for KickDisconnectPacket {
         Self: Sized,
     {
         Ok(Self {
-            reason: read_string(reader, encryption).await?,
+            reason: reader.read_string(encryption).await?,
         })
     }
 }
@@ -36,7 +36,7 @@ impl ServerPacket for KickDisconnectPacket {
 impl ClientPacket for KickDisconnectPacket {
     fn write_to(&self, buffer: &mut BytesMut) -> Result<(), Error> {
         buffer.put_u8(255);
-        write_string(buffer, &self.reason)?;
+        buffer.write_string(&self.reason)?;
 
         Ok(())
     }

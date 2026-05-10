@@ -1,6 +1,6 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
-use crate::packets::utils::read_i32;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -17,7 +17,7 @@ impl ServerPacket for EntityPacket {
         Self: Sized,
     {
         Ok(Self {
-            entity_id: read_i32(reader, encryption).await?,
+            entity_id: reader.read_i32(encryption).await?,
         })
     }
 }

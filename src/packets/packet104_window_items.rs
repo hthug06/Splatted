@@ -1,7 +1,7 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::types::itemstack::ItemStack;
-use crate::packets::utils::{read_i16, read_u8};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -19,10 +19,10 @@ impl ServerPacket for WindowItemsPacket {
     where
         Self: Sized,
     {
-        let window_id = read_u8(reader, encryption).await?;
+        let window_id = reader.read_u8(encryption).await?;
 
         // The number of itemstack
-        let number_of_item = read_i16(reader, encryption).await?;
+        let number_of_item = reader.read_i16(encryption).await?;
 
         // Read all the itemStack
         // Normally, it's 0 or > 0 item, but we need to be sure it's not a malformed | malicious packet

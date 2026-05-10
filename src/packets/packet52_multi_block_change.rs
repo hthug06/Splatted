@@ -1,6 +1,6 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
-use crate::packets::utils::{read_i32, read_u16};
 use std::io::{Error, ErrorKind};
 use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
@@ -22,16 +22,16 @@ impl ServerPacket for MultiBlockChangePacket {
     where
         Self: Sized,
     {
-        let x = read_i32(reader, encryption).await?;
-        let z = read_i32(reader, encryption).await?;
+        let x = MinecraftReadExt::read_i32(reader, encryption).await?;
+        let z = MinecraftReadExt::read_i32(reader, encryption).await?;
 
         // In the mc source code, they use & 65535
         // Because we have unsigned int, we don't need to do it
-        let size = read_u16(reader, encryption).await?;
+        let size = MinecraftReadExt::read_u16(reader, encryption).await?;
 
         // the metadata is all the block who changed
         // The size of the metadata is precised, so we need to read it first
-        let metadata_size = read_i32(reader, encryption).await?;
+        let metadata_size = MinecraftReadExt::read_i32(reader, encryption).await?;
 
         // Too many block change can cause a lot of allocation, we need to prevent that
         if metadata_size > MAX_METADATA_SIZE {

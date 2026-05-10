@@ -1,6 +1,6 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
-use crate::packets::utils::{read_i16, read_i32, read_string};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -21,14 +21,14 @@ impl ServerPacket for UpdateSignPacket {
     where
         Self: Sized,
     {
-        let x = read_i32(reader, encryption).await?;
-        let y = read_i16(reader, encryption).await?;
-        let z = read_i32(reader, encryption).await?;
+        let x = reader.read_i32(encryption).await?;
+        let y = reader.read_i16(encryption).await?;
+        let z = reader.read_i32(encryption).await?;
 
         // Read all the line of the sign (only 4)
         let mut sign_line = Vec::with_capacity(4);
         for _ in 0..4 {
-            let read_line = read_string(reader, encryption).await?;
+            let read_line = reader.read_string(encryption).await?;
             let line = if read_line.is_empty() {
                 None
             } else {

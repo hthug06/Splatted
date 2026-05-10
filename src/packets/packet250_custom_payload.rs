@@ -1,6 +1,6 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
-use crate::packets::utils::{read_i16, read_string};
 use std::io::Error;
 use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
@@ -20,8 +20,8 @@ impl ServerPacket for CustomPayloadPacket {
     where
         Self: Sized,
     {
-        let channel = read_string(reader, encryption).await?;
-        let length = read_i16(reader, encryption).await?;
+        let channel = MinecraftReadExt::read_string(reader, encryption).await?;
+        let length = MinecraftReadExt::read_i16(reader, encryption).await?;
 
         if length > 0 && length < 32767 {
             let mut payload = vec![0u8; length as usize];

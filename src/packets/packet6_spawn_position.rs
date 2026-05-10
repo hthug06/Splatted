@@ -1,6 +1,6 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
-use crate::packets::utils::read_i32;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -19,9 +19,9 @@ impl ServerPacket for SpawnPositionPacket {
     where
         Self: Sized,
     {
-        let x = read_i32(reader, encryption).await?;
-        let y = read_i32(reader, encryption).await?;
-        let z = read_i32(reader, encryption).await?;
+        let x = reader.read_i32(encryption).await?;
+        let y = reader.read_i32(encryption).await?;
+        let z = reader.read_i32(encryption).await?;
 
         Ok(Self { x, y, z })
     }

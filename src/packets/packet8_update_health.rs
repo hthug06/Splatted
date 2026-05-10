@@ -1,6 +1,6 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
-use crate::packets::utils::{read_f32, read_i16};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -20,9 +20,9 @@ impl ServerPacket for UpdateHealthPacket {
         Self: Sized,
     {
         Ok(Self {
-            health: read_i16(reader, encryption).await?,
-            food: read_i16(reader, encryption).await?,
-            food_saturation: read_f32(reader, encryption).await?,
+            health: reader.read_i16(encryption).await?,
+            food: reader.read_i16(encryption).await?,
+            food_saturation: reader.read_f32(encryption).await?,
         })
     }
 }

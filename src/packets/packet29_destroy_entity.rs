@@ -1,7 +1,7 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet30_entity::EntityPacket;
-use crate::packets::utils::read_u8;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -19,7 +19,7 @@ impl ServerPacket for DestroyEntityPacket {
     {
         // Here, instead of sending 10 packet to destroy 10 entities, the server can send only 1 packet
         // With all the entities to destroy
-        let entity_count = read_u8(reader, encryption).await?;
+        let entity_count = reader.read_u8(encryption).await?;
 
         // Then, we can parse All entities id into a Vec
         // We can create a vec with a defined capacitiy because of the count variable

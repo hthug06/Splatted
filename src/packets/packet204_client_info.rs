@@ -1,5 +1,5 @@
+use crate::packets::io::MinecraftWriteExt;
 use crate::packets::packet_trait::ClientPacket;
-use crate::packets::utils::{write_bool, write_string};
 use bytes::{BufMut, BytesMut};
 use std::io::Error;
 
@@ -23,7 +23,7 @@ impl ClientPacket for ClientInfoPacket {
         buffer.put_u8(204);
 
         // Packet Data
-        write_string(buffer, &self.locale)?;
+        buffer.write_string(&self.locale)?;
         buffer.put_u8(self.view_distance);
 
         // Using real Minecraft implementation (or MCP I don't really know ?)
@@ -32,7 +32,7 @@ impl ClientPacket for ClientInfoPacket {
         buffer.put_u8(self.chat_flags | (if self.chat_colors { 1 } else { 0 }) << 3);
 
         buffer.put_u8(self.difficulty);
-        write_bool(buffer, self.show_cape);
+        buffer.write_bool(self.show_cape);
         Ok(())
     }
 }

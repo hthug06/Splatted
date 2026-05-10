@@ -1,6 +1,6 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
-use crate::packets::utils::read_string;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -18,7 +18,7 @@ impl ServerPacket for ChatPacket {
         Self: Sized,
     {
         Ok(Self {
-            message: read_string(reader, encryption).await?,
+            message: reader.read_string(encryption).await?,
         })
     }
 }

@@ -1,6 +1,6 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
-use crate::packets::utils::read_i64;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -19,8 +19,8 @@ impl ServerPacket for UpdateTimePacket {
         Self: Sized,
     {
         Ok(Self {
-            world_age: read_i64(reader, encryption).await?,
-            time_of_day: read_i64(reader, encryption).await?,
+            world_age: reader.read_i64(encryption).await?,
+            time_of_day: reader.read_i64(encryption).await?,
         })
     }
 }
