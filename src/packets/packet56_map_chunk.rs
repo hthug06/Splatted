@@ -3,6 +3,7 @@
 use crate::network::connection::Encryption;
 use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
+use bytes::{Bytes, BytesMut};
 use std::io::{Error, ErrorKind};
 use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
@@ -19,7 +20,7 @@ pub struct MapChunkPacket {
     pub chunk_count: i16,
     pub data_length: i32,
     pub sky_light_sent: bool,
-    pub compressed_data: Vec<u8>,
+    pub compressed_data: Bytes,
     pub metadata: Vec<ChunkMetaData>,
 }
 
@@ -63,11 +64,20 @@ impl ServerPacket for MapChunkPacket {
         // This compressed data is where all the 'chunk data' is:
         // block, block metadata, light (from block and sky)
         // + everything are in vec (vec of block, vec of block metadata...)
-        let mut compressed_data = vec![0u8; data_length as usize];
+        //
+        // We allocate a mutable buffer (BytesMut) filled with zeros matching the exact required size.
+        // This ensures we have a dedicated contiguous memory space ready to receive the network data.
+        let mut compressed_buffer = BytesMut::zeroed(data_length as usize);
         if data_length > 0 {
-            reader.read_exact(&mut compressed_data).await?;
-            encryption.decrypt(&mut compressed_data);
+            reader.read_exact(&mut compressed_buffer).await?;
+            encryption.decrypt(&mut compressed_buffer);
         }
+
+        // ZERO-COPY
+        // .freeze() transforms the mutable `BytesMut` into a read-only `Bytes` object.
+        // This operation is O(1) (instantaneous). It does NOT copy the underlying 20MB of data.
+        // It simply returns a smart pointer to the memory, ensuring it will never be heavily cloned
+        let compressed_data = compressed_buffer.freeze();
 
         // Read EVERY chunk (yes multiple chunk in 1 packet)
         let mut metadata = Vec::new();
