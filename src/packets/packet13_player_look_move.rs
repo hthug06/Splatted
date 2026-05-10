@@ -5,7 +5,6 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 pub struct PlayerLookMovePacket {
     pub x: f64,
     pub y: f64,

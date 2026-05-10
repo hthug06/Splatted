@@ -5,7 +5,6 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 pub struct ExperiencePacket {
     pub experience: f32,
     pub experience_level: i16,

@@ -1,6 +1,6 @@
 /// Used in the NetClientHandler line 1188 - 1207
 /// This is more clear how the Tile entity will be used
-#[derive(Debug, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 pub enum TileEntityAction {
     MobSpawner,   // Action = 1
     CommandBlock, // Action = 2

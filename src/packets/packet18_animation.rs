@@ -6,7 +6,6 @@ use crate::packets::utils::read_u8;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
-#[derive(Debug)]
 pub struct AnimationPacket {
     entity: EntityPacket,
     animation: EntityAnimation,

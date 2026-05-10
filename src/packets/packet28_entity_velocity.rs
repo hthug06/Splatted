@@ -5,7 +5,6 @@ use crate::packets::utils::read_i16;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
-#[derive(Debug)]
 pub struct EntityVelocityPacket {
     pub entity: EntityPacket,
     pub velocity_x: i16,

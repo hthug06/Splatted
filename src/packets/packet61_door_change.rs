@@ -8,7 +8,6 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 /// This packet treat every sound AND particles effect
 pub struct DoorChangePacket {
     pub sound_effect: SoundEffect,

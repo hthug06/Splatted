@@ -7,7 +7,6 @@ use tokio::net::tcp::OwnedReadHalf;
 
 const MAX_METADATA_SIZE: i32 = 32767;
 
-#[derive(Debug)]
 pub struct MultiBlockChangePacket {
     pub x: i32,
     pub z: i32,

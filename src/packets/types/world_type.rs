@@ -4,7 +4,7 @@
 /// - LargeBiomes: A world with larger biomes, but less structures.
 /// - Default1_1: A world with the same generation as Minecraft 1.1.
 /// - Unknown: An unknown world type, for plugins, mods, errors...
-#[derive(Debug, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 pub enum WorldType {
     Default,
     Flat,

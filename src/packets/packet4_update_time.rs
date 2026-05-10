@@ -5,7 +5,6 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 pub struct UpdateTimePacket {
     pub world_age: i64,
     pub time_of_day: i64,

@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 /// All the potion effects in Minecraft 1.4.7
 pub enum PotionEffect {
     Speed,

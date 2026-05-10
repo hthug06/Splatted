@@ -6,7 +6,6 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 pub struct PlayerInventoryPacket {
     pub entity_id: i32,
     pub slot: i16,

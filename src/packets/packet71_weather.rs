@@ -6,7 +6,6 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 pub struct WeatherPacket {
     pub entity: EntityPacket,
     pub is_lightning_bolt: bool,

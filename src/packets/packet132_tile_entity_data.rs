@@ -7,7 +7,6 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 pub struct TileEntityDataPacket {
     pub x: i32,
     pub y: i16,

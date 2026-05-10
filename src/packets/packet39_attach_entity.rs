@@ -5,7 +5,6 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 /// Used when an entity mounts or dismounts a vehicle (like a minecart, boat, or horse).
 pub struct AttachEntityPacket {
     /// The entity who mount the vehicule

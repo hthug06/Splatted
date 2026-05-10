@@ -5,7 +5,6 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 pub struct LevelSoundPacket {
     pub sound_name: String,
     pub effect_x: i32,

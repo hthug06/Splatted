@@ -6,7 +6,6 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 pub struct EntityExpOrbPacket {
     pub entity: EntityPacket,
     // We want to be precise on the coordinate of the entity orb, else they will be in the corner of the block

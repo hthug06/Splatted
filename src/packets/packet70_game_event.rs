@@ -7,7 +7,6 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 pub struct GameEventPacket {
     pub event_type: EventType,
     pub game_mode: GameType,

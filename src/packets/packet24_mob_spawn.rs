@@ -7,7 +7,6 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 pub struct MobSpawnPacket {
     entity_id: i32,
     entity_type: EntityType,

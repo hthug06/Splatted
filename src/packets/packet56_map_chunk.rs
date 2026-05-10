@@ -15,7 +15,6 @@ const MAX_METADATA_SIZE: i32 = 20_971_520;
 /// - The number of chunk sent
 /// - The data lenght of the combined chunk
 /// - If the sky light is sent (ex: sent in overworld, not in the nether)
-#[derive(Debug)]
 pub struct MapChunkPacket {
     pub chunk_count: i16,
     pub data_length: i32,
@@ -24,7 +23,6 @@ pub struct MapChunkPacket {
     pub metadata: Vec<ChunkMetaData>,
 }
 
-#[derive(Debug)]
 pub struct ChunkMetaData {
     pub chunk_x: i32,
     pub chunk_z: i32,

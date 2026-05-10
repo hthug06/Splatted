@@ -5,7 +5,6 @@ use crate::packets::utils::{read_i16, read_i32, read_u8, read_u16};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
-#[derive(Debug)]
 pub struct PlayNoteBlockPacket {
     pub x: i32,
     pub y: i16,

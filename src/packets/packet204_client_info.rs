@@ -2,16 +2,10 @@ use crate::packets::packet_trait::ClientPacket;
 use crate::packets::utils::{write_bool, write_string};
 use std::io::Error;
 
-// Petit rappel des constantes utiles pour ce paquet
-pub const VIEW_DISTANCE_FAR: u8 = 0;
-pub const VIEW_DISTANCE_NORMAL: u8 = 1;
-pub const VIEW_DISTANCE_SHORT: u8 = 2;
-pub const VIEW_DISTANCE_TINY: u8 = 3;
-
 pub struct ClientInfoPacket {
     /// ex: "fr_FR" or "en_US"
     pub locale: String,
-    /// 0 = Far, 1 = Normal, 2 = Short, 3 = Tiny (use const)
+    /// 0 = Far, 1 = Normal, 2 = Short, 3 = Tiny
     pub view_distance: u8,
     /// 0 = Enabled, 1 = Commands Only, 2 = Hidden
     pub chat_flags: u8,

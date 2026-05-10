@@ -8,7 +8,6 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 pub struct LoginPacket {
     client_id: i32,
     terrain_type: WorldType,

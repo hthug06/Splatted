@@ -7,7 +7,6 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 /// Used when the player get a potion effect (don't get the packet when other player get an effect)
 pub struct EntityEffectPacket {
     pub entity_id: EntityPacket,

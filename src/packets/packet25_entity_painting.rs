@@ -6,7 +6,6 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 pub struct EntityPaintingPacket {
     pub entity: EntityPacket,
     pub title: String,

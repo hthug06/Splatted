@@ -6,7 +6,6 @@ use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 const MAX_DESTROYED_BLOCKS: i32 = 100_000;
 
-#[derive(Debug)]
 pub struct ExplosionPacket {
     pub x: f64,
     pub y: f64,

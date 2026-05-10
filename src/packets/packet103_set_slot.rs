@@ -6,7 +6,6 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 pub struct SetSlotPacket {
     // why i8? because the first SetSlot packet send = SetSlotPacket { windows_id: -1, slot: -1, item_stack: None } ????
     pub windows_id: i8,

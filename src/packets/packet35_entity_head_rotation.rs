@@ -5,7 +5,6 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 pub struct EntityHeadRotationPacket {
     pub entity_id: EntityPacket,
     pub head_rotation_yaw: i8,

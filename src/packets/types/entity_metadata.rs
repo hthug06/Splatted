@@ -8,7 +8,6 @@ use tokio::net::tcp::OwnedReadHalf;
 use crate::packets::utils::{read_f32, read_i8, read_i16, read_i32, read_string, read_u8};
 
 /// All Possible metadata value
-#[derive(Debug)]
 pub enum MetadataValue {
     Byte(i8),
     Short(i16),
@@ -21,7 +20,6 @@ pub enum MetadataValue {
 
 /// HashMap with all the entityMetaData
 /// It's like the DataWatcher in mc code
-#[derive(Debug)]
 pub struct EntityMetadata {
     /// Key: Index
     /// Value: Data Type

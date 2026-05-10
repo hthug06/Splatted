@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 pub enum EntityAnimation {
     SwingArm,            // 1 : Mine or attack
     Damage,              // 2 : Entity take damage (he becomes red :o)

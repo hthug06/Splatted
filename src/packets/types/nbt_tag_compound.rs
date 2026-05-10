@@ -4,7 +4,7 @@ use std::io::Error;
 use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct NbtTagCompound {
     data: Option<Vec<u8>>,
 }
