@@ -1,6 +1,7 @@
 use crate::network::connection::Encryption;
 use crate::packets::packet_trait::{ClientPacket, ServerPacket};
 use crate::packets::utils::{read_byte_array, write_byte_array};
+use bytes::{BufMut, BytesMut};
 use rand::RngCore;
 use rsa::{Pkcs1v15Encrypt, RsaPublicKey};
 use std::io::Error;
@@ -48,9 +49,9 @@ impl SharedKeyPacket {
 }
 
 impl ClientPacket for SharedKeyPacket {
-    fn write_to(&self, buffer: &mut Vec<u8>) -> Result<(), Error> {
+    fn write_to(&self, buffer: &mut BytesMut) -> Result<(), Error> {
         // Shared Key packet ID is 252
-        buffer.push(252);
+        buffer.put_u8(252);
 
         // write shared_secret
         write_byte_array(buffer, &self.shared_secret);

@@ -1,5 +1,6 @@
 use crate::packets::packet_trait::ClientPacket;
 use crate::packets::utils::{write_bool, write_f64};
+use bytes::{BufMut, BytesMut};
 use std::io::Error;
 
 pub struct PlayerPositionPacket {
@@ -11,9 +12,9 @@ pub struct PlayerPositionPacket {
 }
 
 impl ClientPacket for PlayerPositionPacket {
-    fn write_to(&self, buffer: &mut Vec<u8>) -> Result<(), Error> {
+    fn write_to(&self, buffer: &mut BytesMut) -> Result<(), Error> {
         // Packet ID
-        buffer.push(11);
+        buffer.put_u8(11);
 
         // Packet Data
         write_f64(buffer, self.x);

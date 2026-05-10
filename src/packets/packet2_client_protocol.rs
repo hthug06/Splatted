@@ -1,5 +1,6 @@
 use crate::packets::packet_trait::ClientPacket;
 use crate::packets::utils::write_string;
+use bytes::{BufMut, BytesMut};
 use std::io::Error;
 
 pub struct ClientProtocolPacket {
@@ -24,24 +25,18 @@ impl ClientProtocolPacket {
             server_port,
         }
     }
-
-    fn create_payload(&self) -> Result<Vec<u8>, Error> {
-        let mut buffer: Vec<u8> = vec![];
-        buffer.push(self.protocol_version);
-        write_string(&mut buffer, &self.username)?;
-        write_string(&mut buffer, &self.server_hostname)?;
-        buffer.extend(self.server_port.to_be_bytes());
-        Ok(buffer)
-    }
 }
 
 impl ClientPacket for ClientProtocolPacket {
-    fn write_to(&self, buffer: &mut Vec<u8>) -> Result<(), Error> {
+    fn write_to(&self, buffer: &mut BytesMut) -> Result<(), Error> {
         //DON'T FORGET TO ADD THE PACKET ID
-        buffer.push(0x02);
+        buffer.put_u8(0x02);
 
         // Add all the infos
-        buffer.extend(self.create_payload()?);
+        buffer.put_u8(self.protocol_version);
+        write_string(buffer, &self.username)?;
+        write_string(buffer, &self.server_hostname)?;
+        buffer.extend(self.server_port.to_be_bytes());
 
         Ok(())
     }

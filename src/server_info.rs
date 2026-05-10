@@ -4,6 +4,7 @@ use crate::packets::packet_trait::{ClientPacket, ServerPacket};
 use crate::packets::packet254_server_ping::ServerPingPacket;
 use crate::packets::packet255_kick_disconnect::KickDisconnectPacket;
 use crate::packets::utils::read_u8;
+use bytes::BytesMut;
 use std::io::{Error, ErrorKind};
 use tokio::io::{AsyncWriteExt, BufReader};
 use tokio::net::TcpStream;
@@ -23,7 +24,7 @@ impl ServerInfo {
         let mut encryption = Encryption::new();
 
         // Send first packet (Server Ping = 0xFE)
-        let mut buffer: Vec<u8> = vec![];
+        let mut buffer = BytesMut::new();
         ServerPingPacket.write_to(&mut buffer)?;
         write_half.write_all(&buffer).await?;
         write_half.flush().await?;

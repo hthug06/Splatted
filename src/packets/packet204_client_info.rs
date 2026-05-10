@@ -1,5 +1,6 @@
 use crate::packets::packet_trait::ClientPacket;
 use crate::packets::utils::{write_bool, write_string};
+use bytes::{BufMut, BytesMut};
 use std::io::Error;
 
 pub struct ClientInfoPacket {
@@ -17,20 +18,20 @@ pub struct ClientInfoPacket {
 }
 
 impl ClientPacket for ClientInfoPacket {
-    fn write_to(&self, buffer: &mut Vec<u8>) -> Result<(), Error> {
+    fn write_to(&self, buffer: &mut BytesMut) -> Result<(), Error> {
         // Packet ID
-        buffer.push(204);
+        buffer.put_u8(204);
 
         // Packet Data
         write_string(buffer, &self.locale)?;
-        buffer.push(self.view_distance);
+        buffer.put_u8(self.view_distance);
 
         // Using real Minecraft implementation (or MCP I don't really know ?)
         // Java code:
         // par1DataOutputStream.writeByte(this.chatVisisble | (this.chatColours ? 1 : 0) << 3);
-        buffer.push(self.chat_flags | (if self.chat_colors { 1 } else { 0 }) << 3);
+        buffer.put_u8(self.chat_flags | (if self.chat_colors { 1 } else { 0 }) << 3);
 
-        buffer.push(self.difficulty);
+        buffer.put_u8(self.difficulty);
         write_bool(buffer, self.show_cape);
         Ok(())
     }

@@ -6,6 +6,7 @@ use crate::packets::packet2_client_protocol::ClientProtocolPacket;
 use crate::packets::packet205_client_command::ClientCommandPacket;
 use crate::packets::packet252_shared_key::SharedKeyPacket;
 use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;
+use bytes::BytesMut;
 use std::io::{Error, ErrorKind};
 use std::net::SocketAddr;
 use tokio::io::{AsyncWriteExt, BufReader};
@@ -20,6 +21,9 @@ pub struct Client {
     /// The connection contain the encryption process.
     /// (only active after packet 252)
     encryption: Encryption,
+    /// Use a BytesMut for writing packet
+    /// This way, we don't reallocate a vec everytime we want to send a packet, we just clear the buffer and reuse it.
+    write_buffer: BytesMut,
 }
 
 impl Client {
@@ -28,6 +32,7 @@ impl Client {
             username: username.to_string(),
             writer: None,
             encryption: Encryption::new(),
+            write_buffer: BytesMut::new(),
         }
     }
 
@@ -104,18 +109,18 @@ impl Client {
 
     /// Send a packet to the network instantly
     pub async fn send_packet(&mut self, packet: impl ClientPacket) -> std::io::Result<()> {
-        let mut buffer: Vec<u8> = Vec::new();
-
+        // let mut buffer: Vec<u8> = Vec::new();
+        self.write_buffer.clear();
         packet
-            .write_to(&mut buffer)
+            .write_to(&mut self.write_buffer)
             .map_err(|e| Error::new(ErrorKind::InvalidData, e))?;
 
         // Fill the buffer with the packet data
         // Encrypt the packet if the encryption is enabled
-        self.encryption.encrypt(&mut buffer);
+        self.encryption.encrypt(&mut self.write_buffer);
 
         if let Some(writer) = &mut self.writer {
-            writer.write_all(&buffer).await?;
+            writer.write_all(&self.write_buffer).await?;
             writer.flush().await?;
         } else {
             log::error!("Trying to send a packet without being connected");

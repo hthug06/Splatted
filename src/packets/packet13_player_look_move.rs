@@ -1,6 +1,7 @@
 use crate::network::connection::Encryption;
 use crate::packets::packet_trait::{ClientPacket, ServerPacket};
 use crate::packets::utils::{read_f32, read_f64, read_u8, write_bool, write_f32, write_f64};
+use bytes::{BufMut, BytesMut};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -37,8 +38,8 @@ impl ServerPacket for PlayerLookMovePacket {
 }
 
 impl ClientPacket for PlayerLookMovePacket {
-    fn write_to(&self, buffer: &mut Vec<u8>) -> Result<(), Error> {
-        buffer.push(13); // packet id
+    fn write_to(&self, buffer: &mut BytesMut) -> Result<(), Error> {
+        buffer.put_u8(13); // packet id
 
         // packet data
         write_f64(buffer, self.x);

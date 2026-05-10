@@ -1,4 +1,5 @@
 use crate::network::connection::Encryption;
+use bytes::{BufMut, BytesMut};
 use std::io::{Error, ErrorKind};
 use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
@@ -167,22 +168,22 @@ pub async fn read_string(
 // WRITE FUNCTION
 
 /// Write a boolean (1 byte: 0x01 for true, 0x00 for false)
-pub fn write_bool(buffer: &mut Vec<u8>, value: bool) {
-    buffer.push(if value { 1 } else { 0 });
+pub fn write_bool(buffer: &mut BytesMut, value: bool) {
+    buffer.put_u8(if value { 1 } else { 0 });
 }
 
 /// Write a f32 (Float)
-pub fn write_f32(buffer: &mut Vec<u8>, value: f32) {
-    buffer.extend_from_slice(&value.to_be_bytes());
+pub fn write_f32(buffer: &mut BytesMut, value: f32) {
+    buffer.put_f32(value);
 }
 
 /// Write a f64 (Double)
-pub fn write_f64(buffer: &mut Vec<u8>, value: f64) {
-    buffer.extend_from_slice(&value.to_be_bytes());
+pub fn write_f64(buffer: &mut BytesMut, value: f64) {
+    buffer.put_f64(value);
 }
 
 /// Write a byte array like Minecraft 1.4.7 do (len as u16 in be_byte + data)
-pub fn write_byte_array(buffer: &mut Vec<u8>, byte_array: &[u8]) {
+pub fn write_byte_array(buffer: &mut BytesMut, byte_array: &[u8]) {
     buffer.extend((byte_array.len() as u16).to_be_bytes());
     buffer.extend(byte_array);
 }
@@ -190,7 +191,7 @@ pub fn write_byte_array(buffer: &mut Vec<u8>, byte_array: &[u8]) {
 /// Add a string to an [u8] buffer
 /// Minecraft 1.4.7 use utf16 for string so we need to convert
 /// But the first thing to add to the array is the size of this u16 string
-pub fn write_string(buffer: &mut Vec<u8>, text: &str) -> std::io::Result<()> {
+pub fn write_string(buffer: &mut BytesMut, text: &str) -> std::io::Result<()> {
     let utf16_iter = text.encode_utf16();
     let length = utf16_iter.clone().count();
 

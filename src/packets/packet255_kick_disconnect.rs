@@ -1,6 +1,7 @@
 use crate::network::connection::Encryption;
 use crate::packets::packet_trait::{ClientPacket, ServerPacket};
 use crate::packets::utils::{read_string, write_string};
+use bytes::{BufMut, BytesMut};
 use std::fmt::{Display, Formatter};
 use std::io::{Error, ErrorKind};
 use tokio::io::BufReader;
@@ -13,7 +14,7 @@ pub struct KickDisconnectPacket {
 impl KickDisconnectPacket {
     /// Get all the server infos like in the minecraft server list
     pub fn format_server_infos(&self) -> Result<ServerPingResponse, Error> {
-        Ok(ServerPingResponse::from_kickdisconnect(self)?)
+        ServerPingResponse::from_kickdisconnect(self)
     }
 }
 
@@ -33,8 +34,8 @@ impl ServerPacket for KickDisconnectPacket {
 }
 
 impl ClientPacket for KickDisconnectPacket {
-    fn write_to(&self, buffer: &mut Vec<u8>) -> Result<(), Error> {
-        buffer.push(255);
+    fn write_to(&self, buffer: &mut BytesMut) -> Result<(), Error> {
+        buffer.put_u8(255);
         write_string(buffer, &self.reason)?;
 
         Ok(())
