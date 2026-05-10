@@ -46,7 +46,11 @@ impl Client {
         // Wrap the reader in a BufReader to batch network reads.
         // This prevents expensive OS syscalls on every tiny read (like 1-byte packet IDs),
         // significantly improving parsing performance.
-        let mut reader = BufReader::new(stream_reader);
+        //
+        // When using ::new, it's a 8Ko BufReader that is created.
+        // For little packet like the chat packet, it's okay but not for the Chunk packet
+        // SO we create a 64Ko BufReader (if this is not enough, we can increase it to 120 Ko!)
+        let mut reader = BufReader::with_capacity(1024 * 64, stream_reader);
 
         let socket_addr: SocketAddr = address
             .parse()
