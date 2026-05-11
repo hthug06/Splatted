@@ -24,13 +24,13 @@ impl ServerPacket for PickupSpawnPacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
-        _protocol_version: ProtocolVersion,
+        protocol_version: ProtocolVersion,
     ) -> Result<Self, Error>
     where
         Self: Sized,
     {
         Ok(Self {
-            entity: EntityPacket::read(reader, encryption, _protocol_version).await?,
+            entity: EntityPacket::read(reader, encryption, protocol_version).await?,
             item: reader.read_i16(encryption).await?,
             count: reader.read_i8(encryption).await?,
             item_damage: reader.read_i16(encryption).await?,
