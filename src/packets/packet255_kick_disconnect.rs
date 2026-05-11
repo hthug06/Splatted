@@ -110,6 +110,9 @@ impl ServerPingResponse {
         // 2: Max player
         // separated with § for some reason
         else {
+            // First clean the \0
+            let clean_reason = reason.split('\0').next().unwrap_or(reason);
+            //Then the §
             let parts: Vec<&str> = reason.split('§').collect();
             if parts.len() < 3 {
                 return Err(Error::new(
@@ -158,10 +161,7 @@ impl Display for ServerPingResponse {
             None => "Unknown".to_string(),
         };
 
-        let version_str = self
-            .server_version
-            .as_deref()
-            .unwrap_or("< 1.4");
+        let version_str = self.server_version.as_deref().unwrap_or("< 1.4");
 
         write!(
             f,
