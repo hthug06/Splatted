@@ -31,7 +31,7 @@ pub struct Args {
     #[arg(long, short, default_value_t = 10)]
     bot_number: u32,
 
-    #[arg(long, short, default_value_t = 51)]
+    #[arg(long, short = 'r', default_value_t = 51)]
     protocol: u8,
 }
 
