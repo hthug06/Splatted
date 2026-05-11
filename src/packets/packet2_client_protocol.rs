@@ -58,7 +58,10 @@ impl ClientPacket for ClientHandshakePacket {
                 buffer.write_string(&combined_string)?;
             }
             _ => {
-                // Add versions
+                return Err(Error::new(
+                    std::io::ErrorKind::InvalidInput,
+                    "Unsupported protocol version for handshake packet",
+                ));
             }
         }
 
