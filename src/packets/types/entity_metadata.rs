@@ -62,7 +62,7 @@ impl EntityMetadata {
                         MetadataValue::Item(ItemStack::new_simple(
                             reader.read_i16(encryption).await?,
                             Some(reader.read_u8(encryption).await?),
-                            reader.read_i16(encryption).await?,
+                            Some(reader.read_i16(encryption).await?),
                         ))
                     }
                 }

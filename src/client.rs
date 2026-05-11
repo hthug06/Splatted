@@ -2,10 +2,14 @@ use crate::network::connection::Encryption;
 use crate::packets::InboundPacket;
 use crate::packets::InboundPacket::*;
 use crate::packets::packet_trait::ClientPacket;
-use crate::packets::packet2_client_protocol::ClientProtocolPacket;
+use crate::packets::packet1_login::LoginPacket;
+use crate::packets::packet2_client_protocol::ClientHandshakePacket;
 use crate::packets::packet205_client_command::ClientCommandPacket;
 use crate::packets::packet252_shared_key::SharedKeyPacket;
 use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;
+use crate::packets::types::dimension_type::DimensionType;
+use crate::packets::types::game_type::GameType;
+use crate::packets::types::world_type::WorldType;
 use crate::protocol_version::ProtocolVersion;
 use bytes::BytesMut;
 use log::info;
@@ -72,7 +76,7 @@ impl Client {
         //After this, we can send the first packet
         // this packet contain the protocol version of the client (51 in 1.4.7)
         // the username, the address and port of the server
-        let handshake = ClientProtocolPacket::new(self.exact_protocol, &self.username, host, port);
+        let handshake = ClientHandshakePacket::new(self.exact_protocol, &self.username, host, port);
         self.send_packet(handshake).await?;
 
         loop {
@@ -107,6 +111,19 @@ impl Client {
                 KeepAlive(keep_alive_packet) => {
                     self.send_packet(keep_alive_packet).await?;
                 }
+                ClientProtocol(client_protocol_packet) => {
+                    let default_packet = LoginPacket::default();
+                    let packet = LoginPacket {
+                        // protocol version and username need to be exact
+                        protocol_version: Some(self.exact_protocol as i32),
+                        username: Some(self.username.clone()),
+
+                        // The rest, we need to send it, but it's useless
+                        ..default_packet
+                    };
+
+                    self.send_packet(packet).await?;
+                }
                 PlayerLookMove(mut player_look_move) => {
                     // Resend the same packet
                     player_look_move.on_ground = true;
@@ -130,8 +147,6 @@ impl Client {
         packet
             .write_to(&mut self.write_buffer, self.protocol_version)
             .map_err(|e| Error::new(ErrorKind::InvalidData, e))?;
-
-        info!("buffer: {:?}", self.write_buffer);
 
         // Fill the buffer with the packet data
         // Encrypt the packet if the encryption is enabled

@@ -10,7 +10,7 @@ mod packet132_tile_entity_data;
 pub mod packet13_player_look_move;
 mod packet16_block_item_switch;
 mod packet18_animation;
-mod packet1_login;
+pub mod packet1_login;
 mod packet200_statistic;
 mod packet201_player_info;
 mod packet202_player_abilities;
@@ -66,6 +66,7 @@ use crate::network::connection::Encryption;
 use crate::packets::InboundPacket::*;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet1_login::LoginPacket;
+use crate::packets::packet2_client_protocol::{ClientHandshakePacket, ServerHandshakePacket};
 use crate::packets::packet3_chat::ChatPacket;
 use crate::packets::packet4_update_time::UpdateTimePacket;
 use crate::packets::packet5_player_inventory::PlayerInventoryPacket;
@@ -133,6 +134,7 @@ pub enum InboundPacket {
     BlockDestroy(BlockDestroyPacket),
     BlockItemSwitch(BlockItemSwitchPacket),
     Chat(ChatPacket),
+    ClientProtocol(ServerHandshakePacket),
     Collected(CollectPacket),
     CustomPayload(CustomPayloadPacket),
     DestroyEntity(DestroyEntityPacket),
@@ -199,6 +201,9 @@ impl InboundPacket {
             )),
             1 => Ok(Login(
                 LoginPacket::read(reader, encryption, protocol_version).await?,
+            )),
+            2 => Ok(ClientProtocol(
+                ServerHandshakePacket::read(reader, encryption, protocol_version).await?,
             )),
             3 => Ok(Chat(
                 ChatPacket::read(reader, encryption, protocol_version).await?,

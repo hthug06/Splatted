@@ -31,17 +31,14 @@ impl ServerPacket for NamedEntitySpawnPacket {
     where
         Self: Sized,
     {
-        let packet = Self {
-            entity: EntityPacket::read(reader, encryption, protocol_version).await?,
-            name: reader.read_string(encryption).await?,
-            x: reader.read_i32(encryption).await?,
-            y: reader.read_i32(encryption).await?,
-            z: reader.read_i32(encryption).await?,
-            rotation: reader.read_i8(encryption).await?,
-            pitch: reader.read_i8(encryption).await?,
-            current_item: ItemStack::read(reader, encryption).await?,
-            metadata: None,
-        };
+        let entity = EntityPacket::read(reader, encryption, protocol_version).await?;
+        let name = reader.read_string(encryption).await?;
+        let x = reader.read_i32(encryption).await?;
+        let y = reader.read_i32(encryption).await?;
+        let z = reader.read_i32(encryption).await?;
+        let rotation = reader.read_i8(encryption).await?;
+        let pitch = reader.read_i8(encryption).await?;
+        let current_item = ItemStack::new_simple(reader.read_i16(encryption).await?, None, None);
 
         let metadata = if protocol_version == ProtocolVersion::V1_4 {
             Some(EntityMetadata::read(reader, encryption, protocol_version).await?)
@@ -49,6 +46,16 @@ impl ServerPacket for NamedEntitySpawnPacket {
             None
         };
 
-        Ok(Self { metadata, ..packet })
+        Ok(Self {
+            entity,
+            name,
+            x,
+            y,
+            z,
+            rotation,
+            pitch,
+            current_item,
+            metadata,
+        })
     }
 }

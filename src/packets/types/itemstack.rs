@@ -21,7 +21,7 @@ pub struct ItemStack {
 
 impl ItemStack {
     /// Create a basic ItemStack (used before 1.4)
-    pub fn new_simple(id: i16, stack_size: Option<u8>, item_damage: i16) -> Option<Self> {
+    pub fn new_simple(id: i16, stack_size: Option<u8>, item_damage: Option<i16>) -> Option<Self> {
         if id < 0 {
             return None;
         }
@@ -29,7 +29,7 @@ impl ItemStack {
         Some(Self {
             id,
             stack_size: stack_size.unwrap_or(1) as i8, // Because we don't know the stack, put 1 by default
-            item_damage,
+            item_damage: item_damage.unwrap_or(0),
             nbt_tag_compound: NbtTagCompound::empty(),
         })
     }

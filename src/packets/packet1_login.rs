@@ -1,33 +1,54 @@
 use crate::network::connection::Encryption;
-use crate::packets::io::MinecraftReadExt;
-use crate::packets::packet_trait::ServerPacket;
+use crate::packets::io::{MinecraftReadExt, MinecraftWriteExt};
+use crate::packets::packet_trait::{ClientPacket, ServerPacket};
 use crate::packets::types::dimension_type::DimensionType;
 use crate::packets::types::game_type::GameType;
 use crate::packets::types::world_type::WorldType;
 use crate::protocol_version::ProtocolVersion;
+use bytes::{BufMut, BytesMut};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
 pub struct LoginPacket {
     /// For 1.4.7
-    client_id: Option<i32>,
+    pub client_id: Option<i32>,
     /// For 1.2
-    protocol_version: Option<i32>,
-    username: Option<String>,
-    terrain_type: WorldType,
+    pub protocol_version: Option<i32>,
+    pub username: Option<String>,
+    pub terrain_type: WorldType,
     /// true = server in hardcore mode
     /// Not in 1.2
-    hardcore: Option<bool>,
-    game_type: GameType,
+    pub hardcore: Option<bool>,
+    pub game_type: GameType,
     /// -1: The Nether, 0: The Overworld, 1: The End
-    dimension: DimensionType,
+    pub dimension: DimensionType,
     /// 0: Peaceful, 1: Easy, 2: Normal, 3: Hard
-    difficulty: i8,
+    pub difficulty: i8,
     /// not used in 1.4.7, but need to be parsed for 1.2
-    world_height: u8,
+    pub world_height: u8,
     /// not used in 1.4.7, but need to be parsed for 1.2
-    max_players: u8,
+    pub max_players: u8,
+}
+
+impl Default for LoginPacket {
+    fn default() -> Self {
+        Self {
+            // protocol version and username need to be exact
+            protocol_version: Some(0),
+            username: Some("".to_string()),
+
+            // The rest, we need to send it but it's useless
+            terrain_type: WorldType::Default,
+            game_type: GameType::Survival,
+            dimension: DimensionType::Overworld,
+            difficulty: 0,
+            world_height: 0,
+            max_players: 0,
+            client_id: None,
+            hardcore: None,
+        }
+    }
 }
 
 impl ServerPacket for LoginPacket {
@@ -98,5 +119,46 @@ impl ServerPacket for LoginPacket {
             world_height,
             max_players,
         })
+    }
+}
+
+impl ClientPacket for LoginPacket {
+    fn write_to(
+        &self,
+        buffer: &mut BytesMut,
+        _protocol_version: ProtocolVersion,
+    ) -> Result<(), Error> {
+        // ID of the packet
+        buffer.put_u8(0x01);
+
+        // The packet is only received on 1.2, so it work 100%
+        let protocol_version = self.protocol_version.ok_or_else(|| {
+            Error::new(
+                std::io::ErrorKind::InvalidData,
+                "Protocol version is required for LoginPacket (not the right version)",
+            )
+        })?;
+
+        //The packet is send in 1.2
+        match ProtocolVersion::from_protocol_version(protocol_version as u32) {
+            ProtocolVersion::V1_2 => {
+                buffer.put_i32(protocol_version as i32);
+                buffer.write_string(&self.username.clone().unwrap())?;
+
+                // Useless data
+                buffer.write_string(&self.terrain_type.name())?; // Terrain Type
+                buffer.put_i32(self.game_type.id()); // Server Mode
+                buffer.put_i32(self.dimension.id() as i32); // Dimension
+                buffer.put_i8(self.difficulty); // Difficulty
+                buffer.put_u8(self.world_height); // World Height
+                buffer.put_u8(self.max_players); // Max Players
+            }
+            _ => {
+                // The packet is never send in 1.4
+                // Instead, the client status packet (ClientCommandPacket 205)
+            }
+        }
+
+        Ok(())
     }
 }

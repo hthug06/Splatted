@@ -34,7 +34,7 @@ impl ServerPacket for PlayerInventoryPacket {
             let item_id = reader.read_i16(encryption).await?;
             let item_damage = reader.read_i16(encryption).await?;
 
-            ItemStack::new_simple(item_id, None, item_damage)
+            ItemStack::new_simple(item_id, None, Some(item_damage))
         } else {
             None
         };
