@@ -27,7 +27,7 @@ pub enum PotionEffect {
 }
 
 impl PotionEffect {
-    /// Convert l'ID into a  PotionEffect
+    /// Converts the ID into a PotionEffect
     pub fn from_id(id: u8) -> Self {
         match id {
             1 => PotionEffect::Speed,
