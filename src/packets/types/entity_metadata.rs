@@ -1,6 +1,7 @@
 use crate::network::connection::Encryption;
 use crate::packets::io::MinecraftReadExt;
 use crate::packets::types::itemstack::ItemStack;
+use crate::protocol_version::ProtocolVersion;
 use std::collections::HashMap;
 use std::io::Error;
 use tokio::io::BufReader;
@@ -30,6 +31,7 @@ impl EntityMetadata {
     pub async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
+        protocol_version: ProtocolVersion,
     ) -> Result<Self, Error> {
         let mut entries = HashMap::new();
 
@@ -53,7 +55,17 @@ impl EntityMetadata {
                 2 => MetadataValue::Int(reader.read_i32(encryption).await?),
                 3 => MetadataValue::Float(reader.read_f32(encryption).await?),
                 4 => MetadataValue::String(reader.read_string(encryption).await?),
-                5 => MetadataValue::Item(ItemStack::read(reader, encryption).await?),
+                5 => {
+                    if protocol_version == ProtocolVersion::V1_4 {
+                        MetadataValue::Item(ItemStack::read(reader, encryption).await?)
+                    } else {
+                        MetadataValue::Item(ItemStack::new_simple(
+                            reader.read_i16(encryption).await?,
+                            Some(reader.read_u8(encryption).await?),
+                            Some(reader.read_i16(encryption).await?),
+                        ))
+                    }
+                }
                 6 => MetadataValue::ChunkCoordinates(
                     reader.read_i32(encryption).await?,
                     reader.read_i32(encryption).await?,

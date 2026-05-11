@@ -2,9 +2,11 @@ mod client;
 mod errors;
 mod network;
 mod packets;
+mod protocol_version;
 mod server_info;
 
 use crate::client::Client;
+use crate::protocol_version::ProtocolVersion;
 use crate::server_info::ServerInfo;
 use clap::Parser;
 use log::{LevelFilter, info};
@@ -29,6 +31,9 @@ pub struct Args {
 
     #[arg(long, short, default_value_t = 10)]
     bot_number: u32,
+
+    #[arg(long, short = 'r', default_value_t = 51)]
+    protocol: u8,
 }
 
 #[tokio::main]
@@ -53,6 +58,9 @@ async fn main() -> Result<(), Error> {
     if args.info {
         ServerInfo::infos(&address).await?;
     } else {
+        //Check if version is supported
+        ProtocolVersion::from_protocol_version(args.protocol as u32)?;
+
         // Create the bot task list to keep the connection active
         let mut bot_tasks = vec![];
 
@@ -65,7 +73,7 @@ async fn main() -> Result<(), Error> {
             // Launch the tasks
             let task = tokio::spawn(async move {
                 let bot_name = format!("player{}", i);
-                let mut client = Client::new(bot_name.as_str());
+                let mut client = Client::new(bot_name.as_str(), args.protocol);
 
                 // Await here to do async and not block the program here
                 if let Err(e) = client.connect(address_clone.as_str()).await {

@@ -4,6 +4,7 @@ use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::{ClientPacket, ServerPacket};
 use crate::packets::packet254_server_ping::ServerPingPacket;
 use crate::packets::packet255_kick_disconnect::KickDisconnectPacket;
+use crate::protocol_version::ProtocolVersion;
 use bytes::BytesMut;
 use std::io::{Error, ErrorKind};
 use tokio::io::{AsyncWriteExt, BufReader};
@@ -25,7 +26,8 @@ impl ServerInfo {
 
         // Send first packet (Server Ping = 0xFE)
         let mut buffer = BytesMut::new();
-        ServerPingPacket.write_to(&mut buffer)?;
+        // The protocol version can be anything because we it doesn't change anything in this packet
+        ServerPingPacket.write_to(&mut buffer, ProtocolVersion::V1_4)?;
         write_half.write_all(&buffer).await?;
         write_half.flush().await?;
 
@@ -46,8 +48,8 @@ impl ServerInfo {
             ));
         }
 
-        let kick_disconnect_packet =
-            KickDisconnectPacket::read(&mut reader, &mut encryption).await?;
+        let kick_disconnect_packet = // The protocol version can be anything because we it doesn't change anything in this packet
+            KickDisconnectPacket::read(&mut reader, &mut encryption, ProtocolVersion::V1_4).await?;
 
         // Print all the infos
         log::info!("{}", kick_disconnect_packet.format_server_infos()?);

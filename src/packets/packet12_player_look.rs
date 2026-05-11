@@ -1,5 +1,6 @@
 use crate::packets::io::MinecraftWriteExt;
 use crate::packets::packet_trait::ClientPacket;
+use crate::protocol_version::ProtocolVersion;
 use bytes::{BufMut, BytesMut};
 use std::io::Error;
 
@@ -10,7 +11,11 @@ pub struct PlayerLookPacket {
 }
 
 impl ClientPacket for PlayerLookPacket {
-    fn write_to(&self, buffer: &mut BytesMut) -> Result<(), Error> {
+    fn write_to(
+        &self,
+        buffer: &mut BytesMut,
+        _protocol_version: ProtocolVersion,
+    ) -> Result<(), Error> {
         // Packet ID
         buffer.put_u8(12);
 

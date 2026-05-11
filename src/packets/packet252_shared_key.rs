@@ -1,6 +1,7 @@
 use crate::network::connection::Encryption;
 use crate::packets::io::{MinecraftReadExt, MinecraftWriteExt};
 use crate::packets::packet_trait::{ClientPacket, ServerPacket};
+use crate::protocol_version::ProtocolVersion;
 use bytes::{BufMut, BytesMut};
 use rand::RngCore;
 use rsa::{Pkcs1v15Encrypt, RsaPublicKey};
@@ -49,7 +50,11 @@ impl SharedKeyPacket {
 }
 
 impl ClientPacket for SharedKeyPacket {
-    fn write_to(&self, buffer: &mut BytesMut) -> Result<(), Error> {
+    fn write_to(
+        &self,
+        buffer: &mut BytesMut,
+        _protocol_version: ProtocolVersion,
+    ) -> Result<(), Error> {
         // Shared Key packet ID is 252
         buffer.put_u8(252);
 
@@ -67,6 +72,7 @@ impl ServerPacket for SharedKeyPacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
+        _protocol_version: ProtocolVersion,
     ) -> Result<Self, Error> {
         let shared_secret = reader.read_byte_array(encryption).await?;
         let verify_token = reader.read_byte_array(encryption).await?;

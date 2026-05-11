@@ -3,6 +3,7 @@
 use crate::network::connection::Encryption;
 use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
+use crate::protocol_version::ProtocolVersion;
 use bytes::{Bytes, BytesMut};
 use std::io::{Error, ErrorKind};
 use tokio::io::{AsyncReadExt, BufReader};
@@ -16,7 +17,7 @@ const MAX_METADATA_SIZE: i32 = 20_971_520;
 /// - The number of chunk sent
 /// - The data lenght of the combined chunk
 /// - If the sky light is sent (ex: sent in overworld, not in the nether)
-pub struct MapChunkPacket {
+pub struct MapChunksPacket {
     pub chunk_count: i16,
     pub data_length: i32,
     pub sky_light_sent: bool,
@@ -31,10 +32,11 @@ pub struct ChunkMetaData {
     pub add_bitmap: u16,
 }
 
-impl ServerPacket for MapChunkPacket {
+impl ServerPacket for MapChunksPacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
+        _protocol_version: ProtocolVersion,
     ) -> Result<Self, Error>
     where
         Self: Sized,

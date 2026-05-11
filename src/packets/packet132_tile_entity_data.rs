@@ -3,6 +3,7 @@ use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::types::nbt_tag_compound::NbtTagCompound;
 use crate::packets::types::tile_entity_action::TileEntityAction;
+use crate::protocol_version::ProtocolVersion;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -19,6 +20,7 @@ impl ServerPacket for TileEntityDataPacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
+        _protocol_version: ProtocolVersion,
     ) -> Result<Self, Error>
     where
         Self: Sized,

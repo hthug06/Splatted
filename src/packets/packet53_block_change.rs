@@ -1,6 +1,7 @@
 use crate::network::connection::Encryption;
 use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
+use crate::protocol_version::ProtocolVersion;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -17,16 +18,30 @@ impl ServerPacket for BlockChangePacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
+        protocol_version: ProtocolVersion,
     ) -> Result<Self, Error>
     where
         Self: Sized,
     {
+        let x = reader.read_i32(encryption).await?;
+        let y = reader.read_u8(encryption).await?;
+        let z = reader.read_i32(encryption).await?;
+        // 1.4
+        let block_id = if protocol_version == ProtocolVersion::V1_4 {
+            reader.read_i16(encryption).await?
+        }
+        // 1.2 and other
+        else {
+            reader.read_u8(encryption).await? as i16
+        };
+        let metadata = reader.read_u8(encryption).await?;
+
         Ok(Self {
-            x: reader.read_i32(encryption).await?,
-            y: reader.read_u8(encryption).await?,
-            z: reader.read_i32(encryption).await?,
-            block_id: reader.read_i16(encryption).await?,
-            metadata: reader.read_u8(encryption).await?,
+            x,
+            y,
+            z,
+            block_id,
+            metadata,
         })
     }
 }

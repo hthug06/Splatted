@@ -1,6 +1,7 @@
 use crate::network::connection::Encryption;
 use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::{ClientPacket, ServerPacket};
+use crate::protocol_version::ProtocolVersion;
 use bytes::{BufMut, BytesMut};
 use std::io::Error;
 use tokio::io::BufReader;
@@ -11,7 +12,11 @@ pub struct KeepAlivePacket {
 }
 
 impl ClientPacket for KeepAlivePacket {
-    fn write_to(&self, buffer: &mut BytesMut) -> Result<(), Error> {
+    fn write_to(
+        &self,
+        buffer: &mut BytesMut,
+        _protocol_version: ProtocolVersion,
+    ) -> Result<(), Error> {
         buffer.put_u8(0);
         buffer.put_i32(self.random_id);
         Ok(())
@@ -22,6 +27,7 @@ impl ServerPacket for KeepAlivePacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
+        _protocol_version: ProtocolVersion,
     ) -> Result<Self, Error>
     where
         Self: Sized,

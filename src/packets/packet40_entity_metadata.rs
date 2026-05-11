@@ -2,6 +2,7 @@ use crate::network::connection::Encryption;
 use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::types::entity_metadata::EntityMetadata;
+use crate::protocol_version::ProtocolVersion;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -15,13 +16,14 @@ impl ServerPacket for EntityMetadataPacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
+        protocol_version: ProtocolVersion,
     ) -> Result<Self, Error>
     where
         Self: Sized,
     {
         Ok(Self {
             id: reader.read_i32(encryption).await?,
-            metadata: EntityMetadata::read(reader, encryption).await?,
+            metadata: EntityMetadata::read(reader, encryption, protocol_version).await?,
         })
     }
 }

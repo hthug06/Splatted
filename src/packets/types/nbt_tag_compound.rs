@@ -10,6 +10,12 @@ pub struct NbtTagCompound {
 }
 
 impl NbtTagCompound {
+    /// Create an empty nbt (for before the 1.4)
+    pub fn empty() -> Self {
+        Self { data: None }
+    }
+
+    /// Read an NBT from the buffer
     pub async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,

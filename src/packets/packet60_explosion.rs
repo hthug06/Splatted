@@ -1,9 +1,11 @@
 use crate::network::connection::Encryption;
 use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
+use crate::protocol_version::ProtocolVersion;
 use std::io::{Error, ErrorKind};
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
+
 const MAX_DESTROYED_BLOCKS: i32 = 100_000;
 
 pub struct ExplosionPacket {
@@ -25,6 +27,7 @@ impl ServerPacket for ExplosionPacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
+        _protocol_version: ProtocolVersion,
     ) -> Result<Self, Error> {
         let x = reader.read_f64(encryption).await?;
         let y = reader.read_f64(encryption).await?;
