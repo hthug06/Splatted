@@ -4,7 +4,7 @@ pub mod read;
 pub mod write;
 
 pub trait MinecraftWriteExt {
-    fn write_byte_array(&mut self, byte_array: &[u8]);
+    fn write_byte_array(&mut self, byte_array: &[u8]) -> Result<(), std::io::Error>;
 
     fn write_string(&mut self, text: &str) -> std::io::Result<()>;
 
