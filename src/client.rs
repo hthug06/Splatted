@@ -6,7 +6,9 @@ use crate::packets::packet2_client_protocol::ClientProtocolPacket;
 use crate::packets::packet205_client_command::ClientCommandPacket;
 use crate::packets::packet252_shared_key::SharedKeyPacket;
 use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;
+use crate::protocol_version::ProtocolVersion;
 use bytes::BytesMut;
+use log::info;
 use std::io::{Error, ErrorKind};
 use std::net::SocketAddr;
 use tokio::io::{AsyncWriteExt, BufReader};
@@ -15,6 +17,10 @@ use tokio::net::tcp::OwnedWriteHalf;
 
 pub struct Client {
     username: String,
+    /// The EXACT protocol (ex: 51 for 1.4.7)
+    exact_protocol: u8,
+    /// Because we try to be multi-version, we need to have the protocol to handle packet differently
+    protocol_version: ProtocolVersion,
     /// Here, we only take a writer because the reader will always be active in the connect function.
     /// Also, we use an option because we're only going to connect the client in the connect function.
     writer: Option<OwnedWriteHalf>,
@@ -27,9 +33,11 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new(username: &str) -> Client {
+    pub fn new(username: &str, protocol_version: u8) -> Client {
         Self {
             username: username.to_string(),
+            exact_protocol: protocol_version,
+            protocol_version: ProtocolVersion::from_protocol_version(protocol_version as u32),
             writer: None,
             encryption: Encryption::new(),
             write_buffer: BytesMut::new(),
@@ -64,26 +72,31 @@ impl Client {
         //After this, we can send the first packet
         // this packet contain the protocol version of the client (51 in 1.4.7)
         // the username, the address and port of the server
-        let handshake = ClientProtocolPacket::new(51, &self.username, host, port);
+        let handshake = ClientProtocolPacket::new(self.exact_protocol, &self.username, host, port);
         self.send_packet(handshake).await?;
 
         loop {
             // Read the id and decrypt everything
-            let packet =
-                match InboundPacket::read_from_stream(&mut reader, &mut self.encryption).await {
-                    Ok(p) => p,
-                    Err(e) => {
-                        if e.kind() == ErrorKind::UnexpectedEof {
-                            log::error!(
-                                "[{}] Server dead for more than 30 seconds or stopped ",
-                                self.username
-                            );
-                            break;
-                        }
-                        log::error!("[{}] Broken stream or disconnected : {}", self.username, e);
+            let packet = match InboundPacket::read_from_stream(
+                &mut reader,
+                &mut self.encryption,
+                self.protocol_version,
+            )
+            .await
+            {
+                Ok(p) => p,
+                Err(e) => {
+                    if e.kind() == ErrorKind::UnexpectedEof {
+                        log::error!(
+                            "[{}] Server dead for more than 30 seconds or stopped ",
+                            self.username
+                        );
                         break;
                     }
-                };
+                    log::error!("[{}] Broken stream or disconnected : {}", self.username, e);
+                    break;
+                }
+            };
 
             // handle the packet
             // Sorted alphabetically
@@ -113,11 +126,12 @@ impl Client {
 
     /// Send a packet to the network instantly
     pub async fn send_packet(&mut self, packet: impl ClientPacket) -> std::io::Result<()> {
-        // let mut buffer: Vec<u8> = Vec::new();
         self.write_buffer.clear();
         packet
-            .write_to(&mut self.write_buffer)
+            .write_to(&mut self.write_buffer, self.protocol_version)
             .map_err(|e| Error::new(ErrorKind::InvalidData, e))?;
+
+        info!("buffer: {:?}", self.write_buffer);
 
         // Fill the buffer with the packet data
         // Encrypt the packet if the encryption is enabled

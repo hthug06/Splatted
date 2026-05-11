@@ -1,5 +1,6 @@
 use crate::packets::io::MinecraftWriteExt;
 use crate::packets::packet_trait::ClientPacket;
+use crate::protocol_version::ProtocolVersion;
 use bytes::{BufMut, BytesMut};
 use std::io::Error;
 
@@ -20,7 +21,7 @@ impl ClientProtocolPacket {
     ) -> Self {
         Self {
             protocol_version,
-            username: username.to_owned(),
+            username: username.to_string(),
             server_hostname,
             server_port,
         }
@@ -28,15 +29,35 @@ impl ClientProtocolPacket {
 }
 
 impl ClientPacket for ClientProtocolPacket {
-    fn write_to(&self, buffer: &mut BytesMut) -> Result<(), Error> {
+    fn write_to(
+        &self,
+        buffer: &mut BytesMut,
+        protocol_version: ProtocolVersion,
+    ) -> Result<(), Error> {
         //DON'T FORGET TO ADD THE PACKET ID
         buffer.put_u8(0x02);
 
         // Add all the infos
-        buffer.put_u8(self.protocol_version);
-        buffer.write_string(&self.username)?;
-        buffer.write_string(&self.server_hostname)?;
-        buffer.extend(self.server_port.to_be_bytes());
+        // Modify for future version
+        match protocol_version {
+            ProtocolVersion::V1_4 => {
+                buffer.put_u8(self.protocol_version);
+                buffer.write_string(&self.username)?;
+                buffer.write_string(&self.server_hostname)?;
+                buffer.put_u32(self.server_port);
+            }
+            ProtocolVersion::V1_2 => {
+                // 1.2 server only want 1 big string
+                let combined_string = format!(
+                    "{};{}:{}",
+                    self.username, self.server_hostname, self.server_port
+                );
+                buffer.write_string(&combined_string)?;
+            }
+            _ => {
+                // Add versions
+            }
+        }
 
         Ok(())
     }

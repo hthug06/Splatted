@@ -1,6 +1,7 @@
 use crate::network::connection::Encryption;
 use crate::packets::io::{MinecraftReadExt, MinecraftWriteExt};
 use crate::packets::packet_trait::{ClientPacket, ServerPacket};
+use crate::protocol_version::ProtocolVersion;
 use bytes::{BufMut, BytesMut};
 use std::fmt::{Display, Formatter};
 use std::io::{Error, ErrorKind};
@@ -23,6 +24,7 @@ impl ServerPacket for KickDisconnectPacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
+        _protocol_version: ProtocolVersion,
     ) -> Result<Self, Error>
     where
         Self: Sized,
@@ -34,7 +36,11 @@ impl ServerPacket for KickDisconnectPacket {
 }
 
 impl ClientPacket for KickDisconnectPacket {
-    fn write_to(&self, buffer: &mut BytesMut) -> Result<(), Error> {
+    fn write_to(
+        &self,
+        buffer: &mut BytesMut,
+        _protocol_version: ProtocolVersion,
+    ) -> Result<(), Error> {
         buffer.put_u8(255);
         buffer.write_string(&self.reason)?;
 

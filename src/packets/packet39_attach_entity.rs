@@ -1,6 +1,7 @@
 use crate::network::connection::Encryption;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet30_entity::EntityPacket;
+use crate::protocol_version::ProtocolVersion;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -18,11 +19,12 @@ impl ServerPacket for AttachEntityPacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
+        protocol_version: ProtocolVersion,
     ) -> Result<Self, Error> {
-        let entity = EntityPacket::read(reader, encryption).await?;
-        let raw_vehicle_entity = EntityPacket::read(reader, encryption).await?;
+        let entity = EntityPacket::read(reader, encryption, protocol_version).await?;
+        let raw_vehicle_entity = EntityPacket::read(reader, encryption, protocol_version).await?;
 
-        // On transforme le hack de Notch en beau code Rust
+        // If this is -1, the player get out of the vehicle
         let vehicle_entity = if raw_vehicle_entity.entity_id == -1 {
             // Get out of the vehicle
             None

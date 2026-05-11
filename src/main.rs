@@ -2,6 +2,7 @@ mod client;
 mod errors;
 mod network;
 mod packets;
+mod protocol_version;
 mod server_info;
 
 use crate::client::Client;
@@ -65,7 +66,7 @@ async fn main() -> Result<(), Error> {
             // Launch the tasks
             let task = tokio::spawn(async move {
                 let bot_name = format!("player{}", i);
-                let mut client = Client::new(bot_name.as_str());
+                let mut client = Client::new(bot_name.as_str(), 29);
 
                 // Await here to do async and not block the program here
                 if let Err(e) = client.connect(address_clone.as_str()).await {
