@@ -14,7 +14,7 @@ cargo build --release
 Go in the folder where your Splatted program is, open a terminal and use the following command:
 
 ```bash
-./Splatted --address <address> [-p <port> | -i | -b <bot_number> | -p <protocol>]
+./Splatted --address <address> [-p <port> | -i | -b <bot_number> | -r <protocol>]
 ```
 -i is for the info of the server (like in the server list of your Minecraft client)
 
@@ -22,10 +22,10 @@ Go in the folder where your Splatted program is, open a terminal and use the fol
 | Arguments          |  Short   | Default           |                                                                       Description                                                                       |
 |--------------------|:--------:|-------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | ```--address```    |    -     | **Required**      |                                                                The server IP or hostname                                                                |
-| ```--port```       | ```-p``` | ```25565```       |                                                                 The target server port                                                                  |
+| ```--port```       | ```-p``` | ```25565```       |                                                                  The target server port                                                                 |
 | ```--info```       | ```-i``` | ``` false```      |                                                    See like in the server list of a minecraft client                                                    |
 | ```--bot_number``` | ```-b``` | ``` 10```         |                                                    The number of bots you want to send to the server                                                    |
-| ```--protocol```   | ```-p``` | ``` 51 (1.4.7)``` | The protocol version of the minecraft server (click [here](https://minecraft.wiki/w/Protocol_version#Java_Edition_(pre-netty_rewrite) and scroll down)) |
+| ```--protocol```   | ```-r``` | ``` 51 (1.4.7)``` | The protocol version of the minecraft server (click [here](https://minecraft.wiki/w/Protocol_version#Java_Edition_(pre-netty_rewrite)) and scroll down) |
 
 ## Roadmap
 - [x] Get the server infos like in the multiplayer section of a real client
