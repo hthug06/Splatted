@@ -4,7 +4,7 @@
 /// - LargeBiomes: A world with larger biomes, but less structures.
 /// - Default1_1: A world with the same generation as Minecraft 1.1.
 /// - Unknown: An unknown world type, for plugins, mods, errors...
-#[derive(Debug, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 pub enum WorldType {
     Default,
     Flat,
@@ -40,9 +40,9 @@ impl WorldType {
     /// Get the generator version of the world type
     pub fn generator_version(&self) -> i32 {
         match self {
-            WorldType::Default => 1, // Supposons la version 1 pour le default
+            WorldType::Default => 1,
             WorldType::Default1_1 => 0,
-            _ => 0, // Les autres n'ont pas forcément de version
+            _ => 0,
         }
     }
 

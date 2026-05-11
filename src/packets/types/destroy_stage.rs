@@ -1,7 +1,7 @@
 /// The Destroy stage of a block
 /// The block can be cracked (value 0 - 9) or reset (value 255)
 ///
-#[derive(Debug, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 pub enum DestroyStage {
     /// The block is being mined (value 0-9)
     Cracking(u8),

@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 /// The dimension type of the player, in:
 /// - Nether
 /// - Overworld

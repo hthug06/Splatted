@@ -1,14 +1,13 @@
 //! Officially named `Sound/Particle Effect Packet`
 
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::types::sound_effect::SoundEffect;
-use crate::packets::utils::{read_i32, read_u8};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 /// This packet treat every sound AND particles effect
 pub struct DoorChangePacket {
     pub sound_effect: SoundEffect,
@@ -31,12 +30,12 @@ impl ServerPacket for DoorChangePacket {
         Self: Sized,
     {
         Ok(Self {
-            sound_effect: SoundEffect::from_id(read_i32(reader, encryption).await?),
-            x: read_i32(reader, encryption).await?,
-            y: read_u8(reader, encryption).await?,
-            z: read_i32(reader, encryption).await?,
-            aux_data: read_i32(reader, encryption).await?,
-            broadcast: read_u8(reader, encryption).await? != 0,
+            sound_effect: SoundEffect::from_id(reader.read_i32(encryption).await?),
+            x: reader.read_i32(encryption).await?,
+            y: reader.read_u8(encryption).await?,
+            z: reader.read_i32(encryption).await?,
+            aux_data: reader.read_i32(encryption).await?,
+            broadcast: reader.read_u8(encryption).await? != 0,
         })
     }
 }

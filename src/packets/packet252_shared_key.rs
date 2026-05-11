@@ -1,6 +1,7 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::{MinecraftReadExt, MinecraftWriteExt};
 use crate::packets::packet_trait::{ClientPacket, ServerPacket};
-use crate::packets::utils::{read_byte_array, write_byte_array};
+use bytes::{BufMut, BytesMut};
 use rand::RngCore;
 use rsa::{Pkcs1v15Encrypt, RsaPublicKey};
 use std::io::Error;
@@ -32,7 +33,7 @@ impl SharedKeyPacket {
         // encrypt the token
         let encrypted_token = rsa_public_key
             .encrypt(&mut rng, Pkcs1v15Encrypt, verify_token)
-            .expect("Failed to encrypt shared secret");
+            .expect("Failed to encrypt verify token");
 
         let packet = Self {
             shared_secret: encrypted_secret,
@@ -48,15 +49,15 @@ impl SharedKeyPacket {
 }
 
 impl ClientPacket for SharedKeyPacket {
-    fn write_to(&self, buffer: &mut Vec<u8>) -> Result<(), Error> {
+    fn write_to(&self, buffer: &mut BytesMut) -> Result<(), Error> {
         // Shared Key packet ID is 252
-        buffer.push(252);
+        buffer.put_u8(252);
 
         // write shared_secret
-        write_byte_array(buffer, &self.shared_secret);
+        buffer.write_byte_array(&self.shared_secret);
 
         // write verify_token
-        write_byte_array(buffer, &self.verify_token);
+        buffer.write_byte_array(&self.verify_token);
 
         Ok(())
     }
@@ -67,8 +68,8 @@ impl ServerPacket for SharedKeyPacket {
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
     ) -> Result<Self, Error> {
-        let shared_secret = read_byte_array(reader, encryption).await?;
-        let verify_token = read_byte_array(reader, encryption).await?;
+        let shared_secret = reader.read_byte_array(encryption).await?;
+        let verify_token = reader.read_byte_array(encryption).await?;
 
         Ok(Self {
             shared_secret,

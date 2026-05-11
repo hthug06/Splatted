@@ -1,8 +1,9 @@
 //! The Map Chunk Packet
 //! For now, we parse everything, but we do nothing with the data
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
-use crate::packets::utils::{read_i8, read_i16, read_i32, read_u16};
+use bytes::{Bytes, BytesMut};
 use std::io::{Error, ErrorKind};
 use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
@@ -15,16 +16,14 @@ const MAX_METADATA_SIZE: i32 = 20_971_520;
 /// - The number of chunk sent
 /// - The data lenght of the combined chunk
 /// - If the sky light is sent (ex: sent in overworld, not in the nether)
-#[derive(Debug)]
 pub struct MapChunkPacket {
     pub chunk_count: i16,
     pub data_length: i32,
     pub sky_light_sent: bool,
-    pub compressed_data: Vec<u8>,
+    pub compressed_data: Bytes,
     pub metadata: Vec<ChunkMetaData>,
 }
 
-#[derive(Debug)]
 pub struct ChunkMetaData {
     pub chunk_x: i32,
     pub chunk_z: i32,
@@ -40,8 +39,8 @@ impl ServerPacket for MapChunkPacket {
     where
         Self: Sized,
     {
-        let chunk_count = read_i16(reader, encryption).await?;
-        let data_length = read_i32(reader, encryption).await?;
+        let chunk_count = MinecraftReadExt::read_i16(reader, encryption).await?;
+        let data_length = MinecraftReadExt::read_i32(reader, encryption).await?;
         if data_length > MAX_METADATA_SIZE {
             return Err(Error::new(
                 ErrorKind::InvalidData,
@@ -49,7 +48,7 @@ impl ServerPacket for MapChunkPacket {
             ));
         }
 
-        let sky_light_sent = read_i8(reader, encryption).await? != 0;
+        let sky_light_sent = MinecraftReadExt::read_i8(reader, encryption).await? != 0;
 
         // Read compressed data
         // Data is compressed in ZLib
@@ -65,20 +64,29 @@ impl ServerPacket for MapChunkPacket {
         // This compressed data is where all the 'chunk data' is:
         // block, block metadata, light (from block and sky)
         // + everything are in vec (vec of block, vec of block metadata...)
-        let mut compressed_data = vec![0u8; data_length as usize];
+        //
+        // We allocate a mutable buffer (BytesMut) filled with zeros matching the exact required size.
+        // This ensures we have a dedicated contiguous memory space ready to receive the network data.
+        let mut compressed_buffer = BytesMut::zeroed(data_length as usize);
         if data_length > 0 {
-            reader.read_exact(&mut compressed_data).await?;
-            encryption.decrypt(&mut compressed_data);
+            reader.read_exact(&mut compressed_buffer).await?;
+            encryption.decrypt(&mut compressed_buffer);
         }
+
+        // ZERO-COPY
+        // .freeze() transforms the mutable `BytesMut` into a read-only `Bytes` object.
+        // This operation is O(1) (instantaneous). It does NOT copy the underlying 20MB of data.
+        // It simply returns a smart pointer to the memory, ensuring it will never be heavily cloned
+        let compressed_data = compressed_buffer.freeze();
 
         // Read EVERY chunk (yes multiple chunk in 1 packet)
         let mut metadata = Vec::new();
         for _ in 0..chunk_count {
             metadata.push(ChunkMetaData {
-                chunk_x: read_i32(reader, encryption).await?,
-                chunk_z: read_i32(reader, encryption).await?,
-                primary_bitmap: read_u16(reader, encryption).await?,
-                add_bitmap: read_u16(reader, encryption).await?,
+                chunk_x: MinecraftReadExt::read_i32(reader, encryption).await?,
+                chunk_z: MinecraftReadExt::read_i32(reader, encryption).await?,
+                primary_bitmap: MinecraftReadExt::read_u16(reader, encryption).await?,
+                add_bitmap: MinecraftReadExt::read_u16(reader, encryption).await?,
             });
         }
 

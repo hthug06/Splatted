@@ -1,12 +1,11 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::types::entity_metadata::EntityMetadata;
-use crate::packets::utils::read_i32;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 pub struct EntityMetadataPacket {
     pub id: i32,
     pub metadata: EntityMetadata,
@@ -21,7 +20,7 @@ impl ServerPacket for EntityMetadataPacket {
         Self: Sized,
     {
         Ok(Self {
-            id: read_i32(reader, encryption).await?,
+            id: reader.read_i32(encryption).await?,
             metadata: EntityMetadata::read(reader, encryption).await?,
         })
     }

@@ -1,14 +1,13 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::types::dimension_type::DimensionType;
 use crate::packets::types::game_type::GameType;
 use crate::packets::types::world_type::WorldType;
-use crate::packets::utils::{read_i8, read_i32, read_string};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 pub struct LoginPacket {
     client_id: i32,
     terrain_type: WorldType,
@@ -35,24 +34,24 @@ impl ServerPacket for LoginPacket {
     where
         Self: Sized,
     {
-        let client_id = read_i32(reader, encryption).await?;
+        let client_id = reader.read_i32(encryption).await?;
 
-        let terrain_type_string = read_string(reader, encryption).await?;
+        let terrain_type_string = reader.read_string(encryption).await?;
         let terrain_type = WorldType::parse(&terrain_type_string);
 
-        let hardcore_and_game_type_byte = read_i8(reader, encryption).await?;
+        let hardcore_and_game_type_byte = reader.read_i8(encryption).await?;
         let hardcore = (hardcore_and_game_type_byte) == 8;
 
         // Little trick from the forge source code to save bandwidth (yes)
         let game_type_id = hardcore_and_game_type_byte & 7;
         let game_type = GameType::from_id(game_type_id).unwrap_or(GameType::Survival);
 
-        let dimension_id = read_i8(reader, encryption).await?;
+        let dimension_id = reader.read_i8(encryption).await?;
         let dimension = DimensionType::from_id(dimension_id);
 
-        let difficulty = read_i8(reader, encryption).await?;
-        let world_height = read_i8(reader, encryption).await?; // useless now but we need to parse it...
-        let max_players = read_i8(reader, encryption).await?; // no the max player is not 255 lol
+        let difficulty = reader.read_i8(encryption).await?;
+        let world_height = reader.read_i8(encryption).await?; // useless now but we need to parse it...
+        let max_players = reader.read_i8(encryption).await?; // no the max player is not 255 lol
 
         Ok(Self {
             client_id,

@@ -1,3 +1,4 @@
+pub mod io;
 mod packet0_keep_alive;
 mod packet103_set_slot;
 mod packet104_window_items;
@@ -17,7 +18,7 @@ mod packet204_client_info;
 pub mod packet205_client_command;
 mod packet20_named_entity_spawn;
 mod packet22_collect;
-mod packet23_vehicule_spawn;
+mod packet23_vehicle_spawn;
 mod packet24_mob_spawn;
 mod packet250_custom_payload;
 pub mod packet252_shared_key;
@@ -58,7 +59,6 @@ mod packet71_weather;
 mod packet8_update_health;
 pub mod packet_trait;
 pub mod types;
-pub mod utils;
 
 use crate::network::connection::Encryption;
 use crate::packets::InboundPacket::*;
@@ -74,7 +74,7 @@ use crate::packets::packet16_block_item_switch::BlockItemSwitchPacket;
 use crate::packets::packet18_animation::AnimationPacket;
 use crate::packets::packet20_named_entity_spawn::NamedEntitySpawnPacket;
 use crate::packets::packet22_collect::CollectPacket;
-use crate::packets::packet23_vehicule_spawn::VehicleSpawnPacket;
+use crate::packets::packet23_vehicle_spawn::VehicleSpawnPacket;
 use crate::packets::packet24_mob_spawn::MobSpawnPacket;
 use crate::packets::packet25_entity_painting::EntityPaintingPacket;
 use crate::packets::packet26_entity_exp_orb::EntityExpOrbPacket;
@@ -112,7 +112,7 @@ use crate::packets::packet250_custom_payload::CustomPayloadPacket;
 use crate::packets::packet252_shared_key::SharedKeyPacket;
 use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;
 use crate::packets::packet255_kick_disconnect::KickDisconnectPacket;
-use crate::packets::utils::read_u8;
+use io::MinecraftReadExt;
 use packet0_keep_alive::KeepAlivePacket;
 use std::io::{Error, ErrorKind};
 use tokio::io::BufReader;
@@ -168,7 +168,7 @@ pub enum InboundPacket {
     UpdateHealth(UpdateHealthPacket),
     UpdateSign(UpdateSignPacket),
     UpdateTime(UpdateTimePacket),
-    VehiculeSpawn(VehicleSpawnPacket),
+    VehicleSpawn(VehicleSpawnPacket),
     Weather(WeatherPacket),
     WindowItems(WindowItemsPacket),
 }
@@ -180,7 +180,7 @@ impl InboundPacket {
         encryption: &mut Encryption,
     ) -> std::io::Result<Self> {
         // read packet id
-        let packet_id = read_u8(reader, encryption).await?;
+        let packet_id = reader.read_u8(encryption).await?;
 
         // Match the id to handle the right packet
         match packet_id {
@@ -210,7 +210,7 @@ impl InboundPacket {
                 NamedEntitySpawnPacket::read(reader, encryption).await?,
             )),
             22 => Ok(Collected(CollectPacket::read(reader, encryption).await?)),
-            23 => Ok(VehiculeSpawn(
+            23 => Ok(VehicleSpawn(
                 VehicleSpawnPacket::read(reader, encryption).await?,
             )),
             24 => Ok(MobSpawn(MobSpawnPacket::read(reader, encryption).await?)),

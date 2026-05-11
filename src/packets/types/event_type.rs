@@ -4,7 +4,6 @@
 /// - rain stop
 /// - game mode changed
 /// - custom (in case of mod, plugin, errors...)
-#[derive(Debug)]
 pub enum EventType {
     InvalidBed,
     RainStarts,

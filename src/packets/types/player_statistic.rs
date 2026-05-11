@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 pub enum PlayerStatistic {
     // Base Stats
     LeaveGame,     // 1000

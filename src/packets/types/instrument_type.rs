@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 pub enum InstrumentType {
     Harp,        // 0
     BassDrum,    // 1

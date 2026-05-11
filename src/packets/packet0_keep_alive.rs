@@ -1,6 +1,7 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::{ClientPacket, ServerPacket};
-use crate::packets::utils::read_i32;
+use bytes::{BufMut, BytesMut};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -10,9 +11,9 @@ pub struct KeepAlivePacket {
 }
 
 impl ClientPacket for KeepAlivePacket {
-    fn write_to(&self, buffer: &mut Vec<u8>) -> Result<(), Error> {
-        buffer.push(0);
-        buffer.extend(self.random_id.to_be_bytes());
+    fn write_to(&self, buffer: &mut BytesMut) -> Result<(), Error> {
+        buffer.put_u8(0);
+        buffer.put_i32(self.random_id);
         Ok(())
     }
 }
@@ -26,7 +27,7 @@ impl ServerPacket for KeepAlivePacket {
         Self: Sized,
     {
         Ok(Self {
-            random_id: read_i32(reader, encryption).await?,
+            random_id: reader.read_i32(encryption).await?,
         })
     }
 }

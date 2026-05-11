@@ -1,7 +1,7 @@
 /// All the entity type of minecraft 1.4.7
 /// For now, it's hardcoded because the project focus only 1.4.7.
 /// Later, if we want multiversion, we might need to generate code with all the dataData
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 pub enum EntityType {
     // Object and Projectiles
     Item,                  // 1

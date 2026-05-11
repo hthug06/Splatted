@@ -1,14 +1,13 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet30_entity::EntityPacket;
 use crate::packets::types::entity_metadata::EntityMetadata;
 use crate::packets::types::itemstack::ItemStack;
-use crate::packets::utils::{read_i8, read_i32, read_string};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 pub struct NamedEntitySpawnPacket {
     pub entity: EntityPacket,
     pub name: String,
@@ -31,12 +30,12 @@ impl ServerPacket for NamedEntitySpawnPacket {
     {
         Ok(Self {
             entity: EntityPacket::read(reader, encryption).await?,
-            name: read_string(reader, encryption).await?,
-            x: read_i32(reader, encryption).await?,
-            y: read_i32(reader, encryption).await?,
-            z: read_i32(reader, encryption).await?,
-            rotation: read_i8(reader, encryption).await?,
-            pitch: read_i8(reader, encryption).await?,
+            name: reader.read_string(encryption).await?,
+            x: reader.read_i32(encryption).await?,
+            y: reader.read_i32(encryption).await?,
+            z: reader.read_i32(encryption).await?,
+            rotation: reader.read_i8(encryption).await?,
+            pitch: reader.read_i8(encryption).await?,
             current_item: ItemStack::read(reader, encryption).await?,
             metadata: EntityMetadata::read(reader, encryption).await?,
         })

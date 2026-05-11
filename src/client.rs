@@ -6,6 +6,7 @@ use crate::packets::packet2_client_protocol::ClientProtocolPacket;
 use crate::packets::packet205_client_command::ClientCommandPacket;
 use crate::packets::packet252_shared_key::SharedKeyPacket;
 use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;
+use bytes::BytesMut;
 use std::io::{Error, ErrorKind};
 use std::net::SocketAddr;
 use tokio::io::{AsyncWriteExt, BufReader};
@@ -20,6 +21,9 @@ pub struct Client {
     /// The connection contain the encryption process.
     /// (only active after packet 252)
     encryption: Encryption,
+    /// Use a BytesMut for writing packet
+    /// This way, we don't reallocate a vec everytime we want to send a packet, we just clear the buffer and reuse it.
+    write_buffer: BytesMut,
 }
 
 impl Client {
@@ -28,6 +32,7 @@ impl Client {
             username: username.to_string(),
             writer: None,
             encryption: Encryption::new(),
+            write_buffer: BytesMut::new(),
         }
     }
 
@@ -41,7 +46,11 @@ impl Client {
         // Wrap the reader in a BufReader to batch network reads.
         // This prevents expensive OS syscalls on every tiny read (like 1-byte packet IDs),
         // significantly improving parsing performance.
-        let mut reader = BufReader::new(stream_reader);
+        //
+        // When using ::new, it's a 8Ko BufReader that is created.
+        // For little packet like the chat packet, it's okay but not for the Chunk packet
+        // SO we create a 64Ko BufReader (if this is not enough, we can increase it to 120 Ko!)
+        let mut reader = BufReader::with_capacity(1024 * 64, stream_reader);
 
         let socket_addr: SocketAddr = address
             .parse()
@@ -65,7 +74,10 @@ impl Client {
                     Ok(p) => p,
                     Err(e) => {
                         if e.kind() == ErrorKind::UnexpectedEof {
-                            log::error!("[{}] Server dead for more than 30 seconds", self.username);
+                            log::error!(
+                                "[{}] Server dead for more than 30 seconds or stopped ",
+                                self.username
+                            );
                             break;
                         }
                         log::error!("[{}] Broken stream or disconnected : {}", self.username, e);
@@ -76,191 +88,24 @@ impl Client {
             // handle the packet
             // Sorted alphabetically
             match packet {
-                Animation(_animation) => {
-                    // log::info!("Animation packet received: {:?}", animation);
-                }
-                AttachEntity(_attach_entity) => {
-                    // log::info!("Attach entity packet received: {:?}", attach_entity);
-                }
-                BlockChange(_block_change) => {
-                    // log::info!("Block change packet received: {:?}", block_change);
-                }
-                BlockDestroy(_block_destroy) => {
-                    // log::info!("Block destroy packet received: {:?}", block_destroy);
-                }
-                BlockItemSwitch(_block_item_switch) => {
-                    // log::info!("Block item switch packet received: {:?}", block_item_switch);
-                    // handle block item switch (NetClientHandler.java -> handleBlockItemSwitch())
-                }
-                Chat(_chat) => {
-                    // log::info!("Chat packet received: {:?}", chat);
-                }
-                Collected(_collected) => {
-                    // log::info!("Collected packet received: {:?}", collected);
-                }
                 CustomPayload(custom_payload) => {
                     log::info!("Custom payload packet received: {:?}", custom_payload);
-                }
-                DestroyEntity(_destroy_entity) => {
-                    // log::info!("Destroy entity packet received: {:?}", destroy_entity);
-                }
-                DoorChange(_door_change) => {
-                    // log::info!("Door change packet received: {:?}", door_change);
-                }
-                EntityEffect(_entity_effect) => {
-                    // log::info!("Entity effect packet received: {:?}", entity_effect);
-                }
-                EntityExpOrb(_entity_exp_orb) => {
-                    // log::info!("Entity exp orb packet received: {:?}", entity_exp_orb);
-                }
-                EntityHeadRotation(_entity_head_rotation) => {
-                    /*log::info!(
-                        "Entity head rotation packet received: {:?}",
-                        entity_head_rotation
-                    );*/
-                }
-                EntityLook(_entity_look) => {
-                    // log::info!("Entity look packet received: {:?}", entity_look);
-                }
-                EntityMetadata(_entity_metadata) => {
-                    // log::info!("Entity metadata packet received: {:?}", entity_metadata);
-                }
-                EntityPainting(_entity_painting) => {
-                    // log::info!("Entity painting packet received: {:?}", entity_painting);
-                }
-
-                EntityStatus(_entity_status) => {
-                    // log::info!("Entity status packet received: {:?}", entity_status);
-                }
-                EntityTeleport(_entity_teleport) => {
-                    // log::info!("Entity teleport packet received: {:?}", entity_teleport);
-                }
-                EntityVelocity(_entity_velocity) => {
-                    // log::info!("Entity velocity packet received: {:?}", entity_velocity);
-                }
-                Experience(_experience) => {
-                    // log::info!("Experience packet received: {:?}", experience);
-                }
-                Explosion(_explosion) => {
-                    // log::info!("Explosion packet received: {:?}", explosion);
-                }
-                GameEvent(_game_event) => {
-                    // log::info!("Game event packet received: {:?}", game_event);
-                }
-                KickDisconnect(_kick_disconnect_packet) => {
-                    /*log::info!(
-                        "Kick disconnect packet received: {:?}",
-                        kick_disconnect_packet
-                    );*/
-                    break;
                 }
                 KeepAlive(keep_alive_packet) => {
                     self.send_packet(keep_alive_packet).await?;
                 }
-                LevelSound(_level_sound) => {
-                    // log::info!("Level sound packet received: {:?}", level_sound);
-                }
-                Login(_login_packet) => {
-                    // Do nothing with the packet, but having information about the client is useful
-                    // log::info!("Login packet received: {:?}", login_packet);
-                }
-                NamedEntitySpawn(_named_entity_spawn) => {
-                    // log::info!(
-                    //     "Named entity spawn packet received: {:?}",
-                    //     named_entity_spawn
-                    // );
-                }
-                MapChunk(_map_chunk) => {
-                    // log::info!(
-                    //     "Map chunk packet received, {} chunk(s) received",
-                    //     map_chunk.chunk_count
-                    // );
-                    // log::info!(
-                    //     "Chunks details: {:?}, data lenght: {}, sky light: {}",
-                    //     map_chunk.metadata,
-                    //     map_chunk.data_length,
-                    //     map_chunk.sky_light_sent
-                    // );
-                }
-                MobSpawn(_mob_spawn) => {
-                    // log::info!("Mob spawn packet received: {:?}", mob_spawn);
-                }
-                MultiBlockChange(_multi_block_change) => {
-                    // log::info!(
-                    //     "Multi block change packet received: {:?}",
-                    //     multi_block_change
-                    // );
-                }
-                PlayNoteBlock(_play_note_block) => {
-                    // log::info!("Play note block packet received: {:?}", play_note_block);
-                }
-                PlayerAbilities(_abilities) => {
-                    // log::info!("Player abilities packet received: {:?}", abilities);
-                }
-                PlayerInfo(_player_info) => {
-                    // log::info!("Player info packet received: {:?}", player_info);
-                }
-                PlayerInventory(_player_inventory) => {
-                    // log::info!("Player inventory packet received: {:?}", player_inventory);
-                }
                 PlayerLookMove(mut player_look_move) => {
-                    // log::info!("Player look move packet received: {:?}", player_look_move);
-
                     // Resend the same packet
                     player_look_move.on_ground = true;
                     self.send_packet(player_look_move).await?;
                 }
-                RemoveEntityEffect(_remove_entity_effect) => {
-                    /*log::info!(
-                        "Remove entity effect packet received: {:?}",
-                        remove_entity_effect
-                    );*/
-                }
-                RelEntityMove(_rel_entity_move) => {
-                    // log::info!("Rel entity move packet received: {:?}", rel_entity_move);
-                }
-                RelEntityMoveLook(_rel_entity_move_look) => {
-                    /*log::info!(
-                        "Rel entity move packet received: {:?}",
-                        rel_entity_move_look
-                    );*/
-                }
                 ServerAuthData(auth_packet) => {
                     self.handle_server_auth_data(auth_packet).await?;
-                }
-                SetSlot(_set_slot) => {
-                    // log::info!("Set slot packet received: {:?}", set_slot);
                 }
                 SharedKey(shared_key_packet) => {
                     self.handle_shared_key(shared_key_packet).await?;
                 }
-                Statistic(_statistic) => {
-                    // log::info!("Statistic packet received: {:?}", statistic);
-                }
-                SpawnPosition(_position) => {
-                    // log::info!("Spawn position packet received: {:?}", position);
-                }
-                TileEntityData(_tile_entity_data) => {
-                    // log::info!("Tile entity data packet received: {:?}", tile_entity_data);
-                }
-                UpdateHealth(_update_health) => {
-                    // log::info!("Update health packet received: {:?}", update_health);
-                }
-                UpdateSign(_update_sign) => {
-                    // log::info!("Update sign packet received: {:?}", update_sign);
-                }
-                UpdateTime(_update_time) => {
-                    // log::info!("Update time packet received: {:?}", update_time);
-                }
-                VehiculeSpawn(_vehicule_spawn) => {
-                    // log::info!("Vehicule spawn packet received: {:?}", vehicule_spawn);
-                }
-                Weather(_weather) => {
-                    // log::info!("Weather packet received: {:?}", weather);
-                }
-                WindowItems(_window_items) => {
-                    // log::info!("Window items packet received: {:?}", window_items);
-                }
+                _ => {}
             }
         }
         Ok(())
@@ -268,20 +113,18 @@ impl Client {
 
     /// Send a packet to the network instantly
     pub async fn send_packet(&mut self, packet: impl ClientPacket) -> std::io::Result<()> {
-        let mut buffer: Vec<u8> = Vec::new();
-
+        // let mut buffer: Vec<u8> = Vec::new();
+        self.write_buffer.clear();
         packet
-            .write_to(&mut buffer)
+            .write_to(&mut self.write_buffer)
             .map_err(|e| Error::new(ErrorKind::InvalidData, e))?;
-
-        // log::info!("Sending packet ID {}", &buffer[0]);
 
         // Fill the buffer with the packet data
         // Encrypt the packet if the encryption is enabled
-        self.encryption.encrypt(&mut buffer);
+        self.encryption.encrypt(&mut self.write_buffer);
 
         if let Some(writer) = &mut self.writer {
-            writer.write_all(&buffer).await?;
+            writer.write_all(&self.write_buffer).await?;
             writer.flush().await?;
         } else {
             log::error!("Trying to send a packet without being connected");
@@ -298,8 +141,6 @@ impl Client {
         &mut self,
         packet: ServerAuthDataPacket,
     ) -> std::io::Result<()> {
-        // log::info!("AuthData (253 | 0xFD) received");
-
         if packet.server_id != "-" {
             return Err(Error::new(
                 ErrorKind::Unsupported,
@@ -330,8 +171,6 @@ impl Client {
     /// Then, if the packet is right, confirm the encryption.
     /// Finally, send the ClientCommandPacket (205) to spawn the client in the world.
     pub async fn handle_shared_key(&mut self, packet: SharedKeyPacket) -> std::io::Result<()> {
-        // log::info!("Shared Key Packet (252 | 0xFC) received");
-
         // From now, every sent and received packet will be encrypted
         if packet.is_encryption_confirmed() {
             self.encryption.enable_encryption()

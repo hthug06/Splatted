@@ -1,11 +1,10 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet30_entity::EntityPacket;
-use crate::packets::utils::read_i16;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
-#[derive(Debug)]
 pub struct EntityVelocityPacket {
     pub entity: EntityPacket,
     pub velocity_x: i16,
@@ -23,9 +22,9 @@ impl ServerPacket for EntityVelocityPacket {
     {
         Ok(Self {
             entity: EntityPacket::read(reader, encryption).await?,
-            velocity_x: read_i16(reader, encryption).await?,
-            velocity_y: read_i16(reader, encryption).await?,
-            velocity_z: read_i16(reader, encryption).await?,
+            velocity_x: reader.read_i16(encryption).await?,
+            velocity_y: reader.read_i16(encryption).await?,
+            velocity_z: reader.read_i16(encryption).await?,
         })
     }
 }

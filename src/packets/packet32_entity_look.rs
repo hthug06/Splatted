@@ -1,12 +1,11 @@
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
 use crate::packets::packet30_entity::EntityPacket;
-use crate::packets::utils::read_i8;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 pub struct EntityLookPacket {
     pub entity: EntityPacket,
     pub yaw: i8,
@@ -23,8 +22,8 @@ impl ServerPacket for EntityLookPacket {
     {
         Ok(Self {
             entity: EntityPacket::read(reader, encryption).await?,
-            yaw: read_i8(reader, encryption).await?,
-            pitch: read_i8(reader, encryption).await?,
+            yaw: reader.read_i8(encryption).await?,
+            pitch: reader.read_i8(encryption).await?,
         })
     }
 }

@@ -1,9 +1,10 @@
 use crate::errors::wrong_packet_error::WrongPacketError;
 use crate::network::connection::Encryption;
+use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::{ClientPacket, ServerPacket};
 use crate::packets::packet254_server_ping::ServerPingPacket;
 use crate::packets::packet255_kick_disconnect::KickDisconnectPacket;
-use crate::packets::utils::read_u8;
+use bytes::BytesMut;
 use std::io::{Error, ErrorKind};
 use tokio::io::{AsyncWriteExt, BufReader};
 use tokio::net::TcpStream;
@@ -23,13 +24,13 @@ impl ServerInfo {
         let mut encryption = Encryption::new();
 
         // Send first packet (Server Ping = 0xFE)
-        let mut buffer: Vec<u8> = vec![];
+        let mut buffer = BytesMut::new();
         ServerPingPacket.write_to(&mut buffer)?;
         write_half.write_all(&buffer).await?;
         write_half.flush().await?;
 
         // Listen for the response
-        let packet_id = read_u8(&mut reader, &mut encryption).await?;
+        let packet_id = reader.read_u8(&mut encryption).await?;
 
         // check if we received the right packet
         if packet_id != 255 {
@@ -49,7 +50,7 @@ impl ServerInfo {
             KickDisconnectPacket::read(&mut reader, &mut encryption).await?;
 
         // Print all the infos
-        log::info!("{}", kick_disconnect_packet.format_server_infos());
+        log::info!("{}", kick_disconnect_packet.format_server_infos()?);
 
         // After receiving the serverListPacket, the connection close
         write_half.shutdown().await?;

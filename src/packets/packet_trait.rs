@@ -1,4 +1,5 @@
 use crate::network::connection::Encryption;
+use bytes::BytesMut;
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
@@ -13,5 +14,5 @@ pub trait ServerPacket {
 }
 
 pub trait ClientPacket {
-    fn write_to(&self, buffer: &mut Vec<u8>) -> Result<(), Error>;
+    fn write_to(&self, buffer: &mut BytesMut) -> Result<(), Error>;
 }

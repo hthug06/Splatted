@@ -1,7 +1,7 @@
 //! Every song/effect in minecraft 1.4.7
 //! In the source code, they only use id, there no such enum
 //! But i think it's better to have one in rust
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 pub enum SoundEffect {
     // Minors song (1000+)
     DispenserDispense,
@@ -104,7 +104,6 @@ impl SoundEffect {
             SoundEffect::MobSpawnParticle => 2004,
             SoundEffect::BonemealParticle => 2005,
 
-            // Si c'est un unknown, on renvoie simplement la valeur qu'il contient !
             SoundEffect::Unknown(id) => *id,
         }
     }

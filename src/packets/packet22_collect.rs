@@ -5,7 +5,6 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug)]
 pub struct CollectPacket {
     /// The collected entity aka the item you get in your inventory (Item, xp orb, arrow...)
     pub collected_entity: EntityPacket,

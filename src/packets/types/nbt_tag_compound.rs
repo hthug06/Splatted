@@ -1,10 +1,10 @@
 use crate::network::connection::Encryption;
-use crate::packets::utils::read_i16;
+use crate::packets::io::MinecraftReadExt;
 use std::io::Error;
 use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct NbtTagCompound {
     data: Option<Vec<u8>>,
 }
@@ -15,7 +15,7 @@ impl NbtTagCompound {
         encryption: &mut Encryption,
     ) -> Result<Self, Error> {
         // First the size
-        let nbt_length = read_i16(reader, encryption).await?;
+        let nbt_length = MinecraftReadExt::read_i16(reader, encryption).await?;
 
         // Then, check if the ItemStack have some nbt data
         if nbt_length <= 0 {

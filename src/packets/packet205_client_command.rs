@@ -1,4 +1,5 @@
 use crate::packets::packet_trait::ClientPacket;
+use bytes::{BufMut, BytesMut};
 use std::io::Error;
 
 pub struct ClientCommandPacket {
@@ -12,9 +13,9 @@ impl ClientCommandPacket {
 }
 
 impl ClientPacket for ClientCommandPacket {
-    fn write_to(&self, buffer: &mut Vec<u8>) -> Result<(), Error> {
-        buffer.push(205);
-        buffer.push(self.force_respawn);
+    fn write_to(&self, buffer: &mut BytesMut) -> Result<(), Error> {
+        buffer.put_u8(205);
+        buffer.put_u8(self.force_respawn);
 
         Ok(())
     }

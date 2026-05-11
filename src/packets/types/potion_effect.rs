@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 /// All the potion effects in Minecraft 1.4.7
 pub enum PotionEffect {
     Speed,
@@ -27,7 +27,7 @@ pub enum PotionEffect {
 }
 
 impl PotionEffect {
-    /// Convertit l'ID reçu du réseau en PotionEffect
+    /// Converts the ID into a PotionEffect
     pub fn from_id(id: u8) -> Self {
         match id {
             1 => PotionEffect::Speed,

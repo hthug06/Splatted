@@ -3,7 +3,7 @@
 /// - Creative
 /// - Survival
 /// - Not Set
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq)]
 pub enum GameType {
     NotSet,
     Survival,
