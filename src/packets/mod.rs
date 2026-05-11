@@ -17,6 +17,7 @@ mod packet202_player_abilities;
 mod packet204_client_info;
 pub mod packet205_client_command;
 mod packet20_named_entity_spawn;
+mod packet21_pickup_spawn;
 mod packet22_collect;
 mod packet23_vehicle_spawn;
 mod packet24_mob_spawn;
@@ -63,26 +64,31 @@ pub mod packet_trait;
 pub mod types;
 
 use crate::network::connection::Encryption;
-use crate::packets::InboundPacket::*;
-use crate::packets::packet_trait::ServerPacket;
-use crate::packets::packet1_login::LoginPacket;
-use crate::packets::packet2_client_protocol::{ClientHandshakePacket, ServerHandshakePacket};
-use crate::packets::packet3_chat::ChatPacket;
-use crate::packets::packet4_update_time::UpdateTimePacket;
-use crate::packets::packet5_player_inventory::PlayerInventoryPacket;
-use crate::packets::packet6_spawn_position::SpawnPositionPacket;
-use crate::packets::packet8_update_health::UpdateHealthPacket;
+use crate::packets::packet103_set_slot::SetSlotPacket;
+use crate::packets::packet104_window_items::WindowItemsPacket;
+use crate::packets::packet130_update_sign::UpdateSignPacket;
+use crate::packets::packet132_tile_entity_data::TileEntityDataPacket;
 use crate::packets::packet13_player_look_move::PlayerLookMovePacket;
 use crate::packets::packet16_block_item_switch::BlockItemSwitchPacket;
 use crate::packets::packet18_animation::AnimationPacket;
+use crate::packets::packet1_login::LoginPacket;
+use crate::packets::packet200_statistic::StatisticPacket;
+use crate::packets::packet201_player_info::PlayerInfoPacket;
+use crate::packets::packet202_player_abilities::PlayerAbilitiesPacket;
 use crate::packets::packet20_named_entity_spawn::NamedEntitySpawnPacket;
+use crate::packets::packet21_pickup_spawn::PickupSpawnPacket;
 use crate::packets::packet22_collect::CollectPacket;
 use crate::packets::packet23_vehicle_spawn::VehicleSpawnPacket;
 use crate::packets::packet24_mob_spawn::MobSpawnPacket;
+use crate::packets::packet250_custom_payload::CustomPayloadPacket;
+use crate::packets::packet252_shared_key::SharedKeyPacket;
+use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;
+use crate::packets::packet255_kick_disconnect::KickDisconnectPacket;
 use crate::packets::packet25_entity_painting::EntityPaintingPacket;
 use crate::packets::packet26_entity_exp_orb::EntityExpOrbPacket;
 use crate::packets::packet28_entity_velocity::EntityVelocityPacket;
 use crate::packets::packet29_destroy_entity::DestroyEntityPacket;
+use crate::packets::packet2_client_protocol::ServerHandshakePacket;
 use crate::packets::packet31_rel_entity_move::RelEntityMovePacket;
 use crate::packets::packet32_entity_look::EntityLookPacket;
 use crate::packets::packet33_rel_entity_move_look::RelEntityMoveLookPacket;
@@ -90,10 +96,12 @@ use crate::packets::packet34_entity_teleport::EntityTeleportPacket;
 use crate::packets::packet35_entity_head_rotation::EntityHeadRotationPacket;
 use crate::packets::packet38_entity_status::EntityStatusPacket;
 use crate::packets::packet39_attach_entity::AttachEntityPacket;
+use crate::packets::packet3_chat::ChatPacket;
 use crate::packets::packet40_entity_metadata::EntityMetadataPacket;
 use crate::packets::packet41_entity_effect::EntityEffectPacket;
 use crate::packets::packet42_remove_entity_effect::RemoveEntityEffectPacket;
 use crate::packets::packet43_experience::ExperiencePacket;
+use crate::packets::packet4_update_time::UpdateTimePacket;
 use crate::packets::packet50_pre_chunk::PreChunkPacket;
 use crate::packets::packet51_map_chunk::MapChunkPacket;
 use crate::packets::packet52_multi_block_change::MultiBlockChangePacket;
@@ -101,25 +109,18 @@ use crate::packets::packet53_block_change::BlockChangePacket;
 use crate::packets::packet54_play_note_block::PlayNoteBlockPacket;
 use crate::packets::packet55_block_destroy::BlockDestroyPacket;
 use crate::packets::packet56_map_chunks::MapChunksPacket;
+use crate::packets::packet5_player_inventory::PlayerInventoryPacket;
 use crate::packets::packet60_explosion::ExplosionPacket;
 use crate::packets::packet61_door_change::DoorChangePacket;
 use crate::packets::packet62_level_sound::LevelSoundPacket;
+use crate::packets::packet6_spawn_position::SpawnPositionPacket;
 use crate::packets::packet70_game_event::GameEventPacket;
 use crate::packets::packet71_weather::WeatherPacket;
-use crate::packets::packet103_set_slot::SetSlotPacket;
-use crate::packets::packet104_window_items::WindowItemsPacket;
-use crate::packets::packet130_update_sign::UpdateSignPacket;
-use crate::packets::packet132_tile_entity_data::TileEntityDataPacket;
-use crate::packets::packet200_statistic::StatisticPacket;
-use crate::packets::packet201_player_info::PlayerInfoPacket;
-use crate::packets::packet202_player_abilities::PlayerAbilitiesPacket;
-use crate::packets::packet250_custom_payload::CustomPayloadPacket;
-use crate::packets::packet252_shared_key::SharedKeyPacket;
-use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;
-use crate::packets::packet255_kick_disconnect::KickDisconnectPacket;
+use crate::packets::packet8_update_health::UpdateHealthPacket;
+use crate::packets::packet_trait::ServerPacket;
+use crate::packets::InboundPacket::*;
 use crate::protocol_version::ProtocolVersion;
 use io::MinecraftReadExt;
-use log::info;
 use packet0_keep_alive::KeepAlivePacket;
 use std::io::{Error, ErrorKind};
 use tokio::io::BufReader;
@@ -160,6 +161,7 @@ pub enum InboundPacket {
     MobSpawn(MobSpawnPacket),
     MultiBlockChange(MultiBlockChangePacket),
     NamedEntitySpawn(NamedEntitySpawnPacket),
+    PickupSpawn(PickupSpawnPacket),
     PlayerAbilities(PlayerAbilitiesPacket),
     PlayerInfo(PlayerInfoPacket),
     PlayerInventory(PlayerInventoryPacket),
@@ -192,7 +194,6 @@ impl InboundPacket {
     ) -> std::io::Result<Self> {
         // read packet id
         let packet_id = reader.read_u8(encryption).await?;
-        info!("Received packet with id: {}", packet_id);
 
         // Match the id to handle the right packet
         match packet_id {
@@ -231,6 +232,9 @@ impl InboundPacket {
             )),
             20 => Ok(NamedEntitySpawn(
                 NamedEntitySpawnPacket::read(reader, encryption, protocol_version).await?,
+            )),
+            21 => Ok(PickupSpawn(
+                PickupSpawnPacket::read(reader, encryption, protocol_version).await?,
             )),
             22 => Ok(Collected(
                 CollectPacket::read(reader, encryption, protocol_version).await?,

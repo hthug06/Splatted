@@ -7,12 +7,8 @@ use crate::packets::packet2_client_protocol::ClientHandshakePacket;
 use crate::packets::packet205_client_command::ClientCommandPacket;
 use crate::packets::packet252_shared_key::SharedKeyPacket;
 use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;
-use crate::packets::types::dimension_type::DimensionType;
-use crate::packets::types::game_type::GameType;
-use crate::packets::types::world_type::WorldType;
 use crate::protocol_version::ProtocolVersion;
 use bytes::BytesMut;
-use log::info;
 use std::io::{Error, ErrorKind};
 use std::net::SocketAddr;
 use tokio::io::{AsyncWriteExt, BufReader};
@@ -111,7 +107,7 @@ impl Client {
                 KeepAlive(keep_alive_packet) => {
                     self.send_packet(keep_alive_packet).await?;
                 }
-                ClientProtocol(client_protocol_packet) => {
+                ClientProtocol(_client_protocol_packet) => {
                     let default_packet = LoginPacket::default();
                     let packet = LoginPacket {
                         // protocol version and username need to be exact

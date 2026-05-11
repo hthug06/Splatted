@@ -47,7 +47,7 @@ impl ServerPacket for MapChunkPacket {
         }
 
         // Security
-        if compressed_size < 0 || compressed_size > 2_000_000 {
+        if !(0..=2_000_000).contains(&compressed_size) {
             return Err(Error::new(
                 ErrorKind::InvalidData,
                 format!("Invalid chunk size: {}", compressed_size),
