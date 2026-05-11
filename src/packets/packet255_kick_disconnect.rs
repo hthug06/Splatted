@@ -153,6 +153,16 @@ impl ServerPingResponse {
 
 impl Display for ServerPingResponse {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let protocol_str = match self.protocol {
+            Some(p) => p.to_string(),
+            None => "Unknown".to_string(),
+        };
+
+        let version_str = self
+            .server_version
+            .as_deref()
+            .unwrap_or("< 1.4");
+
         write!(
             f,
             "\n - protocol version: {} \
@@ -160,14 +170,7 @@ impl Display for ServerPingResponse {
             \n - MOTD: {} \
             \n - Player count: {} \
             \n - max players: {} ",
-            self.protocol
-                .unwrap_or(0)
-                .to_string()
-                .replace("0", "Unknow"),
-            self.server_version.clone().unwrap_or(String::from("< 1.4")),
-            self.motd,
-            self.player_count,
-            self.max_players
+            protocol_str, version_str, self.motd, self.player_count, self.max_players
         )
     }
 }
