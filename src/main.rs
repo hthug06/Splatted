@@ -30,6 +30,9 @@ pub struct Args {
 
     #[arg(long, short, default_value_t = 10)]
     bot_number: u32,
+
+    #[arg(long, short, default_value_t = 51)]
+    protocol: u8,
 }
 
 #[tokio::main]
@@ -66,7 +69,7 @@ async fn main() -> Result<(), Error> {
             // Launch the tasks
             let task = tokio::spawn(async move {
                 let bot_name = format!("player{}", i);
-                let mut client = Client::new(bot_name.as_str(), 29);
+                let mut client = Client::new(bot_name.as_str(), args.protocol);
 
                 // Await here to do async and not block the program here
                 if let Err(e) = client.connect(address_clone.as_str()).await {
