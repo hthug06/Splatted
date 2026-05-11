@@ -13,8 +13,11 @@ impl MinecraftWriteExt for BytesMut {
     /// But the first thing to add to the array is the size of this u16 string
     fn write_string(&mut self, text: &str) -> std::io::Result<()> {
         let utf16_data: Vec<u16> = text.encode_utf16().collect();
-        let length = utf16_data.len() as u16;
 
+        // Keep the usize
+        let length = utf16_data.len();
+
+        //Verify now
         if length > 32_767 {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidData,
@@ -22,10 +25,11 @@ impl MinecraftWriteExt for BytesMut {
             ));
         }
 
-        self.extend(length.to_be_bytes());
+        // And now cast as u16
+        self.extend(&(length as u16).to_be_bytes());
 
-        for code_unit in utf16_data {
-            self.extend(code_unit.to_be_bytes());
+        for char in utf16_data {
+            self.extend(char.to_be_bytes());
         }
 
         Ok(())
