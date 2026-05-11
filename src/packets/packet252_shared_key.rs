@@ -54,10 +54,10 @@ impl ClientPacket for SharedKeyPacket {
         buffer.put_u8(252);
 
         // write shared_secret
-        buffer.write_byte_array(&self.shared_secret);
+        buffer.write_byte_array(&self.shared_secret)?;
 
         // write verify_token
-        buffer.write_byte_array(&self.verify_token);
+        buffer.write_byte_array(&self.verify_token)?;
 
         Ok(())
     }
