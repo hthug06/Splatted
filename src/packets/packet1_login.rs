@@ -140,7 +140,7 @@ impl ClientPacket for LoginPacket {
         })?;
 
         //The packet is send in 1.2
-        match ProtocolVersion::from_protocol_version(protocol_version as u32) {
+        match ProtocolVersion::from_protocol_version(protocol_version as u32)? {
             ProtocolVersion::V1_2 => {
                 buffer.put_i32(protocol_version);
                 buffer.write_string(&self.username.clone().unwrap())?;

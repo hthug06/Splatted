@@ -6,6 +6,7 @@ mod protocol_version;
 mod server_info;
 
 use crate::client::Client;
+use crate::protocol_version::ProtocolVersion;
 use crate::server_info::ServerInfo;
 use clap::Parser;
 use log::{LevelFilter, info};
@@ -57,6 +58,9 @@ async fn main() -> Result<(), Error> {
     if args.info {
         ServerInfo::infos(&address).await?;
     } else {
+        //Check if version is supported
+        ProtocolVersion::from_protocol_version(args.protocol as u32)?;
+
         // Create the bot task list to keep the connection active
         let mut bot_tasks = vec![];
 

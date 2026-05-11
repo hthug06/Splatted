@@ -9,6 +9,7 @@ use crate::packets::packet252_shared_key::SharedKeyPacket;
 use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;
 use crate::protocol_version::ProtocolVersion;
 use bytes::BytesMut;
+use log::info;
 use std::io::{Error, ErrorKind};
 use std::net::SocketAddr;
 use tokio::io::{AsyncWriteExt, BufReader};
@@ -33,11 +34,12 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new(username: &str, protocol_version: u8) -> Client {
+    pub fn new(username: &str, protocol_version: u8) -> Self {
         Self {
             username: username.to_string(),
             exact_protocol: protocol_version,
-            protocol_version: ProtocolVersion::from_protocol_version(protocol_version as u32),
+            protocol_version: ProtocolVersion::from_protocol_version(protocol_version as u32)
+                .unwrap(),
             writer: None,
             encryption: Encryption::new(),
             write_buffer: BytesMut::new(),
