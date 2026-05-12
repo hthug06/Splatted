@@ -44,7 +44,7 @@ impl ServerPacket for UpdateAttributesPacket {
         let property_count = reader.read_i32(encryption).await?;
 
         // 1024 property is already a lot...
-        if property_count < 0 || property_count > 1024 {
+        if !(0..=1024).contains(&property_count) {
             return Err(Error::new(
                 std::io::ErrorKind::InvalidData,
                 format!("Invalid property count: {}", property_count),
@@ -63,7 +63,7 @@ impl ServerPacket for UpdateAttributesPacket {
             let modifier_count = reader.read_i16(encryption).await?;
 
             // 1024 modifier for an entity is biig
-            if modifier_count < 0 || modifier_count > 1024 {
+            if !(0..=1024).contains(&modifier_count) {
                 return Err(Error::new(
                     std::io::ErrorKind::InvalidData,
                     format!("Invalid modifier count: {}", modifier_count),
