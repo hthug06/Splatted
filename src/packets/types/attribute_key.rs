@@ -1,5 +1,5 @@
-/// Represent an Entity attribute key
-/// implemented in 1.6 for the packet 44: Update Attribute
+/// Represents an Entity attribute key
+/// Implemented in 1.6 for packet 44: Update Attribute
 #[derive(PartialEq, Eq)]
 pub enum AttributeKey {
     MaxHealth,                 // "generic.maxHealth"
