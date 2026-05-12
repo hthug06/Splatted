@@ -21,7 +21,9 @@ impl ServerPacket for UpdateTimePacket {
     where
         Self: Sized,
     {
-        let (world_age, time_of_day) = if protocol_version == ProtocolVersion::V1_4 {
+        let (world_age, time_of_day) = if protocol_version == ProtocolVersion::V1_4
+            || protocol_version == ProtocolVersion::V1_5
+        {
             let world_age = reader.read_i64(encryption).await?;
             let time_of_day = reader.read_i64(encryption).await?;
             (world_age, time_of_day)

@@ -75,6 +75,7 @@ impl ServerPacket for LoginPacket {
         // 1.3 AND 1.4.7
         let client_id = if protocol_version == ProtocolVersion::V1_3
             || protocol_version == ProtocolVersion::V1_4
+            || protocol_version == ProtocolVersion::V1_5
         {
             Some(reader.read_i32(encryption).await?)
         } else {
