@@ -11,9 +11,9 @@ pub struct PlayerAbilitiesPacket {
     pub is_flying: bool,
     pub allow_flying: bool,
     pub creative_mode: bool,
-    /// Only in 1.4
+    /// From 1.4
     pub fly_speed: Option<f32>,
-    /// Only in 1.4
+    /// From 1.4
     pub walk_speed: Option<f32>,
 }
 
@@ -39,6 +39,7 @@ impl ServerPacket for PlayerAbilitiesPacket {
             // But from 1.3, It's more optimized
             else if protocol_version == ProtocolVersion::V1_3
                 || protocol_version == ProtocolVersion::V1_4
+                || protocol_version == ProtocolVersion::V1_5
             {
                 let abilities_byte: u8 = reader.read_u8(encryption).await?;
 

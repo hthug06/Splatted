@@ -86,9 +86,10 @@ impl ServerPacket for LoginPacket {
         let terrain_type_string = reader.read_string(encryption).await?;
         let terrain_type = WorldType::parse(&terrain_type_string);
 
-        // 1.3 AND 1.4.7: hardcore + game_type packed in one byte
-        let (hardcore, game_type, dimension_id) = if protocol_version == ProtocolVersion::V1_4
-            || protocol_version == ProtocolVersion::V1_3
+        // from 1.3, hardcore + game_type packed in one byte
+        let (hardcore, game_type, dimension_id) = if protocol_version == ProtocolVersion::V1_3
+            || protocol_version == ProtocolVersion::V1_4
+            || protocol_version == ProtocolVersion::V1_5
         {
             // Little trick from the forge source code to save bandwidth
             let byte = reader.read_i8(encryption).await?;

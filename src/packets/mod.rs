@@ -62,7 +62,6 @@ mod packet71_weather;
 mod packet8_update_health;
 pub mod packet_trait;
 pub mod types;
-
 use crate::network::connection::Encryption;
 use crate::packets::InboundPacket::*;
 use crate::packets::packet_trait::ServerPacket;
@@ -121,6 +120,7 @@ use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;
 use crate::packets::packet255_kick_disconnect::KickDisconnectPacket;
 use crate::protocol_version::ProtocolVersion;
 use io::MinecraftReadExt;
+use log::info;
 use packet0_keep_alive::KeepAlivePacket;
 use std::io::{Error, ErrorKind};
 use tokio::io::BufReader;
@@ -194,6 +194,7 @@ impl InboundPacket {
     ) -> std::io::Result<Self> {
         // read packet id
         let packet_id = reader.read_u8(encryption).await?;
+        info!("packet id: {}", packet_id);
 
         // Match the id to handle the right packet
         match packet_id {
