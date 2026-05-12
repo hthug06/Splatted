@@ -27,7 +27,7 @@ impl ServerPacket for DestroyEntityPacket {
             });
         }
 
-        // in 1.4, it's more optimized
+        // From 1.3, it's more optimized
         // Here, instead of sending 10 packet to destroy 10 entities, the server can send only 1 packet
         // With all the entities to destroy
         let entity_count = reader.read_u8(encryption).await?;

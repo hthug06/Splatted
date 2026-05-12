@@ -26,18 +26,20 @@ impl ServerPacket for PlayerAbilitiesPacket {
     where
         Self: Sized,
     {
-        // In 1.2, each variable is a byte
-        let (disable_damage, is_flying, allow_flying, creative_mode) =
+        let (disable_damage, is_flying, allow_flying, creative_mode, fly_speed, walk_speed) =
+            // In 1.2, each variable is a byte
             if protocol_version == ProtocolVersion::V1_2 {
                 let disable_damage: bool = reader.read_u8(encryption).await? != 0;
                 let is_flying: bool = reader.read_u8(encryption).await? != 0;
                 let allow_flying: bool = reader.read_u8(encryption).await? != 0;
                 let creative_mode: bool = reader.read_u8(encryption).await? != 0;
 
-                (disable_damage, is_flying, allow_flying, creative_mode)
+                (disable_damage, is_flying, allow_flying, creative_mode, None, None)
             }
-            // But in 1.4, It's more optimized
-            else if protocol_version == ProtocolVersion::V1_4 {
+            // But from 1.3, It's more optimized
+            else if protocol_version == ProtocolVersion::V1_3
+                || protocol_version == ProtocolVersion::V1_4
+            {
                 let abilities_byte: u8 = reader.read_u8(encryption).await?;
 
                 let disable_damage = (abilities_byte & 1) > 0;
@@ -45,25 +47,20 @@ impl ServerPacket for PlayerAbilitiesPacket {
                 let allow_flying = (abilities_byte & 4) > 0;
                 let creative_mode = (abilities_byte & 8) > 0;
 
-                (disable_damage, is_flying, allow_flying, creative_mode)
+
+                // These value are not precise
+                // for exemple, 0.05 for the server is 0.047058824 for us
+                // Mojang change these later, but for now, we need to keep it
+                // (Also it cause desync sometime, but it's okay lol)
+                let fly_speed: f32 = (reader.read_u8(encryption).await? as f32) / 255.0;
+                let walk_speed: f32 = (reader.read_u8(encryption).await? as f32) / 255.0;
+
+                (disable_damage, is_flying, allow_flying, creative_mode, Some(fly_speed), Some(walk_speed))
             }
             // Everything to false for an unknown version
             else {
-                (false, false, false, false)
+                (false, false, false, false, None, None)
             };
-
-        let (fly_speed, walk_speed) = if protocol_version == ProtocolVersion::V1_4 {
-            // These value are not precise
-            // for exemple, 0.05 for the server is 0.047058824 for us
-            // Mojang change these later, but for now, we need to keep it
-            // (Also it cause desync sometime, but it's okay lol)
-            let fly_speed: f32 = (reader.read_u8(encryption).await? as f32) / 255.0;
-            let walk_speed: f32 = (reader.read_u8(encryption).await? as f32) / 255.0;
-
-            (Some(fly_speed), Some(walk_speed))
-        } else {
-            (None, None)
-        };
 
         Ok(Self {
             disable_damage,

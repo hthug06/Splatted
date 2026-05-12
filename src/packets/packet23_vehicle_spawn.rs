@@ -14,9 +14,9 @@ pub struct VehicleSpawnPacket {
     pub x: i32,
     pub y: i32,
     pub z: i32,
-    /// Only in 1.4
+    /// Implemented in 1.4
     pub yaw: Option<i8>,
-    /// Only in 1.4
+    /// Implemented in 1.4
     pub pitch: Option<i8>,
     pub thrower_entity: EntityPacket,
     pub speed_x: Option<i16>,
@@ -39,6 +39,7 @@ impl ServerPacket for VehicleSpawnPacket {
         let y = reader.read_i32(encryption).await?;
         let z = reader.read_i32(encryption).await?;
 
+        // Implemented in 1.4
         let (yaw, pitch) = if protocol_version == ProtocolVersion::V1_4 {
             let yaw = reader.read_i8(encryption).await?;
             let pitch = reader.read_i8(encryption).await?;

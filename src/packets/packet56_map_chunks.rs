@@ -12,6 +12,7 @@ use tokio::net::tcp::OwnedReadHalf;
 // Because 1 chunk can be max 1 Mo, here considering modded server , 20 BIG chunk should be enough (20 Mo max)
 const MAX_METADATA_SIZE: i32 = 20_971_520;
 
+/// Implemented in 1.3
 /// The packet MapChunk
 /// This packet contain:
 /// - The number of chunk sent
@@ -20,7 +21,8 @@ const MAX_METADATA_SIZE: i32 = 20_971_520;
 pub struct MapChunksPacket {
     pub chunk_count: i16,
     pub data_length: i32,
-    pub sky_light_sent: bool,
+    /// Implemented in 1.4
+    pub sky_light_sent: Option<bool>,
     pub compressed_data: Bytes,
     pub metadata: Vec<ChunkMetaData>,
 }
@@ -36,7 +38,7 @@ impl ServerPacket for MapChunksPacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
-        _protocol_version: ProtocolVersion,
+        protocol_version: ProtocolVersion,
     ) -> Result<Self, Error>
     where
         Self: Sized,
@@ -49,8 +51,14 @@ impl ServerPacket for MapChunksPacket {
                 format!("Bulk Chunk size is too big: {}", data_length),
             ));
         }
-
-        let sky_light_sent = MinecraftReadExt::read_i8(reader, encryption).await? != 0;
+        // The sky light is implemented in 1.4
+        let sky_light_sent = if protocol_version == ProtocolVersion::V1_4 {
+            Some(MinecraftReadExt::read_i8(reader, encryption).await? != 0)
+        }
+        // None in 1.3
+        else {
+            None
+        };
 
         // Read compressed data
         // Data is compressed in ZLib

@@ -10,7 +10,13 @@ use tokio::net::tcp::OwnedReadHalf;
 
 pub struct GameEventPacket {
     /// In 1.2, this is bedstate
+    /// In 1.3:
+    /// - 1: begin raining
+    /// - 2: stop raining
+    /// - 3: gamemode changed
     pub event_type: EventType,
+
+    /// Always read from the stream; only meaningful when event_type is GameModeChanged (id=3)
     pub game_mode: GameType,
 }
 
