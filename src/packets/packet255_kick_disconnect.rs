@@ -76,7 +76,7 @@ impl ServerPingResponse {
         // Temp variable to parse the brut string of the packet
         let protocol_str: Option<&str>;
         let server_version_str: Option<&str>;
-        let motd_str: &str;
+        let motd: String;
         let player_count_str: &str;
         let max_players_str: &str;
 
@@ -100,7 +100,7 @@ impl ServerPingResponse {
             }
             protocol_str = Some(parts[1]);
             server_version_str = Some(parts[2]);
-            motd_str = parts[3];
+            motd = parts[3].to_string();
             player_count_str = parts[4];
             max_players_str = parts[5];
         }
@@ -122,7 +122,7 @@ impl ServerPingResponse {
             }
             protocol_str = None;
             server_version_str = None;
-            motd_str = parts[0];
+            motd = parts[0].replace('\0', " ");
             player_count_str = parts[1];
             max_players_str = parts[2];
         }
@@ -145,7 +145,7 @@ impl ServerPingResponse {
         let server_infos = Self {
             protocol,
             server_version: server_version_str.map(|s| s.to_string()),
-            motd: motd_str.to_string(),
+            motd,
             player_count: parse_u16(player_count_str, "player count")?,
             max_players: parse_u16(max_players_str, "max players")?,
         };

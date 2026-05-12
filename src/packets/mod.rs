@@ -129,7 +129,7 @@ use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
 // Sorted alphabetically
-/// This enum contain all the received packet
+/// This enum contains all the received packet
 pub enum InboundPacket {
     Animation(AnimationPacket),
     AttachEntity(AttachEntityPacket),
@@ -137,7 +137,6 @@ pub enum InboundPacket {
     BlockDestroy(BlockDestroyPacket),
     BlockItemSwitch(BlockItemSwitchPacket),
     Chat(ChatPacket),
-    ClientProtocol(ServerHandshakePacket),
     Collected(CollectPacket),
     CustomPayload(CustomPayloadPacket),
     DestroyEntity(DestroyEntityPacket),
@@ -174,6 +173,7 @@ pub enum InboundPacket {
     RelEntityMoveLook(RelEntityMoveLookPacket),
     RemoveEntityEffect(RemoveEntityEffectPacket),
     ServerAuthData(ServerAuthDataPacket),
+    ServerHandshake(ServerHandshakePacket),
     SetSlot(SetSlotPacket),
     SharedKey(SharedKeyPacket),
     SpawnPosition(SpawnPositionPacket),
@@ -206,7 +206,7 @@ impl InboundPacket {
             1 => Ok(Login(
                 LoginPacket::read(reader, encryption, protocol_version).await?,
             )),
-            2 => Ok(ClientProtocol(
+            2 => Ok(ServerHandshake(
                 ServerHandshakePacket::read(reader, encryption, protocol_version).await?,
             )),
             3 => Ok(Chat(

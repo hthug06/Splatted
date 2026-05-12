@@ -37,8 +37,7 @@ impl Client {
         Self {
             username: username.to_string(),
             exact_protocol: protocol_version,
-            protocol_version: ProtocolVersion::from_protocol_version(protocol_version as u32)
-                .unwrap(),
+            protocol_version: ProtocolVersion::from_protocol_version(protocol_version as u32).expect("Failed to get the protocol version from the protocol version number. This is a bug, please report it on the github repository."),
             writer: None,
             encryption: Encryption::new(),
             write_buffer: BytesMut::new(),
@@ -71,7 +70,7 @@ impl Client {
         self.writer = Some(writer);
 
         //After this, we can send the first packet
-        // this packet contain the protocol version of the client (51 in 1.4.7)
+        // this packet contains the protocol version of the client (51 in 1.4.7)
         // the username, the address and port of the server
         let handshake = ClientHandshakePacket::new(self.exact_protocol, &self.username, host, port);
         self.send_packet(handshake).await?;
@@ -89,8 +88,9 @@ impl Client {
                 Err(e) => {
                     if e.kind() == ErrorKind::UnexpectedEof {
                         log::error!(
-                            "[{}] Server dead for more than 30 seconds or stopped ",
-                            self.username
+                            "[{}] Server dead for more than 30 seconds or stopped : {}",
+                            self.username,
+                            e
                         );
                         break;
                     }
@@ -105,8 +105,9 @@ impl Client {
                 KeepAlive(keep_alive_packet) => {
                     self.send_packet(keep_alive_packet).await?;
                 }
-                ClientProtocol(_client_protocol_packet) => {
-                    // for 1.2
+                ServerHandshake(_client_protocol_packet) => {
+                    // We only need to answer on version 1.2
+                    // On other versions, will send the server auth data packet (253)
                     let default_packet = LoginPacket::default();
                     let packet = LoginPacket {
                         // protocol version and username need to be exact

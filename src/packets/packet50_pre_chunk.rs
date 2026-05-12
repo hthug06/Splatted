@@ -9,7 +9,8 @@ use tokio::net::tcp::OwnedReadHalf;
 /// Only in 1.2
 pub struct PreChunkPacket {
     pub x: i32,
-    pub y: i32,
+    /// In the mc code, it's called "y", but z is more logical here
+    pub z: i32,
     pub mode: bool,
 }
 
@@ -24,7 +25,7 @@ impl ServerPacket for PreChunkPacket {
     {
         Ok(Self {
             x: reader.read_i32(encryption).await?,
-            y: reader.read_i32(encryption).await?,
+            z: reader.read_i32(encryption).await?,
             mode: reader.read_u8(encryption).await? != 0,
         })
     }

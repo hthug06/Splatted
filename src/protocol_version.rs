@@ -10,7 +10,6 @@ pub enum ProtocolVersion {
 
 impl ProtocolVersion {
     /// Create a ProtocolVersion from a real procotol version
-    /// the real protocol version is stocked inside
     pub fn from_protocol_version(protocol_version: u32) -> Result<ProtocolVersion, Error> {
         match protocol_version {
             28..=29 => Ok(ProtocolVersion::V1_2),
