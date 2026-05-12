@@ -29,10 +29,10 @@ Go in the folder where your Splatted program is, open a terminal and use the fol
 
 ## Roadmap
 - [x] Get the server infos like in the multiplayer section of a real client
-- [x] Good structure to read / send packet
-- [x] Connect 1 single bot (pls)
+- [x] Good structure to read / send a packet
+- [x] Connect one single bot (pls)
 - [x] Send bots to a server and make them disconnect
-- [ ] Make version 1.2.5 to 1.6.4 work
+- [x] Make version 1.2.5 to 1.6.4 work
 
 ## Other
 Thx [tetram](https://github.com/tetram2674562) ur the goat :)
