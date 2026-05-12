@@ -1,3 +1,5 @@
+pub mod attach_state;
+pub mod attribute_key;
 pub mod destroy_stage;
 pub mod dimension_type;
 pub mod entity_animation;

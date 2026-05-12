@@ -54,6 +54,7 @@ impl ServerPacket for MapChunksPacket {
         // The sky light is implemented in 1.4
         let sky_light_sent = if protocol_version == ProtocolVersion::V1_4
             || protocol_version == ProtocolVersion::V1_5
+            || protocol_version == ProtocolVersion::V1_6
         {
             Some(MinecraftReadExt::read_i8(reader, encryption).await? != 0)
         }

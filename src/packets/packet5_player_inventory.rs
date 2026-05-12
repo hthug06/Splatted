@@ -30,6 +30,7 @@ impl ServerPacket for PlayerInventoryPacket {
         let item = if protocol_version == ProtocolVersion::V1_3
             || protocol_version == ProtocolVersion::V1_4
             || protocol_version == ProtocolVersion::V1_5
+            || protocol_version == ProtocolVersion::V1_6
         {
             // In 1.3, they created a function to parse the ItemStack
             ItemStack::read(reader, encryption).await?

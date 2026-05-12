@@ -59,6 +59,7 @@ impl EntityMetadata {
                     // From 1.4, they use itemstack.read
                     if protocol_version == ProtocolVersion::V1_4
                         || protocol_version == ProtocolVersion::V1_5
+                        || protocol_version == ProtocolVersion::V1_6
                     {
                         MetadataValue::Item(ItemStack::read(reader, encryption).await?)
                     }

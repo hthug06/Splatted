@@ -40,6 +40,7 @@ impl ServerPacket for PlayerAbilitiesPacket {
             else if protocol_version == ProtocolVersion::V1_3
                 || protocol_version == ProtocolVersion::V1_4
                 || protocol_version == ProtocolVersion::V1_5
+                || protocol_version == ProtocolVersion::V1_6
             {
                 let abilities_byte: u8 = reader.read_u8(encryption).await?;
 
@@ -49,12 +50,21 @@ impl ServerPacket for PlayerAbilitiesPacket {
                 let creative_mode = (abilities_byte & 8) > 0;
 
 
-                // These value are not precise
-                // for exemple, 0.05 for the server is 0.047058824 for us
-                // Mojang change these later, but for now, we need to keep it
-                // (Also it cause desync sometime, but it's okay lol)
-                let fly_speed: f32 = (reader.read_u8(encryption).await? as f32) / 255.0;
-                let walk_speed: f32 = (reader.read_u8(encryption).await? as f32) / 255.0;
+
+                let (fly_speed, walk_speed) = if protocol_version == ProtocolVersion::V1_6 {
+                    // In 1.6, Mojang now use 'Float' (f32) to read these values and be more precise !
+                    let fly_speed: f32 = reader.read_f32(encryption).await?;
+                    let walk_speed: f32 = reader.read_f32(encryption).await?;
+                    (fly_speed, walk_speed)
+                } else {
+                    // These value are not precise
+                    // for exemple, 0.05 for the server is 0.047058824 for us
+                    // Mojang change these later, but for now, we need to keep it
+                    // (Also it cause desync sometime, but it's okay lol)
+                    let fly_speed: f32 = (reader.read_u8(encryption).await? as f32) / 255.0;
+                    let walk_speed: f32 = (reader.read_u8(encryption).await? as f32) / 255.0;
+                    (fly_speed, walk_speed)
+                };
 
                 (disable_damage, is_flying, allow_flying, creative_mode, Some(fly_speed), Some(walk_speed))
             }

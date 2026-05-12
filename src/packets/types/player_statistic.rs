@@ -14,12 +14,13 @@ pub enum PlayerStatistic {
     PigOneCm,      // 1012
     Jump,          // 1013
     Drop,          // 1014
+    HorseOneCm,    // 1015 (1.6+)
     DamageDealt,   // 2020
     DamageTaken,   // 2021
     Deaths,        // 2022
     MobKills,      // 2023
     PlayerKills,   // 2024
-    FishCaught,    // 2025
+    FishCaught,    // 2025 (1.5+)
 
     // These a 'weird' stats
     // These stats are calculated. You get a big number, and the stat is calculated with an offset.
@@ -50,6 +51,7 @@ impl PlayerStatistic {
             1012 => PlayerStatistic::PigOneCm,
             1013 => PlayerStatistic::Jump,
             1014 => PlayerStatistic::Drop,
+            1015 => PlayerStatistic::HorseOneCm,
             2020 => PlayerStatistic::DamageDealt,
             2021 => PlayerStatistic::DamageTaken,
             2022 => PlayerStatistic::Deaths,

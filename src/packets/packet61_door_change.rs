@@ -38,9 +38,10 @@ impl ServerPacket for DoorChangePacket {
         let z = reader.read_i32(encryption).await?;
         let aux_data = reader.read_i32(encryption).await?;
 
-        // From 1.4
+        // 1.4+
         let broadcast = if protocol_version == ProtocolVersion::V1_4
             || protocol_version == ProtocolVersion::V1_5
+            || protocol_version == ProtocolVersion::V1_6
         {
             Some(reader.read_u8(encryption).await? != 0)
         }

@@ -23,6 +23,7 @@ impl ServerPacket for UpdateTimePacket {
     {
         let (world_age, time_of_day) = if protocol_version == ProtocolVersion::V1_4
             || protocol_version == ProtocolVersion::V1_5
+            || protocol_version == ProtocolVersion::V1_6
         {
             let world_age = reader.read_i64(encryption).await?;
             let time_of_day = reader.read_i64(encryption).await?;
