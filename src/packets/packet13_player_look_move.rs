@@ -1,6 +1,7 @@
 use crate::network::connection::Encryption;
 use crate::packets::io::{MinecraftReadExt, MinecraftWriteExt};
 use crate::packets::packet_trait::{ClientPacket, ServerPacket};
+use crate::protocol_version::ProtocolVersion;
 use bytes::{BufMut, BytesMut};
 use std::io::Error;
 use tokio::io::BufReader;
@@ -20,25 +21,29 @@ impl ServerPacket for PlayerLookMovePacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
+        _protocol_version: ProtocolVersion,
     ) -> Result<Self, Error>
     where
         Self: Sized,
     {
-        // Reverse the y and stance when reading (idk why Notch did this)
         Ok(Self {
             x: reader.read_f64(encryption).await?,
-            stance: reader.read_f64(encryption).await?,
             y: reader.read_f64(encryption).await?,
+            stance: reader.read_f64(encryption).await?,
             z: reader.read_f64(encryption).await?,
             yaw: reader.read_f32(encryption).await?,
             pitch: reader.read_f32(encryption).await?,
-            on_ground: reader.read_u8(encryption).await? != 0,
+            on_ground: reader.read_u8(encryption).await? != 0, // Flatten Flying Packet
         })
     }
 }
 
 impl ClientPacket for PlayerLookMovePacket {
-    fn write_to(&self, buffer: &mut BytesMut) -> Result<(), Error> {
+    fn write_to(
+        &self,
+        buffer: &mut BytesMut,
+        _protocol_version: ProtocolVersion,
+    ) -> Result<(), Error> {
         buffer.put_u8(13); // packet id
 
         // packet data

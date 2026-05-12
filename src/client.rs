@@ -2,10 +2,12 @@ use crate::network::connection::Encryption;
 use crate::packets::InboundPacket;
 use crate::packets::InboundPacket::*;
 use crate::packets::packet_trait::ClientPacket;
-use crate::packets::packet2_client_protocol::ClientProtocolPacket;
+use crate::packets::packet1_login::LoginPacket;
+use crate::packets::packet2_client_protocol::ClientHandshakePacket;
 use crate::packets::packet205_client_command::ClientCommandPacket;
 use crate::packets::packet252_shared_key::SharedKeyPacket;
 use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;
+use crate::protocol_version::ProtocolVersion;
 use bytes::BytesMut;
 use std::io::{Error, ErrorKind};
 use std::net::SocketAddr;
@@ -15,6 +17,10 @@ use tokio::net::tcp::OwnedWriteHalf;
 
 pub struct Client {
     username: String,
+    /// The EXACT protocol (ex: 51 for 1.4.7)
+    exact_protocol: u8,
+    /// Because we try to be multi-version, we need to have the protocol to handle packet differently
+    protocol_version: ProtocolVersion,
     /// Here, we only take a writer because the reader will always be active in the connect function.
     /// Also, we use an option because we're only going to connect the client in the connect function.
     writer: Option<OwnedWriteHalf>,
@@ -27,9 +33,11 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new(username: &str) -> Client {
+    pub fn new(username: &str, protocol_version: u8) -> Self {
         Self {
             username: username.to_string(),
+            exact_protocol: protocol_version,
+            protocol_version: ProtocolVersion::from_protocol_version(protocol_version as u32).expect("Failed to get the protocol version from the protocol version number. This is a bug, please report it on the github repository."),
             writer: None,
             encryption: Encryption::new(),
             write_buffer: BytesMut::new(),
@@ -62,37 +70,55 @@ impl Client {
         self.writer = Some(writer);
 
         //After this, we can send the first packet
-        // this packet contain the protocol version of the client (51 in 1.4.7)
+        // this packet contains the protocol version of the client (51 in 1.4.7)
         // the username, the address and port of the server
-        let handshake = ClientProtocolPacket::new(51, &self.username, host, port);
+        let handshake = ClientHandshakePacket::new(self.exact_protocol, &self.username, host, port);
         self.send_packet(handshake).await?;
 
         loop {
             // Read the id and decrypt everything
-            let packet =
-                match InboundPacket::read_from_stream(&mut reader, &mut self.encryption).await {
-                    Ok(p) => p,
-                    Err(e) => {
-                        if e.kind() == ErrorKind::UnexpectedEof {
-                            log::error!(
-                                "[{}] Server dead for more than 30 seconds or stopped ",
-                                self.username
-                            );
-                            break;
-                        }
-                        log::error!("[{}] Broken stream or disconnected : {}", self.username, e);
+            let packet = match InboundPacket::read_from_stream(
+                &mut reader,
+                &mut self.encryption,
+                self.protocol_version,
+            )
+            .await
+            {
+                Ok(p) => p,
+                Err(e) => {
+                    if e.kind() == ErrorKind::UnexpectedEof {
+                        log::error!(
+                            "[{}] Server dead for more than 30 seconds or stopped : {}",
+                            self.username,
+                            e
+                        );
                         break;
                     }
-                };
+                    log::error!("[{}] Broken stream or disconnected : {}", self.username, e);
+                    break;
+                }
+            };
 
             // handle the packet
             // Sorted alphabetically
             match packet {
-                CustomPayload(custom_payload) => {
-                    log::info!("Custom payload packet received: {:?}", custom_payload);
-                }
                 KeepAlive(keep_alive_packet) => {
                     self.send_packet(keep_alive_packet).await?;
+                }
+                ServerHandshake(_client_protocol_packet) => {
+                    // We only need to answer on version 1.2
+                    // On other versions, will send the server auth data packet (253)
+                    let default_packet = LoginPacket::default();
+                    let packet = LoginPacket {
+                        // protocol version and username need to be exact
+                        protocol_version: Some(self.exact_protocol as i32),
+                        username: Some(self.username.clone()),
+
+                        // The rest, we need to send it, but it's useless
+                        ..default_packet
+                    };
+
+                    self.send_packet(packet).await?;
                 }
                 PlayerLookMove(mut player_look_move) => {
                     // Resend the same packet
@@ -113,10 +139,9 @@ impl Client {
 
     /// Send a packet to the network instantly
     pub async fn send_packet(&mut self, packet: impl ClientPacket) -> std::io::Result<()> {
-        // let mut buffer: Vec<u8> = Vec::new();
         self.write_buffer.clear();
         packet
-            .write_to(&mut self.write_buffer)
+            .write_to(&mut self.write_buffer, self.protocol_version)
             .map_err(|e| Error::new(ErrorKind::InvalidData, e))?;
 
         // Fill the buffer with the packet data

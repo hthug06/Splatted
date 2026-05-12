@@ -1,27 +1,55 @@
 use crate::network::connection::Encryption;
-use crate::packets::io::MinecraftReadExt;
-use crate::packets::packet_trait::ServerPacket;
+use crate::packets::io::{MinecraftReadExt, MinecraftWriteExt};
+use crate::packets::packet_trait::{ClientPacket, ServerPacket};
 use crate::packets::types::dimension_type::DimensionType;
 use crate::packets::types::game_type::GameType;
 use crate::packets::types::world_type::WorldType;
+use crate::protocol_version::ProtocolVersion;
+use bytes::{BufMut, BytesMut};
 use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
 pub struct LoginPacket {
-    client_id: i32,
-    terrain_type: WorldType,
+    /// implemented in 1.3
+    pub client_id: Option<i32>,
+    /// For 1.2
+    pub protocol_version: Option<i32>,
+    /// For 1.2
+    pub username: Option<String>,
+    pub terrain_type: WorldType,
     /// true = server in hardcore mode
-    hardcore: bool,
-    game_type: GameType,
+    /// Not in 1.2
+    pub hardcore: Option<bool>,
+    pub game_type: GameType,
     /// -1: The Nether, 0: The Overworld, 1: The End
-    dimension: DimensionType,
+    pub dimension: DimensionType,
     /// 0: Peaceful, 1: Easy, 2: Normal, 3: Hard
-    difficulty: i8,
-    /// not used in 1.4.7, but need to be parsed
-    world_height: i8,
-    /// not used in 1.4.7, but need to be parsed
-    max_players: i8,
+    pub difficulty: i8,
+    /// not used in 1.4.7, but need to be parsed for 1.2
+    pub world_height: u8,
+    /// not used in 1.4.7, but need to be parsed for 1.2
+    pub max_players: u8,
+}
+
+impl Default for LoginPacket {
+    fn default() -> Self {
+        Self {
+            // protocol version and username need to be exact
+            protocol_version: Some(0),
+            username: Some("".to_string()),
+
+            // The rest, we need to send it but it's useless
+            terrain_type: WorldType::Default,
+            game_type: GameType::Survival,
+            dimension: DimensionType::Overworld,
+            difficulty: 0,
+            world_height: 0,
+            max_players: 0,
+            client_id: None,
+            hardcore: None,
+        }
+    }
 }
 
 impl ServerPacket for LoginPacket {
@@ -30,31 +58,68 @@ impl ServerPacket for LoginPacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
+        protocol_version: ProtocolVersion,
     ) -> Result<Self, Error>
     where
         Self: Sized,
     {
-        let client_id = reader.read_i32(encryption).await?;
+        // 1.2 only
+        let (packet_protocol_version, username) = if protocol_version == ProtocolVersion::V1_2 {
+            let packet_protocol_version = reader.read_i32(encryption).await?;
+            let username = reader.read_string(encryption).await?;
+            (Some(packet_protocol_version), Some(username))
+        } else {
+            (None, None)
+        };
 
+        // 1.3 +
+        let client_id = if protocol_version == ProtocolVersion::V1_3
+            || protocol_version == ProtocolVersion::V1_4
+            || protocol_version == ProtocolVersion::V1_5
+            || protocol_version == ProtocolVersion::V1_6
+        {
+            Some(reader.read_i32(encryption).await?)
+        } else {
+            None
+        };
+
+        // Common
         let terrain_type_string = reader.read_string(encryption).await?;
         let terrain_type = WorldType::parse(&terrain_type_string);
 
-        let hardcore_and_game_type_byte = reader.read_i8(encryption).await?;
-        let hardcore = (hardcore_and_game_type_byte) == 8;
+        // from 1.3, hardcore + game_type packed in one byte
+        let (hardcore, game_type, dimension_id) = if protocol_version == ProtocolVersion::V1_3
+            || protocol_version == ProtocolVersion::V1_4
+            || protocol_version == ProtocolVersion::V1_5
+            || protocol_version == ProtocolVersion::V1_6
+        {
+            // Little trick from the forge source code to save bandwidth
+            let byte = reader.read_i8(encryption).await?;
+            let hardcore = (byte & 8) == 8;
+            let game_type = GameType::from_id(byte & 7);
+            let dimension_id = reader.read_i8(encryption).await?;
+            (Some(hardcore), game_type, dimension_id)
+        }
+        // 1.2:   game_type as standalone i32
+        else if protocol_version == ProtocolVersion::V1_2 {
+            let game_type = GameType::from_id(reader.read_i32(encryption).await? as i8);
+            let dimension_id = reader.read_i32(encryption).await? as i8;
+            (None, game_type, dimension_id)
+        }
+        // Other Version
+        else {
+            (None, GameType::Survival, 0)
+        };
 
-        // Little trick from the forge source code to save bandwidth (yes)
-        let game_type_id = hardcore_and_game_type_byte & 7;
-        let game_type = GameType::from_id(game_type_id).unwrap_or(GameType::Survival);
-
-        let dimension_id = reader.read_i8(encryption).await?;
         let dimension = DimensionType::from_id(dimension_id);
-
         let difficulty = reader.read_i8(encryption).await?;
-        let world_height = reader.read_i8(encryption).await?; // useless now but we need to parse it...
-        let max_players = reader.read_i8(encryption).await?; // no the max player is not 255 lol
+        let world_height = reader.read_u8(encryption).await?; // Need to parse it for 1.2
+        let max_players = reader.read_u8(encryption).await?; // no the max player is not 127 lol
 
         Ok(Self {
             client_id,
+            protocol_version: packet_protocol_version,
+            username,
             terrain_type,
             hardcore,
             game_type,
@@ -63,5 +128,49 @@ impl ServerPacket for LoginPacket {
             world_height,
             max_players,
         })
+    }
+}
+
+impl ClientPacket for LoginPacket {
+    fn write_to(
+        &self,
+        buffer: &mut BytesMut,
+        protocol_version: ProtocolVersion,
+    ) -> Result<(), Error> {
+        // Only for 1.2, the client cannot send a LoginPacket (0x01) in versions higher than 1.2. Use ClientCommandPacket (205) instead.
+        if protocol_version != ProtocolVersion::V1_2 {
+            return Err(Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "The client cannot send a LoginPacket (0x01) in versions higher than 1.2. Use ClientCommandPacket (205) instead.",
+            ));
+        }
+
+        let username = self.username.as_ref().ok_or_else(|| {
+            Error::new(
+                std::io::ErrorKind::InvalidData,
+                "Username is required to send a LoginPacket",
+            )
+        })?;
+
+        let packet_protocol_version = self.protocol_version.ok_or_else(|| {
+            Error::new(
+                std::io::ErrorKind::InvalidData,
+                "Protocol version is required for LoginPacket",
+            )
+        })?;
+
+        // Now write in the buffer
+        buffer.put_u8(0x01); // Packet ID
+
+        buffer.put_i32(packet_protocol_version);
+        buffer.write_string(username)?;
+        buffer.write_string(&self.terrain_type.name())?; // Terrain Type
+        buffer.put_i32(self.game_type.id()); // Server Mode
+        buffer.put_i32(self.dimension.id() as i32); // Dimension
+        buffer.put_i8(self.difficulty); // Difficulty
+        buffer.put_u8(self.world_height); // World Height
+        buffer.put_u8(self.max_players); // Max Players
+
+        Ok(())
     }
 }

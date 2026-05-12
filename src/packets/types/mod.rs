@@ -1,3 +1,5 @@
+pub mod attach_state;
+pub mod attribute_key;
 pub mod destroy_stage;
 pub mod dimension_type;
 pub mod entity_animation;
@@ -6,7 +8,6 @@ pub mod entity_status;
 pub mod entity_type;
 pub mod event_type;
 pub mod game_type;
-pub mod instrument_type;
 pub mod itemstack;
 pub mod nbt_tag_compound;
 pub mod player_statistic;

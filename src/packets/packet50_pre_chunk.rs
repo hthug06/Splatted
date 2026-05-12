@@ -6,11 +6,15 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-pub struct EntityPacket {
-    pub entity_id: i32,
+/// Only in 1.2
+pub struct PreChunkPacket {
+    pub x: i32,
+    /// In the mc code, it's called "y", but z is more logical here
+    pub z: i32,
+    pub mode: bool,
 }
 
-impl ServerPacket for EntityPacket {
+impl ServerPacket for PreChunkPacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
@@ -20,7 +24,9 @@ impl ServerPacket for EntityPacket {
         Self: Sized,
     {
         Ok(Self {
-            entity_id: reader.read_i32(encryption).await?,
+            x: reader.read_i32(encryption).await?,
+            z: reader.read_i32(encryption).await?,
+            mode: reader.read_u8(encryption).await? != 0,
         })
     }
 }

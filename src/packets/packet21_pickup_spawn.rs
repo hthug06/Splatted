@@ -7,16 +7,20 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-pub struct RelEntityMoveLookPacket {
+pub struct PickupSpawnPacket {
     pub entity: EntityPacket,
-    pub x: i8,
-    pub y: i8,
-    pub z: i8,
-    pub yaw: i8,
+    pub item: i16,
+    pub count: i8,
+    pub item_damage: i16,
+    pub x: i32,
+    pub y: i32,
+    pub z: i32,
+    pub rotation: i8,
     pub pitch: i8,
+    pub roll: i8,
 }
 
-impl ServerPacket for RelEntityMoveLookPacket {
+impl ServerPacket for PickupSpawnPacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
@@ -27,11 +31,15 @@ impl ServerPacket for RelEntityMoveLookPacket {
     {
         Ok(Self {
             entity: EntityPacket::read(reader, encryption, protocol_version).await?,
-            x: reader.read_i8(encryption).await?,
-            y: reader.read_i8(encryption).await?,
-            z: reader.read_i8(encryption).await?,
-            yaw: reader.read_i8(encryption).await?,
+            item: reader.read_i16(encryption).await?,
+            count: reader.read_i8(encryption).await?,
+            item_damage: reader.read_i16(encryption).await?,
+            x: reader.read_i32(encryption).await?,
+            y: reader.read_i32(encryption).await?,
+            z: reader.read_i32(encryption).await?,
+            rotation: reader.read_i8(encryption).await?,
             pitch: reader.read_i8(encryption).await?,
+            roll: reader.read_i8(encryption).await?,
         })
     }
 }
