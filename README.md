@@ -22,9 +22,9 @@ Go in the folder where your Splatted program is, open a terminal and use the fol
 | Arguments          |  Short   | Default           |                                                                       Description                                                                       |
 |--------------------|:--------:|-------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | ```--address```    |    -     | **Required**      |                                                                The server IP or hostname                                                                |
-| ```--port```       | ```-p``` | ```25565```       |                                                                  The target server port                                                                 |
+| ```--port```       | ```-p``` | ```25565```       |                                                                 The target server port                                                                  |
 | ```--info```       | ```-i``` | ``` false```      |                                                    See like in the server list of a minecraft client                                                    |
-| ```--bot_number``` | ```-b``` | ``` 10```         |                                                    The number of bots you want to send to the server                                                    |
+| ```--bot_number``` | ```-b``` | ``` 1```          |                                                    The number of bots you want to send to the server                                                    |
 | ```--protocol```   | ```-r``` | ``` 51 (1.4.7)``` | The protocol version of the minecraft server (click [here](https://minecraft.wiki/w/Protocol_version#Java_Edition_(pre-netty_rewrite)) and scroll down) |
 
 ## Roadmap

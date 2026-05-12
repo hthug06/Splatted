@@ -38,7 +38,7 @@ pub struct Args {
     #[arg(short, default_value_t = false)]
     info: bool,
 
-    #[arg(long, short, default_value_t = 10)]
+    #[arg(long, short, default_value_t = 1)]
     bot_number: u32,
 
     #[arg(long, short = 'r', default_value_t = 51)]
@@ -56,7 +56,7 @@ async fn main() -> Result<(), Error> {
     )
     .expect("Failed to initialize logger");
 
-    info!("Starting Splatted");
+    info!("Starting Splatted v{}", env!("CARGO_PKG_VERSION"));
 
     // Get all the program arguments
     // mut because the protocol version can change later
@@ -64,6 +64,7 @@ async fn main() -> Result<(), Error> {
 
     // parse the address (address:port)
     let address: String = format!("{}:{}", args.address, args.port);
+    info!("Connecting {} bot(s) to {}", args.bot_number, address);
 
     // Get the info like in the server list
     if args.info {
