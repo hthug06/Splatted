@@ -29,6 +29,7 @@ impl ServerPacket for PlayerInventoryPacket {
         let slot = reader.read_i16(encryption).await?;
         let item = if protocol_version == ProtocolVersion::V1_3
             || protocol_version == ProtocolVersion::V1_4
+            || protocol_version == ProtocolVersion::V1_5
         {
             // In 1.3, they created a function to parse the ItemStack
             ItemStack::read(reader, encryption).await?
