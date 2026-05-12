@@ -52,13 +52,20 @@ impl ClientPacket for ClientHandshakePacket {
                 buffer.write_string(&self.server_hostname)?;
                 buffer.put_u32(self.server_port);
             }
-            _ => {
+            ProtocolVersion::V1_2 => {
                 // 1.2 server only want 1 big string
                 let combined_string = format!(
                     "{};{}:{}",
                     self.username, self.server_hostname, self.server_port
                 );
                 buffer.write_string(&combined_string)?;
+            }
+            // If another version is added later
+            _ => {
+                return Err(Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    "Invalid protocol version",
+                ));
             }
         }
 
