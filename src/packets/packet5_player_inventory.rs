@@ -1,6 +1,7 @@
 use crate::network::connection::Encryption;
 use crate::packets::io::MinecraftReadExt;
 use crate::packets::packet_trait::ServerPacket;
+use crate::packets::packet30_entity::EntityPacket;
 use crate::packets::types::itemstack::ItemStack;
 use crate::protocol_version::ProtocolVersion;
 use std::io::Error;
@@ -8,8 +9,8 @@ use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
 pub struct PlayerInventoryPacket {
-    /// Entity ID of the object.
-    pub entity_id: i32,
+    /// Entity of the object.
+    pub entity: EntityPacket,
     /// Equipment slot: 0=held, 1-4=armor slot
     pub slot: i16,
     pub item: Option<ItemStack>,
@@ -24,7 +25,7 @@ impl ServerPacket for PlayerInventoryPacket {
     where
         Self: Sized,
     {
-        let entity_id = reader.read_i32(encryption).await?;
+        let entity = EntityPacket::read(reader, encryption, protocol_version).await?;
         let slot = reader.read_i16(encryption).await?;
         let item = if protocol_version == ProtocolVersion::V1_3
             || protocol_version == ProtocolVersion::V1_4
@@ -41,10 +42,6 @@ impl ServerPacket for PlayerInventoryPacket {
             None
         };
 
-        Ok(Self {
-            entity_id,
-            slot,
-            item,
-        })
+        Ok(Self { entity, slot, item })
     }
 }
