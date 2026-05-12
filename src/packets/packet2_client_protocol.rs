@@ -43,7 +43,7 @@ impl ClientPacket for ClientHandshakePacket {
         // Add all the infos
         // Modify for future version
         match protocol_version {
-            ProtocolVersion::V1_4 => {
+            ProtocolVersion::V1_4 | ProtocolVersion::V1_3 => {
                 buffer.put_u8(self.protocol_version);
                 buffer.write_string(&self.username)?;
                 buffer.write_string(&self.server_hostname)?;

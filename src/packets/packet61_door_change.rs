@@ -19,7 +19,7 @@ pub struct DoorChangePacket {
     pub aux_data: i32,
     /// False: Local sound, decrease with the distance
     /// True: Everyone hear it, everywhere. Used for boss
-    /// Only in 1.4
+    /// Implemented in 1.4
     pub broadcast: Option<bool>,
 }
 
@@ -42,7 +42,7 @@ impl ServerPacket for DoorChangePacket {
         let broadcast = if protocol_version == ProtocolVersion::V1_4 {
             Some(reader.read_u8(encryption).await? != 0)
         }
-        // For 1.2 and other
+        // For 1.2 and 1.3
         else {
             None
         };

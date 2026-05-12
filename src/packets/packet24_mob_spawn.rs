@@ -18,11 +18,11 @@ pub struct MobSpawnPacket {
     yaw: i8,
     pitch: i8,
     head_yaw: i8,
-    /// Only for 1.4
+    /// Implemented in 1.3
     velocity_x: Option<i16>,
-    /// Only for 1.4
+    /// Implemented in 1.3
     velocity_y: Option<i16>,
-    /// Only for 1.4
+    /// Implemented in 1.3
     velocity_z: Option<i16>,
     metadata: EntityMetadata,
 }
@@ -46,7 +46,10 @@ impl ServerPacket for MobSpawnPacket {
         let pitch = reader.read_i8(encryption).await?;
         let head_yaw = reader.read_i8(encryption).await?;
 
-        let (velocity_x, velocity_y, velocity_z) = if protocol_version == ProtocolVersion::V1_4 {
+        // Implemented in 1.3
+        let (velocity_x, velocity_y, velocity_z) = if protocol_version == ProtocolVersion::V1_3
+            || protocol_version == ProtocolVersion::V1_4
+        {
             let velocity_x = reader.read_i16(encryption).await?;
             let velocity_y = reader.read_i16(encryption).await?;
             let velocity_z = reader.read_i16(encryption).await?;

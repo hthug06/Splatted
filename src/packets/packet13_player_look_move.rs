@@ -33,7 +33,7 @@ impl ServerPacket for PlayerLookMovePacket {
             z: reader.read_f64(encryption).await?,
             yaw: reader.read_f32(encryption).await?,
             pitch: reader.read_f32(encryption).await?,
-            on_ground: reader.read_u8(encryption).await? != 0,
+            on_ground: reader.read_u8(encryption).await? != 0, // Flatten Fluing Packet
         })
     }
 }

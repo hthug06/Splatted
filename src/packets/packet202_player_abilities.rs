@@ -36,8 +36,10 @@ impl ServerPacket for PlayerAbilitiesPacket {
 
                 (disable_damage, is_flying, allow_flying, creative_mode)
             }
-            // But in 1.4, It's more optimized
-            else if protocol_version == ProtocolVersion::V1_4 {
+            // But from 1.3, It's more optimized
+            else if protocol_version == ProtocolVersion::V1_3
+                || protocol_version == ProtocolVersion::V1_4
+            {
                 let abilities_byte: u8 = reader.read_u8(encryption).await?;
 
                 let disable_damage = (abilities_byte & 1) > 0;
@@ -52,7 +54,9 @@ impl ServerPacket for PlayerAbilitiesPacket {
                 (false, false, false, false)
             };
 
-        let (fly_speed, walk_speed) = if protocol_version == ProtocolVersion::V1_4 {
+        let (fly_speed, walk_speed) = if protocol_version == ProtocolVersion::V1_3
+            || protocol_version == ProtocolVersion::V1_4
+        {
             // These value are not precise
             // for exemple, 0.05 for the server is 0.047058824 for us
             // Mojang change these later, but for now, we need to keep it

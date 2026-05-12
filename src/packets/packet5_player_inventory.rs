@@ -26,8 +26,10 @@ impl ServerPacket for PlayerInventoryPacket {
     {
         let entity_id = reader.read_i32(encryption).await?;
         let slot = reader.read_i16(encryption).await?;
-        let item = if protocol_version == ProtocolVersion::V1_4 {
-            // In 1.4, they created a function to parse the ItemStack
+        let item = if protocol_version == ProtocolVersion::V1_3
+            || protocol_version == ProtocolVersion::V1_4
+        {
+            // In 1.3, they created a function to parse the ItemStack
             ItemStack::read(reader, encryption).await?
         } else if protocol_version == ProtocolVersion::V1_2 {
             // In 1.2, you get the itemId and the ItemDamage separately, and you have to create the ItemStack yourself

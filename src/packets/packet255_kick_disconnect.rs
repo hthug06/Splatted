@@ -113,7 +113,7 @@ impl ServerPingResponse {
             // First clean the \0
             let clean_reason = reason.split('\0').next().unwrap_or(reason);
             //Then the §
-            let parts: Vec<&str> = reason.split('§').collect();
+            let parts: Vec<&str> = clean_reason.split('§').collect();
             if parts.len() < 3 {
                 return Err(Error::new(
                     ErrorKind::InvalidData,

@@ -11,10 +11,11 @@ use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
 pub struct LoginPacket {
-    /// For 1.4.7
+    /// implemented in 1.3
     pub client_id: Option<i32>,
     /// For 1.2
     pub protocol_version: Option<i32>,
+    /// For 1.2
     pub username: Option<String>,
     pub terrain_type: WorldType,
     /// true = server in hardcore mode
@@ -71,8 +72,10 @@ impl ServerPacket for LoginPacket {
             (None, None)
         };
 
-        // 1.4.7 only
-        let client_id = if protocol_version == ProtocolVersion::V1_4 {
+        // 1.3 AND 1.4.7
+        let client_id = if protocol_version == ProtocolVersion::V1_3
+            || protocol_version == ProtocolVersion::V1_4
+        {
             Some(reader.read_i32(encryption).await?)
         } else {
             None
@@ -82,12 +85,14 @@ impl ServerPacket for LoginPacket {
         let terrain_type_string = reader.read_string(encryption).await?;
         let terrain_type = WorldType::parse(&terrain_type_string);
 
-        // 1.4.7: hardcore + game_type packed in one byte
-        let (hardcore, game_type, dimension_id) = if protocol_version == ProtocolVersion::V1_4 {
+        // 1.3 AND 1.4.7: hardcore + game_type packed in one byte
+        let (hardcore, game_type, dimension_id) = if protocol_version == ProtocolVersion::V1_4
+            || protocol_version == ProtocolVersion::V1_3
+        {
             // Little trick from the forge source code to save bandwidth
             let byte = reader.read_i8(encryption).await?;
-            let hardcore = (byte & 8) != 0; // bit 3
-            let game_type = GameType::from_id(byte & 7);
+            let hardcore = (byte & 8) == 8;
+            let game_type = GameType::from_id(byte & -9);
             let dimension_id = reader.read_i8(encryption).await?;
             (Some(hardcore), game_type, dimension_id)
         }

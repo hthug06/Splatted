@@ -26,13 +26,14 @@ impl ServerPacket for BlockChangePacket {
         let x = reader.read_i32(encryption).await?;
         let y = reader.read_u8(encryption).await?;
         let z = reader.read_i32(encryption).await?;
-        // 1.4
-        let block_id = if protocol_version == ProtocolVersion::V1_4 {
-            reader.read_i16(encryption).await?
-        }
-        // 1.2 and other
-        else {
+
+        // 1.2 don't have that much block so it's an u8
+        let block_id = if protocol_version == ProtocolVersion::V1_2 {
             reader.read_u8(encryption).await? as i16
+        }
+        // From 1.3, we can't read u8 anymore because there is more blocks
+        else {
+            reader.read_i16(encryption).await?
         };
         let metadata = reader.read_u8(encryption).await?;
 

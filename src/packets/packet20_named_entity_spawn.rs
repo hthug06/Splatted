@@ -18,7 +18,7 @@ pub struct NamedEntitySpawnPacket {
     pub rotation: i8,
     pub pitch: i8,
     pub current_item: Option<ItemStack>,
-    /// Only for 1.4
+    /// Implemented in 1.3
     pub metadata: Option<EntityMetadata>,
 }
 
@@ -40,7 +40,9 @@ impl ServerPacket for NamedEntitySpawnPacket {
         let pitch = reader.read_i8(encryption).await?;
         let current_item = ItemStack::new_simple(reader.read_i16(encryption).await?, None, None);
 
-        let metadata = if protocol_version == ProtocolVersion::V1_4 {
+        let metadata = if protocol_version == ProtocolVersion::V1_3
+            || protocol_version == ProtocolVersion::V1_4
+        {
             Some(EntityMetadata::read(reader, encryption, protocol_version).await?)
         } else {
             None

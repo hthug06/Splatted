@@ -9,7 +9,6 @@ use crate::packets::packet252_shared_key::SharedKeyPacket;
 use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;
 use crate::protocol_version::ProtocolVersion;
 use bytes::BytesMut;
-use log::info;
 use std::io::{Error, ErrorKind};
 use std::net::SocketAddr;
 use tokio::io::{AsyncWriteExt, BufReader};
