@@ -12,7 +12,7 @@ use tokio::net::tcp::OwnedReadHalf;
 // Because 1 chunk can be max 1 Mo, here considering modded server , 20 BIG chunk should be enough (20 Mo max)
 const MAX_METADATA_SIZE: i32 = 20_971_520;
 
-/// Implmeneted in 1.3
+/// Implemented in 1.3
 /// The packet MapChunk
 /// This packet contain:
 /// - The number of chunk sent

@@ -16,7 +16,7 @@ pub struct GameEventPacket {
     /// - 3: gamemode changed
     pub event_type: EventType,
 
-    /// Only when reason = 3
+    /// Always read from the stream; only meaningful when event_type is GameModeChanged (id=3)
     pub game_mode: GameType,
 }
 

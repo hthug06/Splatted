@@ -6,10 +6,10 @@ use std::io::Error;
 use tokio::io::BufReader;
 use tokio::net::tcp::OwnedReadHalf;
 
-///Officially named BlockAction
-/// Used for note block (instrument_type and pitch),
-/// Piston (first byte = retracted or not, second byte = direction)
-/// Chest (first byte = always 1, second byte define if the chest is open or closed)
+/// Officially named BlockAction
+/// Used for note blocks (`byte_1` = instrument type, `byte_2` = pitch),
+/// pistons (`byte_1` = retracted or not, `byte_2` = direction),
+/// and chests (`byte_1` = always 1, `byte_2` = whether the chest is open or closed).
 pub struct PlayNoteBlockPacket {
     pub x: i32,
     pub y: i16,
@@ -25,7 +25,7 @@ pub struct PlayNoteBlockPacket {
     /// - if the chest animation is opening or closing
     pub byte_2: u8,
     /// Implemented in 1.3
-    /// Look if this is a note bloc, a piston or a chest
+    /// Look if this is a note block, a piston or a chest
     pub block_id: Option<u16>,
 }
 
