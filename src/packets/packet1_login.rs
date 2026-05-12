@@ -135,38 +135,41 @@ impl ClientPacket for LoginPacket {
     fn write_to(
         &self,
         buffer: &mut BytesMut,
-        _protocol_version: ProtocolVersion,
+        protocol_version: ProtocolVersion,
     ) -> Result<(), Error> {
-        // ID of the packet
-        buffer.put_u8(0x01);
+        // Only for 1.2, the client cannot send a LoginPacket (0x01) in versions higher than 1.2. Use ClientCommandPacket (205) instead.
+        if protocol_version != ProtocolVersion::V1_2 {
+            return Err(Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "The client cannot send a LoginPacket (0x01) in versions higher than 1.2. Use ClientCommandPacket (205) instead.",
+            ));
+        }
 
-        // The packet is only received on 1.2, so it work 100%
-        let protocol_version = self.protocol_version.ok_or_else(|| {
+        let username = self.username.as_ref().ok_or_else(|| {
             Error::new(
                 std::io::ErrorKind::InvalidData,
-                "Protocol version is required for LoginPacket (not the right version)",
+                "Username is required to send a LoginPacket",
             )
         })?;
 
-        //The packet is send in 1.2
-        match ProtocolVersion::from_protocol_version(protocol_version as u32)? {
-            ProtocolVersion::V1_2 => {
-                buffer.put_i32(protocol_version);
-                buffer.write_string(&self.username.clone().unwrap())?;
+        let packet_protocol_version = self.protocol_version.ok_or_else(|| {
+            Error::new(
+                std::io::ErrorKind::InvalidData,
+                "Protocol version is required for LoginPacket",
+            )
+        })?;
 
-                // Useless data
-                buffer.write_string(&self.terrain_type.name())?; // Terrain Type
-                buffer.put_i32(self.game_type.id()); // Server Mode
-                buffer.put_i32(self.dimension.id() as i32); // Dimension
-                buffer.put_i8(self.difficulty); // Difficulty
-                buffer.put_u8(self.world_height); // World Height
-                buffer.put_u8(self.max_players); // Max Players
-            }
-            _ => {
-                // The packet is never send in 1.4
-                // Instead, the client status packet (ClientCommandPacket 205)
-            }
-        }
+        // Now write in the buffer
+        buffer.put_u8(0x01); // Packet ID
+
+        buffer.put_i32(packet_protocol_version);
+        buffer.write_string(username)?;
+        buffer.write_string(&self.terrain_type.name())?; // Terrain Type
+        buffer.put_i32(self.game_type.id()); // Server Mode
+        buffer.put_i32(self.dimension.id() as i32); // Dimension
+        buffer.put_i8(self.difficulty); // Difficulty
+        buffer.put_u8(self.world_height); // World Height
+        buffer.put_u8(self.max_players); // Max Players
 
         Ok(())
     }
