@@ -44,6 +44,7 @@ mod packet40_entity_metadata;
 mod packet41_entity_effect;
 mod packet42_remove_entity_effect;
 mod packet43_experience;
+mod packet44_update_attributes;
 mod packet4_update_time;
 mod packet50_pre_chunk;
 mod packet51_map_chunk;
@@ -62,6 +63,7 @@ mod packet71_weather;
 mod packet8_update_health;
 pub mod packet_trait;
 pub mod types;
+
 use crate::network::connection::Encryption;
 use crate::packets::InboundPacket::*;
 use crate::packets::packet_trait::ServerPacket;
@@ -95,6 +97,7 @@ use crate::packets::packet40_entity_metadata::EntityMetadataPacket;
 use crate::packets::packet41_entity_effect::EntityEffectPacket;
 use crate::packets::packet42_remove_entity_effect::RemoveEntityEffectPacket;
 use crate::packets::packet43_experience::ExperiencePacket;
+use crate::packets::packet44_update_attributes::UpdateAttributesPacket;
 use crate::packets::packet50_pre_chunk::PreChunkPacket;
 use crate::packets::packet51_map_chunk::MapChunkPacket;
 use crate::packets::packet52_multi_block_change::MultiBlockChangePacket;
@@ -176,6 +179,7 @@ pub enum InboundPacket {
     SpawnPosition(SpawnPositionPacket),
     Statistic(StatisticPacket),
     TileEntityData(TileEntityDataPacket),
+    UpdateAttributes(UpdateAttributesPacket),
     UpdateHealth(UpdateHealthPacket),
     UpdateSign(UpdateSignPacket),
     UpdateTime(UpdateTimePacket),
@@ -288,6 +292,9 @@ impl InboundPacket {
             )),
             43 => Ok(Experience(
                 ExperiencePacket::read(reader, encryption, protocol_version).await?,
+            )),
+            44 => Ok(UpdateAttributes(
+                UpdateAttributesPacket::read(reader, encryption, protocol_version).await?,
             )),
             50 => Ok(PreChunk(
                 PreChunkPacket::read(reader, encryption, protocol_version).await?,
