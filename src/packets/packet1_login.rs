@@ -92,7 +92,7 @@ impl ServerPacket for LoginPacket {
             // Little trick from the forge source code to save bandwidth
             let byte = reader.read_i8(encryption).await?;
             let hardcore = (byte & 8) == 8;
-            let game_type = GameType::from_id(byte & -9);
+            let game_type = GameType::from_id(byte & 7);
             let dimension_id = reader.read_i8(encryption).await?;
             (Some(hardcore), game_type, dimension_id)
         }
