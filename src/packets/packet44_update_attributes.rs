@@ -42,6 +42,15 @@ impl ServerPacket for UpdateAttributesPacket {
         // The entity of the packet
         let entity = EntityPacket::read(reader, encryption, _protocol_version).await?;
         let property_count = reader.read_i32(encryption).await?;
+
+        // 1024 property is already a lot...
+        if property_count < 0 || property_count > 1024 {
+            return Err(Error::new(
+                std::io::ErrorKind::InvalidData,
+                format!("Invalid property count: {}", property_count),
+            ));
+        }
+
         let mut properties = Vec::with_capacity(property_count as usize);
 
         // Add every property to the entity
@@ -52,6 +61,15 @@ impl ServerPacket for UpdateAttributesPacket {
 
             // Create a list of modifier (with a size)
             let modifier_count = reader.read_i16(encryption).await?;
+
+            // 1024 modifier for an entity is biig
+            if modifier_count < 0 || modifier_count > 1024 {
+                return Err(Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    format!("Invalid modifier count: {}", modifier_count),
+                ));
+            }
+
             let mut modifiers: Vec<AttributeModifier> = Vec::with_capacity(modifier_count as usize);
 
             // Change the value with a modifier
