@@ -44,8 +44,8 @@ impl ServerPacket for UpdateAttributesPacket {
         let property_count = reader.read_i32(encryption).await?;
         let mut properties = Vec::with_capacity(property_count as usize);
 
-        // add every properties to the entity
-        for i in 0..property_count {
+        // Add every property to the entity
+        for _ in 0..property_count {
             // key and base value of the attribute
             let key = reader.read_string(encryption).await?;
             let base_value = reader.read_f64(encryption).await?;
