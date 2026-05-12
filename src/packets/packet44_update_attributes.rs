@@ -34,13 +34,13 @@ impl ServerPacket for UpdateAttributesPacket {
     async fn read(
         reader: &mut BufReader<OwnedReadHalf>,
         encryption: &mut Encryption,
-        _protocol_version: ProtocolVersion,
+        protocol_version: ProtocolVersion,
     ) -> Result<Self, Error>
     where
         Self: Sized,
     {
         // The entity of the packet
-        let entity = EntityPacket::read(reader, encryption, _protocol_version).await?;
+        let entity = EntityPacket::read(reader, encryption, protocol_version).await?;
         let property_count = reader.read_i32(encryption).await?;
 
         // 1024 property is already a lot...
