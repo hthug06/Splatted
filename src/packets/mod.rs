@@ -194,7 +194,6 @@ impl InboundPacket {
     ) -> std::io::Result<Self> {
         // read packet id
         let packet_id = reader.read_u8(encryption).await?;
-        info!("packet id: {}", packet_id);
 
         // Match the id to handle the right packet
         match packet_id {
