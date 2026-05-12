@@ -43,6 +43,7 @@ impl ServerPacket for NamedEntitySpawnPacket {
         let metadata = if protocol_version == ProtocolVersion::V1_3
             || protocol_version == ProtocolVersion::V1_4
             || protocol_version == ProtocolVersion::V1_5
+            || protocol_version == ProtocolVersion::V1_6
         {
             Some(EntityMetadata::read(reader, encryption, protocol_version).await?)
         } else {

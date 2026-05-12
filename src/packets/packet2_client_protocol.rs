@@ -43,25 +43,22 @@ impl ClientPacket for ClientHandshakePacket {
         // Add all the infos
         // Modify for future version
         match protocol_version {
-            ProtocolVersion::V1_3 | ProtocolVersion::V1_4 | ProtocolVersion::V1_5 => {
+            ProtocolVersion::V1_3
+            | ProtocolVersion::V1_4
+            | ProtocolVersion::V1_5
+            | ProtocolVersion::V1_6 => {
                 buffer.put_u8(self.protocol_version);
                 buffer.write_string(&self.username)?;
                 buffer.write_string(&self.server_hostname)?;
                 buffer.put_u32(self.server_port);
             }
-            ProtocolVersion::V1_2 => {
+            _ => {
                 // 1.2 server only want 1 big string
                 let combined_string = format!(
                     "{};{}:{}",
                     self.username, self.server_hostname, self.server_port
                 );
                 buffer.write_string(&combined_string)?;
-            }
-            _ => {
-                return Err(Error::new(
-                    std::io::ErrorKind::InvalidInput,
-                    "Unsupported protocol version for handshake packet",
-                ));
             }
         }
 

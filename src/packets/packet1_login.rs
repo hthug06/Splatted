@@ -72,10 +72,11 @@ impl ServerPacket for LoginPacket {
             (None, None)
         };
 
-        // 1.3 AND 1.4.7
+        // 1.3 +
         let client_id = if protocol_version == ProtocolVersion::V1_3
             || protocol_version == ProtocolVersion::V1_4
             || protocol_version == ProtocolVersion::V1_5
+            || protocol_version == ProtocolVersion::V1_6
         {
             Some(reader.read_i32(encryption).await?)
         } else {
@@ -90,6 +91,7 @@ impl ServerPacket for LoginPacket {
         let (hardcore, game_type, dimension_id) = if protocol_version == ProtocolVersion::V1_3
             || protocol_version == ProtocolVersion::V1_4
             || protocol_version == ProtocolVersion::V1_5
+            || protocol_version == ProtocolVersion::V1_6
         {
             // Little trick from the forge source code to save bandwidth
             let byte = reader.read_i8(encryption).await?;

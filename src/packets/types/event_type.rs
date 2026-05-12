@@ -5,10 +5,13 @@
 /// - game mode changed
 /// - custom (in case of mod, plugin, errors...)
 pub enum EventType {
-    InvalidBed,
-    RainStarts,
-    RainStops,
-    GameModeChanged,
+    InvalidBed,      // 0
+    RainStarts,      // 1
+    RainStops,       // 2
+    GameModeChanged, // 3
+    EnterCredits,    // 4
+    DemoMessage,     // 5
+    ArrowHit,        // 6 (1.6+)
     Custom(i8),
 }
 
@@ -20,6 +23,9 @@ impl EventType {
             1 => EventType::RainStarts,
             2 => EventType::RainStops,
             3 => EventType::GameModeChanged,
+            4 => EventType::EnterCredits,
+            5 => EventType::DemoMessage,
+            6 => EventType::ArrowHit,
             _ => EventType::Custom(id),
         }
     }
@@ -31,6 +37,9 @@ impl EventType {
             Self::RainStarts => 1,
             Self::RainStops => 2,
             Self::GameModeChanged => 3,
+            Self::EnterCredits => 4,
+            Self::DemoMessage => 5,
+            Self::ArrowHit => 6,
             Self::Custom(v) => v,
         }
     }
@@ -42,6 +51,9 @@ impl EventType {
             Self::RainStarts => "Rain start",
             Self::RainStops => "Rain stop",
             Self::GameModeChanged => "Game mode changed",
+            Self::EnterCredits => "Enter credits",
+            Self::DemoMessage => "Demo message",
+            Self::ArrowHit => "Arrow hit",
             Self::Custom(_) => "custom",
         }
     }
