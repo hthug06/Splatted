@@ -19,6 +19,7 @@ pub enum PlayerStatistic {
     Deaths,        // 2022
     MobKills,      // 2023
     PlayerKills,   // 2024
+    FishCaught,    // 2025
 
     // These a 'weird' stats
     // These stats are calculated. You get a big number, and the stat is calculated with an offset.
@@ -54,12 +55,14 @@ impl PlayerStatistic {
             2022 => PlayerStatistic::Deaths,
             2023 => PlayerStatistic::MobKills,
             2024 => PlayerStatistic::PlayerKills,
+            2025 => PlayerStatistic::FishCaught,
 
             // it's cool because here we can use the 'id if id >= offset' to know which stat it is.
-            id if id >= 16973824 => PlayerStatistic::BreakItem((id - 16973824) as i16),
-            id if id >= 16908288 => PlayerStatistic::UseItem((id - 16908288) as i16),
-            id if id >= 16842752 => PlayerStatistic::MineBlock((id - 16842752) as i16),
-            id if id >= 16777216 => PlayerStatistic::CraftItem((id - 16777216) as i16),
+            // Using Hexadecimal makes the offset logic from Mojang perfectly visible!
+            id if id >= 0x1030000 => PlayerStatistic::BreakItem((id - 0x1030000) as i16),
+            id if id >= 0x1020000 => PlayerStatistic::UseItem((id - 0x1020000) as i16),
+            id if id >= 0x1010000 => PlayerStatistic::MineBlock((id - 0x1010000) as i16),
+            id if id >= 0x1000000 => PlayerStatistic::CraftItem((id - 0x1000000) as i16),
 
             other => PlayerStatistic::Unknown(other),
         }

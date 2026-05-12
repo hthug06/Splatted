@@ -62,7 +62,6 @@ mod packet71_weather;
 mod packet8_update_health;
 pub mod packet_trait;
 pub mod types;
-
 use crate::network::connection::Encryption;
 use crate::packets::InboundPacket::*;
 use crate::packets::packet_trait::ServerPacket;

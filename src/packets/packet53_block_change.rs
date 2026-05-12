@@ -31,7 +31,7 @@ impl ServerPacket for BlockChangePacket {
         let block_id = if protocol_version == ProtocolVersion::V1_2 {
             reader.read_u8(encryption).await? as i16
         }
-        // From 1.3, we can't read u8 anymore because there is more blocks
+        // From 1.3, we can't read u8 anymore because there is more blocks, so it's an i16
         else {
             reader.read_i16(encryption).await?
         };

@@ -49,6 +49,7 @@ impl ServerPacket for MobSpawnPacket {
         // Implemented in 1.3
         let (velocity_x, velocity_y, velocity_z) = if protocol_version == ProtocolVersion::V1_3
             || protocol_version == ProtocolVersion::V1_4
+            || protocol_version == ProtocolVersion::V1_5
         {
             let velocity_x = reader.read_i16(encryption).await?;
             let velocity_y = reader.read_i16(encryption).await?;

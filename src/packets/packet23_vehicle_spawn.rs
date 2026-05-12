@@ -40,7 +40,9 @@ impl ServerPacket for VehicleSpawnPacket {
         let z = reader.read_i32(encryption).await?;
 
         // Implemented in 1.4
-        let (yaw, pitch) = if protocol_version == ProtocolVersion::V1_4 {
+        let (yaw, pitch) = if protocol_version == ProtocolVersion::V1_4
+            || protocol_version == ProtocolVersion::V1_5
+        {
             let yaw = reader.read_i8(encryption).await?;
             let pitch = reader.read_i8(encryption).await?;
 
