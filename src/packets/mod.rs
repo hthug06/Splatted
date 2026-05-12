@@ -120,7 +120,6 @@ use crate::packets::packet253_server_auth_data::ServerAuthDataPacket;
 use crate::packets::packet255_kick_disconnect::KickDisconnectPacket;
 use crate::protocol_version::ProtocolVersion;
 use io::MinecraftReadExt;
-use log::info;
 use packet0_keep_alive::KeepAlivePacket;
 use std::io::{Error, ErrorKind};
 use tokio::io::BufReader;
