@@ -102,13 +102,11 @@ impl Client {
             // handle the packet
             // Sorted alphabetically
             match packet {
-                CustomPayload(custom_payload) => {
-                    log::info!("Custom payload packet received: {:?}", custom_payload);
-                }
                 KeepAlive(keep_alive_packet) => {
                     self.send_packet(keep_alive_packet).await?;
                 }
                 ClientProtocol(_client_protocol_packet) => {
+                    // for 1.2
                     let default_packet = LoginPacket::default();
                     let packet = LoginPacket {
                         // protocol version and username need to be exact
