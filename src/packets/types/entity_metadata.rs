@@ -56,7 +56,7 @@ impl EntityMetadata {
                 3 => MetadataValue::Float(reader.read_f32(encryption).await?),
                 4 => MetadataValue::String(reader.read_string(encryption).await?),
                 5 => {
-                    // In 1.4, they use itemstack.read
+                    // From 1.4, they use itemstack.read
                     if protocol_version == ProtocolVersion::V1_4
                         || protocol_version == ProtocolVersion::V1_5
                     {
