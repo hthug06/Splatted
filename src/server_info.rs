@@ -13,7 +13,7 @@ use tokio::net::TcpStream;
 pub struct ServerInfo;
 
 impl ServerInfo {
-    pub async fn infos(address: &String) -> Result<(), Error> {
+    pub async fn infos(address: &str) -> Result<(), Error> {
         // Connect to the server
         let stream = TcpStream::connect(address).await?;
 
